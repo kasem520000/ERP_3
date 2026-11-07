@@ -42,7 +42,11 @@ describe("migration manifest (MIGRATION_STRATEGY §1)", () => {
     // installment_lines + the treasury_allocations.note_id settle/restore
     // substrate + the cash_movements 'note' source kind + the four v2.0
     // CoA purposes + the RC-11 'NOTES' kind + the notification categories).
-    expect(files.at(-1)?.tag).toBe("0038_notes_installments");
+    // PHASE-028: 0039_budgeting (the budgeting module per DR-004/ED-04 —
+    // budgets + budget_lines with the BR-050 partial unique + the
+    // notifications 'budgeting' category + the six feature-key plan grants;
+    // NOT ledger documents — zero journal rules by construction).
+    expect(files.at(-1)?.tag).toBe("0039_budgeting");
   });
 
   it("journal entries mirror the manifest order (drizzle-kit manifest)", () => {

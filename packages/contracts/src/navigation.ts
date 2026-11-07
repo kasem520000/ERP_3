@@ -614,6 +614,24 @@ export const NAV_ITEMS: readonly NavItem[] = [
     archetype: "list-search",
     order: 70,
   },
+  // PHASE-028 (T9): budgets — the period-column planning grid. The v2.0
+  // registry row `accounting.budgets` (NAVIGATION_MODEL §1.1; ED-12):
+  // featureKey the exact FEATURE_CATALOG `budgeting.budgets` string;
+  // permission the exact seeded §3.13 viewer key. The register / workspace /
+  // import / reports surfaces navigate through the module route tree (the
+  // fixed-assets one-item-many-screens decision-8 precedent).
+  {
+    id: "accounting.budgets",
+    parentGroup: "accounting",
+    label: { ar: "الموازنات", en: "Budgets" },
+    icon: "bar-chart",
+    route: "/budgeting",
+    featureKey: "budgeting.budgets",
+    permission: "budgeting.budgets.view",
+    branchScoped: false,
+    archetype: "list-search",
+    order: 80,
+  },
   // purchasing group — PHASE-011 (T13-UI): the procure-to-pay chain.
   // Feature keys are the exact FEATURE_CATALOG §9 strings; permissions the
   // exact seeded matrix keys the purchasing controller enforces (matrix

@@ -4088,6 +4088,151 @@ export interface Dictionary {
   instErrPolicyInvalid: string;
   instErrLateFeeNotChargeable: string;
   instErrWaiveReason: string;
+
+  // -- PHASE-028 (budgeting): the period-column planning grid -------------------
+  // (the version register + the grid workspace + the lifecycle actions +
+  // consumption banners + the XLSX import wizard + the module report page;
+  // every string in BOTH locales. Nav label rides the registry (contracts
+  // NAV_ITEMS `accounting.budgets`); the navBudgets key below is the
+  // app-shell breadcrumb fallback, the navFixedAssets precedent.)
+
+  navBudgets: string;
+
+  // budgets register (§2 List+Search) + module tabs/reports
+  budgetsTitle: string;
+  budgetsNewTitle: string;
+  budgetsImportTitle: string;
+  budgetsImportLink: string;
+  budgetReportsTitle: string;
+  budgetReportsHint: string;
+  budgetReportsEmpty: string;
+  budgetsEmpty: string;
+  budgetsNewButton: string;
+  budgetsSearchPlaceholder: string;
+  budgetsAllStatuses: string;
+  budgetsFilterStatus: string;
+  budgetsFilterScope: string;
+  budgetsFilterYear: string;
+
+  // budget statuses (the BR-050 machine states) + scopes (§9 enums)
+  budgetStatusDraft: string;
+  budgetStatusPendingApproval: string;
+  budgetStatusActive: string;
+  budgetStatusRevised: string;
+  budgetStatusClosed: string;
+  budgetScopeAccounts: string;
+  budgetScopeCostCenters: string;
+  budgetScopeProjects: string;
+  budgetScopeBranches: string;
+
+  // register columns
+  budgetColCode: string;
+  budgetColName: string;
+  budgetColScope: string;
+  budgetColStatus: string;
+  budgetColYear: string;
+  budgetColRevision: string;
+  budgetColLines: string;
+  budgetColTotal: string;
+
+  // budget create (§3)
+  budgetFormName: string;
+  budgetFormNameAr: string;
+  budgetFormFiscalYear: string;
+  budgetFormScope: string;
+  budgetFormScopeHint: string;
+  budgetFormNote: string;
+  budgetFormNoteAr: string;
+  budgetFormSubmit: string;
+  budgetFormInvalid: string;
+  budgetFormCreatedToast: string;
+
+  // grid workspace (§4 variant — fiscal-period columns)
+  budgetGridTitle: string;
+  budgetGridDimension: string;
+  budgetGridRowTotal: string;
+  budgetGridPeriodTotals: string;
+  budgetGridYearTotal: string;
+  budgetGridAccount: string;
+  budgetGridAddLine: string;
+  budgetGridRemoveLine: string;
+  budgetGridSave: string;
+  budgetGridSavedToast: string;
+  budgetGridReadOnly: string;
+  budgetGridEmpty: string;
+  budgetLiveTotals: string;
+
+  // lifecycle actions (BR-050 + SoD)
+  budgetSubmit: string;
+  budgetApprove: string;
+  budgetActivate: string;
+  budgetSupersede: string;
+  budgetClose: string;
+  budgetSubmitToast: string;
+  budgetApproveToast: string;
+  budgetActivateToast: string;
+  budgetSupersedeToast: string;
+  budgetCloseToast: string;
+  budgetSupersedeHint: string;
+
+  // consumption banner (BR-051 — ADVISORY by default)
+  budgetConsumption: string;
+  budgetActual: string;
+  budgetVariance: string;
+  budgetOverBudget: string;
+  budgetAtOverBudget: string;
+  budgetAdvisoryNote: string;
+  budgetStaleWarning: string;
+  budgetComputedAt: string;
+  budgetConsumptionEmpty: string;
+
+  // XLSX import wizard (§9) + export
+  budgetImportChooseFile: string;
+  budgetImportFileRequired: string;
+  budgetImportFileTooLarge: string;
+  budgetImportBudgetRequired: string;
+  budgetImportNoDrafts: string;
+  budgetImportStepSetup: string;
+  budgetImportStepReview: string;
+  budgetImportDryRun: string;
+  budgetImportDryRunTitle: string;
+  budgetImportRowCount: string;
+  budgetImportValidRows: string;
+  budgetImportTotalsPreview: string;
+  budgetImportErrors: string;
+  budgetImportClean: string;
+  budgetImportCommit: string;
+  budgetImportCommitToast: string;
+  budgetImportRowCap: string;
+  budgetExportLabel: string;
+  budgetExportAr: string;
+  budgetExportEn: string;
+
+  // module reports (the budgeting.* registry family)
+  budgetReportVsActual: string;
+  budgetReportVarianceAnalysis: string;
+
+  // detail (§5): the supersede chain + stamps
+  budgetChainHistory: string;
+  budgetChainEmpty: string;
+  budgetSupersedes: string;
+  budgetSupersededBy: string;
+  budgetCreatedAt: string;
+
+  // budgets error pack (BR-050/051 + import failure codes → bilingual messages)
+  budgetErrImmutable: string;
+  budgetErrState: string;
+  budgetErrSelfApproval: string;
+  budgetErrActiveExists: string;
+  budgetErrPeriodMismatch: string;
+  budgetErrExceeded: string;
+  budgetErrNotApproved: string;
+  budgetErrScopeDimension: string;
+  budgetErrDuplicateLine: string;
+  budgetErrLineLimit: string;
+  budgetErrImportFormat: string;
+  budgetErrImportRowLimit: string;
+  budgetErrImportRow: string;
 }
 
 const ar: Dictionary = {
@@ -8195,6 +8340,136 @@ const ar: Dictionary = {
   instErrPolicyInvalid: "سياسة رسوم التأخير غير صالحة — راجع النسبة والحد وأيام السماح.",
   instErrLateFeeNotChargeable: "رسوم التأخير تُحتسب فقط على أقساط متأخرة غير محتسبة مسبقًا (G-28).",
   instErrWaiveReason: "سبب الإعفاء إلزامي (BR-049).",
+
+  // -- PHASE-028 (budgeting): the period-column planning grid ----------------
+  navBudgets: "الموازنات",
+
+  budgetsTitle: "الموازنات",
+  budgetsNewTitle: "موازنة جديدة",
+  budgetsImportTitle: "استيراد شبكة موازنة",
+  budgetsImportLink: "استيراد شبكة",
+  budgetReportsTitle: "تقارير الموازنات",
+  budgetReportsHint: "تقارير الموازنة مقابل الفعلي وتحليل الانحرافات (نطاق budgeting.*).",
+  budgetReportsEmpty: "لم تُسجَّل عقود تقارير لهذه الوحدة بعد — لن تُعرض قوائم مفبركة.",
+  budgetsEmpty: "لا موازنات مطابقة.",
+  budgetsNewButton: "موازنة جديدة",
+  budgetsSearchPlaceholder: "ابحث بالرمز أو الاسم…",
+  budgetsAllStatuses: "كل الحالات",
+  budgetsFilterStatus: "الحالة",
+  budgetsFilterScope: "النطاق",
+  budgetsFilterYear: "السنة المالية",
+
+  budgetStatusDraft: "مسودة",
+  budgetStatusPendingApproval: "بانتظار الاعتماد",
+  budgetStatusActive: "نشطة",
+  budgetStatusRevised: "معدَّلة (سبقتها نسخة أحدث)",
+  budgetStatusClosed: "مغلقة",
+  budgetScopeAccounts: "الحسابات",
+  budgetScopeCostCenters: "مراكز التكلفة",
+  budgetScopeProjects: "المشاريع",
+  budgetScopeBranches: "الفروع",
+
+  budgetColCode: "الرمز",
+  budgetColName: "الاسم",
+  budgetColScope: "النطاق",
+  budgetColStatus: "الحالة",
+  budgetColYear: "السنة المالية",
+  budgetColRevision: "المراجعة",
+  budgetColLines: "البنود",
+  budgetColTotal: "الإجمالي السنوي",
+
+  budgetFormName: "الاسم (EN)",
+  budgetFormNameAr: "الاسم (AR)",
+  budgetFormFiscalYear: "السنة المالية",
+  budgetFormScope: "النطاق",
+  budgetFormScopeHint:
+    "النطاق مرشِّح لا مسار: تحدد المحركات الأربع نفسها؛ النطاق يحدد البُعد الاختياري الذي تُجمَّع حسبه بنود الشبكة.",
+  budgetFormNote: "ملاحظة (EN)",
+  budgetFormNoteAr: "ملاحظة (AR)",
+  budgetFormSubmit: "إنشاء الموازنة (مسودة)",
+  budgetFormInvalid: "بيانات غير صالحة — أكمل الحقول المطلوبة.",
+  budgetFormCreatedToast: "أُنشئت الموازنة {code} كمسودة — أدخل بنود الشبكة ثم أرسلها.",
+
+  budgetGridTitle: "شبكة الموازنة",
+  budgetGridDimension: "البُعد",
+  budgetGridRowTotal: "الإجمالي السنوي",
+  budgetGridPeriodTotals: "إجماليات الفترات",
+  budgetGridYearTotal: "الإجمالي السنوي",
+  budgetGridAccount: "الحساب",
+  budgetGridAddLine: "إضافة بند",
+  budgetGridRemoveLine: "إزالة البند",
+  budgetGridSave: "حفظ الشبكة",
+  budgetGridSavedToast: "حُفظت الشبكة — {lines} بندًا، الإجمالي السنوي {total}.",
+  budgetGridReadOnly: "الشبكة للقراءة فقط — التعديل في حالة المسودة حصرًا (BR-050).",
+  budgetGridEmpty: "لا بنود موازنة بعد — أضف بندًا أو استورد شبكة.",
+  budgetLiveTotals: "الإجماليات المباشرة",
+
+  budgetSubmit: "إرسال للاعتماد",
+  budgetApprove: "اعتماد",
+  budgetActivate: "تنشيط",
+  budgetSupersede: "إنشاء نسخة معدَّلة",
+  budgetClose: "إغلاق",
+  budgetSubmitToast: "أُرسلت الموازنة للاعتماد (BR-050).",
+  budgetApproveToast: "وُضع ختم الاعتماد — يمكن التنشيط الآن.",
+  budgetActivateToast: "نُشِّطت الموازنة — النسخة السابقة (إن وجدت) أصبحت معدَّلة.",
+  budgetSupersedeToast: "أُنشئت نسخة مسودة جديدة تنسخ بنود هذه الموازنة (BR-050).",
+  budgetCloseToast: "أُغلقت الموازنة — تبقى مقروءة للأبد.",
+  budgetSupersedeHint:
+    "الإنشاء المعدَّل ينسخ البنود إلى مسودة جديدة مرتبطة بسلسلة هذه النسخة؛ التعديل المباشر بعد المسودة ممنوع (BR-050).",
+
+  budgetConsumption: "الاستهلاك مقابل الفعلي",
+  budgetActual: "الفعلي",
+  budgetVariance: "الانحراف",
+  budgetOverBudget: "تجاوز الموازنة",
+  budgetAtOverBudget: "تجاوزت الفترة الموازنة المخصصة",
+  budgetAdvisoryNote: "الرقابة استشارية — لن يُمنع أي ترحيل",
+  budgetStaleWarning: "قد تكون البيانات قديمة",
+  budgetComputedAt: "آخر احتساب",
+  budgetConsumptionEmpty: "لا استهلاك مسجل بعد على بنود هذه الموازنة.",
+
+  budgetImportChooseFile: "اختيار ملف الشبكة (XLSX)",
+  budgetImportFileRequired: "اختر ملف XLSX أولًا.",
+  budgetImportFileTooLarge: "حجم الملف يتجاوز الحد المسموح (15 ميغابايت).",
+  budgetImportBudgetRequired: "اختر موازنة مسودة أولًا.",
+  budgetImportNoDrafts: "لا موازنات مسودة متاحة — أنشئ موازنة أولًا (الاستيراد يستبدل شبكة المسودة بالكامل).",
+  budgetImportStepSetup: "اختيار الموازنة والملف",
+  budgetImportStepReview: "تقرير الفحص المسبق",
+  budgetImportDryRun: "فحص مسبق (بدون كتابة)",
+  budgetImportDryRunTitle: "تقرير الفحص المسبق (Dry-run)",
+  budgetImportRowCount: "عدد الصفوف",
+  budgetImportValidRows: "الصفوف الصالحة",
+  budgetImportTotalsPreview: "إجمالي المعاينة",
+  budgetImportErrors: "أخطاء الصفوف",
+  budgetImportClean: "كل الصفوف صالحة — يمكن تنفيذ الاستيراد.",
+  budgetImportCommit: "تنفيذ الاستيراد (استبدال الشبكة)",
+  budgetImportCommitToast: "نُفِّذ الاستيراد — {lines} بندًا، الإجمالي السنوي {total}.",
+  budgetImportRowCap: "سقف الاستيراد 5,000 صف بيانات — قسِّم الملف حسب البُعد.",
+  budgetExportLabel: "تصدير الشبكة",
+  budgetExportAr: "تصدير (عربي)",
+  budgetExportEn: "تصدير (إنجليزي)",
+
+  budgetReportVsActual: "الموازنة مقابل الفعلي",
+  budgetReportVarianceAnalysis: "تحليل الانحرافات",
+
+  budgetChainHistory: "سلسلة النسخ",
+  budgetChainEmpty: "لا سلسلة تعديل — هذه النسخة الأصلية.",
+  budgetSupersedes: "تسبق",
+  budgetSupersededBy: "مسبوقة بـ",
+  budgetCreatedAt: "تاريخ الإنشاء",
+
+  budgetErrImmutable: "الموازنة ليست مسودة — تعديل البنود متاح للمسودات حصرًا؛ عدّل عبر نسخة معدَّلة (BR-050).",
+  budgetErrState: "هذا الانتقال غير قانوني من الحالة الحالية (آلة BR-050).",
+  budgetErrSelfApproval: "فصل المهام: منشئ الموازنة لا يعتمدها — يتطلب الختم معتمدًا مختلفًا (BR-034).",
+  budgetErrActiveExists: "توجد موازنة نشطة مسبقًا لنفس السنة والنطاق — أنشئ نسخة معدَّلة منها، لا تنشِّط موازنة موازية (BR-050).",
+  budgetErrPeriodMismatch: "الفترة لا تنتمي إلى السنة المالية لهذه الموازنة.",
+  budgetErrExceeded: "تجاوز الموازنة على فترات المستند — سياسة المنشأة ENFORCE_DRAFT (BR-051): عدّل الموازنة أو قلِّل المستند.",
+  budgetErrNotApproved: "لا ختم اعتماد — اعتمد الموازنة (بمعتمد مختلف) قبل التنشيط.",
+  budgetErrScopeDimension: "أبعاد البنود لا تطابق نطاق الموازنة — بُعد واحد بالضبط لكل نطاق، وبلا أبعاد لنطاق الحسابات.",
+  budgetErrDuplicateLine: "بند مكرر لنفس (الفترة × مفتاح البُعد) — صف واحد لكل فترة ومفتاح.",
+  budgetErrLineLimit: "الشبكة تتجاوز حد 20,000 بند — قسِّم الاستيراد حسب البُعد.",
+  budgetErrImportFormat: "الملف ليس شبكة موازنة — راجع أعمدة التعريف الثلاثة وأعمدة الفترات (تُقبل ترويسات عربية أو إنجليزية).",
+  budgetErrImportRowLimit: "الاستيراد يتجاوز سقف 5,000 صف بيانات — قسِّم الملف.",
+  budgetErrImportRow: "الملف يحمل صفوفًا غير صالحة — صحّحها وأعد الفحص المسبق.",
 };
 
 const en: Dictionary = {
@@ -12311,6 +12586,136 @@ const en: Dictionary = {
   instErrPolicyInvalid: "The late-fee policy is invalid — check the rate, cap and grace days.",
   instErrLateFeeNotChargeable: "Late fees post only on OVERDUE lines not already charged (G-28).",
   instErrWaiveReason: "A waive reason is required (BR-049).",
+
+  // -- PHASE-028 (budgeting): the period-column planning grid ----------------
+  navBudgets: "Budgets",
+
+  budgetsTitle: "Budgets",
+  budgetsNewTitle: "New budget",
+  budgetsImportTitle: "Import a budget grid",
+  budgetsImportLink: "Import grid",
+  budgetReportsTitle: "Budget reports",
+  budgetReportsHint: "The budget-vs-actual + variance report family (the budgeting.* scope).",
+  budgetReportsEmpty: "No report contracts registered for this module yet — no fabricated catalogs.",
+  budgetsEmpty: "No matching budgets.",
+  budgetsNewButton: "New budget",
+  budgetsSearchPlaceholder: "Search by code or name…",
+  budgetsAllStatuses: "All statuses",
+  budgetsFilterStatus: "Status",
+  budgetsFilterScope: "Scope",
+  budgetsFilterYear: "Fiscal year",
+
+  budgetStatusDraft: "Draft",
+  budgetStatusPendingApproval: "Pending approval",
+  budgetStatusActive: "Active",
+  budgetStatusRevised: "Revised (superseded)",
+  budgetStatusClosed: "Closed",
+  budgetScopeAccounts: "Accounts",
+  budgetScopeCostCenters: "Cost centers",
+  budgetScopeProjects: "Projects",
+  budgetScopeBranches: "Branches",
+
+  budgetColCode: "Code",
+  budgetColName: "Name",
+  budgetColScope: "Scope",
+  budgetColStatus: "Status",
+  budgetColYear: "Fiscal year",
+  budgetColRevision: "Revision",
+  budgetColLines: "Lines",
+  budgetColTotal: "Year total",
+
+  budgetFormName: "Name (EN)",
+  budgetFormNameAr: "Name (AR)",
+  budgetFormFiscalYear: "Fiscal year",
+  budgetFormScope: "Scope",
+  budgetFormScopeHint:
+    "Scope is a filter, not a fork — the four scopes share one engine; the scope only picks the optional dimension the grid groups by.",
+  budgetFormNote: "Note (EN)",
+  budgetFormNoteAr: "Note (AR)",
+  budgetFormSubmit: "Create budget (draft)",
+  budgetFormInvalid: "Invalid input — complete the required fields.",
+  budgetFormCreatedToast: "Budget {code} created as a draft — enter the grid lines then submit it.",
+
+  budgetGridTitle: "Budget grid",
+  budgetGridDimension: "Dimension",
+  budgetGridRowTotal: "Year total",
+  budgetGridPeriodTotals: "Period totals",
+  budgetGridYearTotal: "Year total",
+  budgetGridAccount: "Account",
+  budgetGridAddLine: "Add line",
+  budgetGridRemoveLine: "Remove line",
+  budgetGridSave: "Save grid",
+  budgetGridSavedToast: "Grid saved — {lines} lines, year total {total}.",
+  budgetGridReadOnly: "The grid is read-only — line edits are DRAFT-only (BR-050).",
+  budgetGridEmpty: "No budget lines yet — add a line or import a grid.",
+  budgetLiveTotals: "Live totals",
+
+  budgetSubmit: "Submit for approval",
+  budgetApprove: "Approve",
+  budgetActivate: "Activate",
+  budgetSupersede: "Create revision",
+  budgetClose: "Close",
+  budgetSubmitToast: "Budget submitted for approval (BR-050).",
+  budgetApproveToast: "Approval stamped — it can be activated now.",
+  budgetActivateToast: "Budget activated — the predecessor (if any) moved to revised.",
+  budgetSupersedeToast: "A fresh DRAFT revision was created copying this budget's lines (BR-050).",
+  budgetCloseToast: "Budget closed — it stays readable forever.",
+  budgetSupersedeHint:
+    "Supersede copies the lines into a new DRAFT linked to this version's chain; direct edits after draft are forbidden (BR-050).",
+
+  budgetConsumption: "Budget vs actual",
+  budgetActual: "Actual",
+  budgetVariance: "Variance",
+  budgetOverBudget: "Over budget",
+  budgetAtOverBudget: "A period exceeded its budget",
+  budgetAdvisoryNote: "Controls are advisory — no posting is ever blocked",
+  budgetStaleWarning: "Data may be stale",
+  budgetComputedAt: "Last computed",
+  budgetConsumptionEmpty: "No consumption recorded against this budget's lines yet.",
+
+  budgetImportChooseFile: "Choose the grid file (XLSX)",
+  budgetImportFileRequired: "Choose an XLSX file first.",
+  budgetImportFileTooLarge: "The file exceeds the allowed size (15 MB).",
+  budgetImportBudgetRequired: "Choose a draft budget first.",
+  budgetImportNoDrafts: "No draft budgets available — create a budget first (the import replaces the draft's grid whole).",
+  budgetImportStepSetup: "Choose budget + file",
+  budgetImportStepReview: "Dry-run report",
+  budgetImportDryRun: "Dry run (no writes)",
+  budgetImportDryRunTitle: "Dry-run report",
+  budgetImportRowCount: "Row count",
+  budgetImportValidRows: "Valid rows",
+  budgetImportTotalsPreview: "Totals preview",
+  budgetImportErrors: "Row errors",
+  budgetImportClean: "All rows valid — the import can be committed.",
+  budgetImportCommit: "Commit import (replace grid)",
+  budgetImportCommitToast: "Import committed — {lines} lines, year total {total}.",
+  budgetImportRowCap: "The import cap is 5,000 data rows — split the file per dimension.",
+  budgetExportLabel: "Export grid",
+  budgetExportAr: "Export (Arabic)",
+  budgetExportEn: "Export (English)",
+
+  budgetReportVsActual: "Budget vs actual",
+  budgetReportVarianceAnalysis: "Variance analysis",
+
+  budgetChainHistory: "Version chain",
+  budgetChainEmpty: "No revision chain — this is the original version.",
+  budgetSupersedes: "Supersedes",
+  budgetSupersededBy: "Superseded by",
+  budgetCreatedAt: "Created at",
+
+  budgetErrImmutable: "The budget is not a draft — line edits are DRAFT-only; revise via supersede (BR-050).",
+  budgetErrState: "This transition is not legal from the current status (the BR-050 machine).",
+  budgetErrSelfApproval: "Separation of duties: the budget's creator cannot approve it — the stamp needs a distinct approver (BR-034).",
+  budgetErrActiveExists: "An ACTIVE budget already exists for this fiscal year and scope — supersede it, never activate a sibling (BR-050).",
+  budgetErrPeriodMismatch: "The period does not belong to the budget's fiscal year.",
+  budgetErrExceeded: "Over budget on the document's periods — the tenant policy is ENFORCE_DRAFT (BR-051): revise the budget or reduce the document.",
+  budgetErrNotApproved: "No approval stamp — approve the budget (a distinct approver) before activating.",
+  budgetErrScopeDimension: "Line dimensions are inconsistent with the scope — exactly one dimension per scope, none for the ACCOUNTS scope.",
+  budgetErrDuplicateLine: "Duplicate grid line for the same (period × dimension key) — one row per period and key.",
+  budgetErrLineLimit: "The grid exceeds the 20,000-line bound — split the import per dimension.",
+  budgetErrImportFormat: "The file is not a budget grid — check the three identity columns + the period columns (AR or EN header sets accepted).",
+  budgetErrImportRowLimit: "The import exceeds the 5,000-data-row cap — split the file.",
+  budgetErrImportRow: "The file carries invalid rows — fix them and re-run the dry run.",
 };
 
 const dictionaries: Record<Locale, Dictionary> = { ar, en };

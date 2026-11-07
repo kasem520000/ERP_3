@@ -5550,3 +5550,100 @@ export const installmentLines = pgTable(
     index("ix_installment_lines_tenant_status_due").on(table.tenantId, table.status, table.dueDate),
   ],
 );
+
+// ---------------------------------------------------------------------------
+// PHASE-028 (migration 0039) — budgeting (DR-004/ED-04): versioned budgets
+// by fiscal year & scope with period-level amounts over account/cost-center/
+// project/branch dimensions. Budgets are NOT ledger documents — zero journal
+// rules, zero goldens, structurally ledger-incapable (the module reads the
+// GL for variance, never writes it; ADR-0007/INV-022).
+// ---------------------------------------------------------------------------
+
+/** Budget versions (T2 — BR-050): the version register — scope budget_scope
+ * §9 (ACCOUNTS/COST_CENTERS/PROJECTS/BRANCHES); revision_no counts the
+ * supersede chain (1 = original; the standard optimistic-lock "version"
+ * integer owns that column name); supersedes_id links a revision to its
+ * predecessor (same-(year,scope), service-validated); code is the
+ * tenant-scoped natural key BUD-<year>-<seq> (DATA_DICTIONARY §12 — no
+ * official numbers: planning data, not a document, ADR-0006). Lifecycle
+ * stamps with the shape CHECKs: approved_at is one-directional (approve()
+ * stamps it while status is still PENDING_APPROVAL — pre- and
+ * post-approval both live there); activated_at is bidirectional on
+ * ACTIVE/REVISED/CLOSED (the machine only ever sets REVISED/CLOSED from an
+ * ACTIVE row); closed_at on CLOSED. The BR-050 partial unique
+ * (one ACTIVE per tenant/year/scope) lives in the SQL — see
+ * uq_budgets_one_active. */
+export const budgets = pgTable(
+  "budgets",
+  {
+    ...standardColumns,
+    tenantId: uuid("tenant_id").notNull(),
+    createdBy: uuid("created_by"),
+    code: text("code").notNull(),
+    fiscalYearId: uuid("fiscal_year_id").notNull(),
+    scope: text("scope").notNull(),
+    name: text("name").notNull(),
+    nameAr: text("name_ar"),
+    revisionNo: integer("revision_no").notNull(),
+    status: text("status").notNull(),
+    supersedesId: uuid("supersedes_id"),
+    submittedAt: timestamp("submitted_at", { withTimezone: true, mode: "string" }),
+    submittedBy: uuid("submitted_by"),
+    approvedAt: timestamp("approved_at", { withTimezone: true, mode: "string" }),
+    approvedBy: uuid("approved_by"),
+    activatedAt: timestamp("activated_at", { withTimezone: true, mode: "string" }),
+    activatedBy: uuid("activated_by"),
+    closedAt: timestamp("closed_at", { withTimezone: true, mode: "string" }),
+    closedBy: uuid("closed_by"),
+    note: text("note"),
+    noteAr: text("note_ar"),
+  },
+  (table) => [
+    uniqueIndex("uq_budgets_id_tenant").on(table.id, table.tenantId),
+    index("ix_budgets_tenant_year_scope_status").on(
+      table.tenantId,
+      table.fiscalYearId,
+      table.scope,
+      table.status,
+    ),
+    index("ix_budgets_tenant_supersedes").on(table.tenantId, table.supersedesId),
+  ],
+);
+
+/** Budget lines (T3): the period grid — one row per (dimension key × fiscal
+ * period), amount 19,4 (ADR-0009) non-negative. account_id REQUIRED;
+ * cost_center/project/branch optional per scope (scope is a filter, not a
+ * fork). The period must belong to the parent budget's fiscal year
+ * (service-validated, BUDGET_PERIOD_MISMATCH). Mutable only while the
+ * parent is DRAFT (409 IMMUTABLE_DOCUMENT on non-DRAFT replace) —
+ * REVISED/CLOSED versions freeze rows at the version level. */
+export const budgetLines = pgTable(
+  "budget_lines",
+  {
+    ...standardColumns,
+    tenantId: uuid("tenant_id").notNull(),
+    createdBy: uuid("created_by"),
+    budgetId: uuid("budget_id").notNull(),
+    fiscalPeriodId: uuid("fiscal_period_id").notNull(),
+    accountId: uuid("account_id").notNull(),
+    costCenterId: uuid("cost_center_id"),
+    projectId: uuid("project_id"),
+    branchId: uuid("branch_id"),
+    amount: numeric("amount", { precision: 19, scale: 4 }).notNull(),
+  },
+  (table) => [
+    uniqueIndex("uq_budget_lines_id_tenant").on(table.id, table.tenantId),
+    index("ix_budget_lines_tenant_period_account").on(
+      table.tenantId,
+      table.fiscalPeriodId,
+      table.accountId,
+    ),
+    index("ix_budget_lines_tenant_budget").on(table.tenantId, table.budgetId),
+    index("ix_budget_lines_tenant_dimensions").on(
+      table.tenantId,
+      table.costCenterId,
+      table.projectId,
+      table.branchId,
+    ),
+  ],
+);

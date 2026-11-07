@@ -267,6 +267,13 @@
       "when": 1794050000000,
       "tag": "0038_notes_installments",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1794150000000,
+      "tag": "0039_budgeting",
+      "breakpoints": true
     }
   ]
 }

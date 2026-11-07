@@ -298,6 +298,14 @@ export const TENANT_TABLES_REGISTRY: readonly RegisteredTenantTable[] = [
   { table: "note_events", deleteGranted: true },
   { table: "installment_plans" },
   { table: "installment_lines", deleteGranted: true },
+  // PHASE-028 budgeting cluster (migration 0039): the versioned budget
+  // register + the period grid lines. budgets has NO delete grant (the
+  // version chain is audited history — REVISED/CLOSED stay readable for
+  // variance truth); budget_lines carries deleteGranted for the DRAFT
+  // bulk-replace path (the service never deletes a non-DRAFT parent's
+  // lines). Two tables — the auto-generated A-suite extends by +12.
+  { table: "budgets" },
+  { table: "budget_lines", deleteGranted: true },
 ];
 
 export const TENANT_TABLE_NAMES: readonly string[] = TENANT_TABLES_REGISTRY.map(

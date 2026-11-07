@@ -162,6 +162,15 @@ const FALLBACK_CRUMBS: Record<string, { group?: keyof Dictionary; label: keyof D
   "installments": { group: "navSales", label: "navInstallmentPlans" },
   "installments/new": { group: "navSales", label: "instNewTitle" },
   "installments/reports": { group: "navSales", label: "instReportsTitle" },
+  // -- PHASE-028 (T9): budgets (the period-column planning grid). The
+  // registry row `accounting.budgets` (contracts NAV_ITEMS) drives the
+  // sidebar; these fallbacks cover nav-fetch failure for the module's
+  // sub-surfaces (the support-sessions rule — crumbs only; the sidebar
+  // stays registry-driven).
+  "budgeting": { group: "navAccounting", label: "navBudgets" },
+  "budgeting/new": { group: "navAccounting", label: "budgetsNewTitle" },
+  "budgeting/import": { group: "navAccounting", label: "budgetsImportTitle" },
+  "budgeting/reports": { group: "navAccounting", label: "budgetReportsTitle" },
 };
 
 /**
@@ -213,6 +222,17 @@ function fallbackCrumbsFor(
   // PHASE-027 (wave F) — installment plan detail routes (installments/:id).
   if (pagePath.startsWith("installments/") && pagePath !== "installments/new" && pagePath !== "installments/reports") {
     return { groupLabel: d.navSales, label: d.navInstallmentPlans };
+  }
+  // PHASE-028 (T9) — budget detail routes (budgeting/:id): the module label
+  // is the honest leaf crumb (the notes/[id] rule; static module routes
+  // resolve via the exact map above).
+  if (
+    pagePath.startsWith("budgeting/") &&
+    pagePath !== "budgeting/new" &&
+    pagePath !== "budgeting/import" &&
+    pagePath !== "budgeting/reports"
+  ) {
+    return { groupLabel: d.navAccounting, label: d.navBudgets };
   }
   return undefined;
 }

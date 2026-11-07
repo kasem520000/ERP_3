@@ -109,6 +109,8 @@ import { notesAgingContract } from "./notes/aging.contract";
 import { notesDishonoredRegisterContract } from "./notes/dishonored-register.contract";
 import { installmentsScheduleContract } from "./installments/schedule.contract";
 import { installmentsAgingContract } from "./installments/aging.contract";
+import { budgetingBudgetVsActualContract } from "./budgeting/budget-vs-actual.contract";
+import { budgetingVarianceAnalysisContract } from "./budgeting/variance-analysis.contract";
 
 export const REPORT_CONTRACTS: readonly ReportContract[] = Object.freeze([
   // §1 financial statements
@@ -216,6 +218,14 @@ export const REPORT_CONTRACTS: readonly ReportContract[] = Object.freeze([
   notesDishonoredRegisterContract,
   installmentsScheduleContract,
   installmentsAgingContract,
+  // §9 financial depth — PHASE-028 rows (REPORT_CATALOG §9): the
+  // budgeting set — budget vs actual (the ACTIVE version baseline vs the
+  // dimension-grouped GL actuals per period, the budget-ledger-tie
+  // block-on-fail check folding to the trial balance) and the variance
+  // analysis (the period trend + top over/under lines + threshold
+  // highlighting, the same ledger tie)
+  budgetingBudgetVsActualContract,
+  budgetingVarianceAnalysisContract,
 ]);
 
 export { validateRegistry, registrySnapshot } from "./runtime";

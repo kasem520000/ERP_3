@@ -132,6 +132,76 @@ verdict rows live in
     labels + featureKeys; the `treasury.cheques` re-point and the PHASE-008/012
     pointers are in place (ED-03 chain closed).
 
+
+### PHASE-028 — Budgeting & Variance Control
+
+- **BR-050 enforced** at the DB AND service level: exactly one ACTIVE budget version
+  per (fiscal year, scope) — the partial unique `uq_budgets_one_active` rejects a
+  second ACTIVE insert outright; revisions supersede (a linked DRAFT with copied
+  lines, `supersedes_id` chain) and never edit; the predecessor flips ACTIVE → REVISED
+  only at the successor's activation, atomically; non-DRAFT budgets reject line edits
+  with 409 `IMMUTABLE_DOCUMENT`; closed budgets stay readable for variance history.
+- **BR-051 enforced**: controls are ADVISORY by default (an over-budget DRAFT-save
+  evaluation returns exactly one warning — notification + banner payload — and the
+  save proceeds); hard-block exists only via the explicit
+  `budgeting.controls.mode = ENFORCE_DRAFT` tenant policy, acts only at the
+  DRAFT-stage save step with the typed, audited `BUDGET_EXCEEDED` reason, and never
+  affects posted documents or the posting engine; both policy keys documented in the
+  settings schema with PLACEHOLDER defaults (OQ-002 family).
+- **The negative ledger proof**: after the full budgeting operation set,
+  `journal_entries`/`journal_lines` counts are byte-identical, zero `JournalSpec`
+  submissions ran (engine spy), and the module's store greps clean of any
+  journal-table write — budgets are structurally ledger-incapable (DR-004).
+- The variance engine reads actuals strictly read-only from the GL (dimension-grouped
+  shared query incl. the BRANCHES-via-source-document attribution with the honest
+  unattributed bucket); the worked example holds (budget 1,000.00, actual 750.00 in
+  period 4 ⇒ variance −250.00 / −25.0000%) and is as-of deterministic.
+- `budgeting.budget-vs-actual` + `budgeting.variance-analysis` registered per
+  REPORT_CONTRACT (registry 76→78) with the `budget-ledger-tie` block-on-fail
+  assertion folding to the trial balance; seeded drift ⇒ FAIL (export blocked).
+- XLSX import/export round-trips grids (19,4 exact), dry-run reports per-row typed
+  AR+EN errors with zero writes, row caps typed, idempotent per file hash (the honest
+  LRU + HTTP Idempotency-Key scope documented).
+- `budgets` + `budget_lines` tenant-owned + RLS + the isolation registry (A1–A10);
+  the S-04 spoof battery over foreign year/period/account/dimension/budget ids →
+  typed 404s with zero partial creation; the الموازنات / Budgets nav item renders
+  under المحاسبة / Accounting; the `PeriodGrid` pattern has a catalog row + AR+EN
+  baselines.
+
+**Acceptance criteria (objective) — copied at completion, 2026-11-08 (verbatim from
+[../implementation/phases/PHASE-028.md](../implementation/phases/PHASE-028.md) §6; the
+verdict rows live in
+[PHASE-028-COMPLETION.md](../implementation/phases/reports/PHASE-028-COMPLETION.md)):**
+
+1. `budgets` + `budget_lines` exist tenant-owned with RLS and pass the full isolation
+   registry suite (A1–A10, S-04, A7) with zero partial creation on foreign dimension
+   references.
+2. BR-050 is enforced at the database and service level: exactly one ACTIVE version
+   per (fiscal year, scope); revisions supersede via the chain and never edit an
+   ACTIVE version; non-DRAFT budgets are immutable.
+3. The approval lifecycle (DRAFT → PENDING_APPROVAL → ACTIVE → REVISED → CLOSED)
+   enforces `budgeting.budgets.approve` with SoD (creator cannot approve) and audits
+   every transition.
+4. The variance engine computes actuals read-only from GL read models: every
+   consumption figure ties to the trial balance (assertion-tested), and the suite's
+   negative proof shows zero journal-table writes and zero JournalSpec submissions
+   after the full run.
+5. `budgeting.budget-vs-actual` and `budgeting.variance-analysis` are registered per
+   REPORT_CONTRACT with provenance, permissions, as-of determinism, drill-down, and
+   export-blocked-on-assertion-failure behavior.
+6. BR-051 holds: controls are advisory by default; hard-block exists only via the
+   explicit `budgeting.controls.mode = ENFORCE_DRAFT` tenant policy, acts only at the
+   DRAFT-stage save/approval step with an audited reason, and never affects posted
+   documents or the posting engine; both policy keys are documented in the settings
+   schema with their PLACEHOLDER defaults.
+7. XLSX import/export round-trips grids exactly (19,4), is idempotent per file hash,
+   bounded by row caps, and handles Arabic headers.
+8. All §3.13 permissions enforce on their routes (generated checklist green); the SoD
+   approve key is audited on use.
+9. Every budgeting screen instantiates a sanctioned archetype with AR+EN baselines;
+   the `PeriodGrid` pattern has a catalog entry; the الموازنات / Budgets item renders
+   under المحاسبة per the nav resolution rule.
+
 ### PHASE-028 — Budgeting & Variance Control
 
 - **One ACTIVE budget version per (fiscal year, scope)** (BR-050); revisions supersede —

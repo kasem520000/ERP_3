@@ -1963,6 +1963,39 @@ async function seedFixtures(superuser: {
      ON CONFLICT (id) DO NOTHING`,
     [TENANT_A, TENANT_B],
   );
+  // PHASE-028 (migration 0039) — budgeting cluster: the 028-marked id block
+  // (e028028N budgets / f028028N lines × tenant 1/2). fiscal_year refs use
+  // the own-tenant fiscal_years fixture (c1c1c1c1), period refs the own-
+  // tenant fiscal_periods fixture (c2c2c2c2), account refs the own-tenant
+  // accounts fixture (b0b0b0b0) so the composite tenant FKs stay satisfied;
+  // lines point at the own-tenant budgets fixture.
+  await superuser.query(
+    `INSERT INTO budgets (id, tenant_id, code, fiscal_year_id, scope, name, name_ar,
+        revision_no, status)
+     VALUES
+       ('e0280281-0000-4000-8000-000000000001', $1, 'BUD-2026-1',
+        'c1c1c1c1-0000-4000-8000-000000000001', 'ACCOUNTS', 'FY2026 budget',
+        'موازنة 2026', 1, 'DRAFT'),
+       ('e0280281-0000-4000-8000-000000000002', $2, 'BUD-2026-1',
+        'c1c1c1c1-0000-4000-8000-000000000002', 'ACCOUNTS', 'FY2026 budget',
+        'موازنة 2026', 1, 'DRAFT')
+     ON CONFLICT (id) DO NOTHING`,
+    [TENANT_A, TENANT_B],
+  );
+  await superuser.query(
+    `INSERT INTO budget_lines (id, tenant_id, budget_id, fiscal_period_id, account_id, amount)
+     VALUES
+       ('f0280281-0000-4000-8000-000000000001', $1,
+        'e0280281-0000-4000-8000-000000000001',
+        'c2c2c2c2-0000-4000-8000-000000000001',
+        'b0b0b0b0-0000-4000-8000-000000000001', 1000),
+       ('f0280281-0000-4000-8000-000000000002', $2,
+        'e0280281-0000-4000-8000-000000000002',
+        'c2c2c2c2-0000-4000-8000-000000000002',
+        'b0b0b0b0-0000-4000-8000-000000000002', 1000)
+     ON CONFLICT (id) DO NOTHING`,
+    [TENANT_A, TENANT_B],
+  );
   // PHASE-027 (migration 0038) — notes & installments cluster: the 027-marked
   // id block (a027027N notes / b027027N events / c027027N plans / d027027N
   // lines × tenant 1/2). partner refs use the own-tenant partners fixture
@@ -2016,6 +2049,35 @@ async function seedFixtures(superuser: {
         'c0270271-0000-4000-8000-000000000001', 1, '2026-08-01', 1000, 'PENDING'),
        ('d0270271-0000-4000-8000-000000000002', $2,
         'c0270271-0000-4000-8000-000000000002', 1, '2026-08-01', 1000, 'PENDING')
+     ON CONFLICT (id) DO NOTHING`,
+    [TENANT_A, TENANT_B],
+  );
+  // PHASE-028 (migration 0039) — budgeting cluster (same 028-marked ids as
+  // the seed above; the B row doubles as the A4/A7 foreign probe target).
+  await superuser.query(
+    `INSERT INTO budgets (id, tenant_id, code, fiscal_year_id, scope, name, name_ar,
+        revision_no, status)
+     VALUES
+       ('e0280281-0000-4000-8000-000000000001', $1, 'BUD-2026-1',
+        'c1c1c1c1-0000-4000-8000-000000000001', 'ACCOUNTS', 'FY2026 budget',
+        'موازنة 2026', 1, 'DRAFT'),
+       ('e0280281-0000-4000-8000-000000000002', $2, 'BUD-2026-1',
+        'c1c1c1c1-0000-4000-8000-000000000002', 'ACCOUNTS', 'FY2026 budget',
+        'موازنة 2026', 1, 'DRAFT')
+     ON CONFLICT (id) DO NOTHING`,
+    [TENANT_A, TENANT_B],
+  );
+  await superuser.query(
+    `INSERT INTO budget_lines (id, tenant_id, budget_id, fiscal_period_id, account_id, amount)
+     VALUES
+       ('f0280281-0000-4000-8000-000000000001', $1,
+        'e0280281-0000-4000-8000-000000000001',
+        'c2c2c2c2-0000-4000-8000-000000000001',
+        'b0b0b0b0-0000-4000-8000-000000000001', 1000),
+       ('f0280281-0000-4000-8000-000000000002', $2,
+        'e0280281-0000-4000-8000-000000000002',
+        'c2c2c2c2-0000-4000-8000-000000000002',
+        'b0b0b0b0-0000-4000-8000-000000000002', 1000)
      ON CONFLICT (id) DO NOTHING`,
     [TENANT_A, TENANT_B],
   );
@@ -2436,6 +2498,13 @@ const OWN_ROW: Record<string, [string, string]> = {
   installment_lines: [
     "d0270271-0000-4000-8000-000000000001",
     "d0270271-0000-4000-8000-000000000002",
+  ],
+  // PHASE-028 (0039): the budgeting cluster — the B row doubles as the
+  // A4/A7 foreign probe target.
+  budgets: ["e0280281-0000-4000-8000-000000000001", "e0280281-0000-4000-8000-000000000002"],
+  budget_lines: [
+    "f0280281-0000-4000-8000-000000000001",
+    "f0280281-0000-4000-8000-000000000002",
   ],
 };
 
@@ -3016,6 +3085,20 @@ const MISMATCHED_INSERT: Record<string, string> = {
   installment_lines: `INSERT INTO installment_lines (id, tenant_id, plan_id, seq, due_date, amount, status)
      VALUES ('d0270271-3000-4000-8000-000000000003', $1,
        'c0270271-0000-4000-8000-000000000002', 1, '2026-08-01', 1000, 'PENDING')`,
+  // PHASE-028 (0039): the budgeting cluster — FKs reference tenant B's own
+  // fixtures (fiscal year c1c1c1c1…2, period c2c2c2c2…2, account b0b0b0b0…2,
+  // budget e0280281…2) so the composite tenant FKs stay satisfied and the
+  // RLS WITH CHECK is the isolated rejection.
+  budgets: `INSERT INTO budgets (id, tenant_id, code, fiscal_year_id, scope, name, name_ar,
+        revision_no, status)
+     VALUES ('e0280281-3000-4000-8000-000000000003', $1, 'BUD-2026-2',
+       'c1c1c1c1-0000-4000-8000-000000000002', 'ACCOUNTS', 'Attack budget',
+       'موازنة هجوم', 1, 'DRAFT')`,
+  budget_lines: `INSERT INTO budget_lines (id, tenant_id, budget_id, fiscal_period_id, account_id, amount)
+     VALUES ('f0280281-3000-4000-8000-000000000003', $1,
+       'e0280281-0000-4000-8000-000000000002',
+       'c2c2c2c2-0000-4000-8000-000000000002',
+       'b0b0b0b0-0000-4000-8000-000000000002', 1000)`,
 };
 
 beforeAll(async () => {

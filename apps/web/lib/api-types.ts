@@ -4132,3 +4132,140 @@ export interface LateFeeChargeResult {
   fee: string;
 }
 
+// ---------------------------------------------------------------------------
+// PHASE-028 wire types (GET/POST/PUT /budgeting/budgets…). Field names mirror
+// the module's store rows EXACTLY (camelCase as the API returns); money
+// values are canonical decimal strings (ADR-0009). Budgets post NOTHING —
+// every row below is planning data, never a ledger document.
+
+/** GET /budgeting/budgets → rows (the version register; BudgetSummaryRow). */
+export interface BudgetListRow {
+  id: string;
+  code: string;
+  fiscalYearId: string;
+  scope: "ACCOUNTS" | "COST_CENTERS" | "PROJECTS" | "BRANCHES";
+  name: string;
+  nameAr: string | null;
+  revisionNo: number;
+  status: "DRAFT" | "PENDING_APPROVAL" | "ACTIVE" | "REVISED" | "CLOSED";
+  supersedesId: string | null;
+  /** The SoD approval stamp (set while STILL PENDING_APPROVAL — BR-050). */
+  approvedAt: string | null;
+  lineCount: number;
+  yearTotal: string;
+  createdAt: string;
+}
+
+/** GET /budgeting/budgets/:id → data (the version + its supersede chain). */
+export interface BudgetDetailRow {
+  budget: BudgetListRow;
+  lineCount: number;
+  chain: readonly BudgetListRow[];
+}
+
+/** GET /budgeting/budgets/:id/grid → periods (the fiscal calendar rows). */
+export interface FiscalPeriodView {
+  id: string;
+  name: string;
+  nameAr: string | null;
+  startDate: string;
+  endDate: string;
+  status: string;
+}
+
+/** GET /budgeting/budgets/:id/grid → the account enrichment of each line. */
+export interface GridAccountView {
+  id: string;
+  code: string;
+  name: string;
+  nameAr: string | null;
+  type: string;
+}
+
+/** GET /budgeting/budgets/:id/grid → lines (BudgetLineRow + account view). */
+export interface BudgetLineView {
+  id: string;
+  budgetId: string;
+  fiscalPeriodId: string;
+  accountId: string;
+  costCenterId: string | null;
+  projectId: string | null;
+  branchId: string | null;
+  amount: string;
+  account: GridAccountView | null;
+}
+
+/** Grid totals (live row/period/year folds — exact 4dp strings). */
+export interface BudgetGridTotals {
+  year: string;
+  perPeriod: Record<string, string>;
+}
+
+/** GET /budgeting/budgets/:id/grid → data (budget + periods + lines + totals). */
+export interface BudgetGridResponse {
+  budget: BudgetListRow;
+  periods: readonly FiscalPeriodView[];
+  lines: readonly BudgetLineView[];
+  totals: BudgetGridTotals;
+}
+
+/** PUT /budgeting/budgets/:id/grid + import/commit → data. */
+export interface BudgetGridSaveResult {
+  lineCount: number;
+  totals: BudgetGridTotals;
+}
+
+/** One consumption banner key: the budget side vs the GL-derived actual. */
+export interface ConsumptionKeyRowView {
+  accountId: string;
+  costCenterId: string | null;
+  projectId: string | null;
+  branchId: string | null;
+  budget: string;
+  actual: string;
+  thresholdBudget: string;
+}
+
+/** GET /budgeting/budgets/:id/consumption → data (ADR-0008 TTL cache). */
+export interface ConsumptionResponse {
+  budgetId: string;
+  scope: string | null;
+  computedAt: string;
+  stale: boolean;
+  periods: readonly {
+    fiscalPeriodId: string;
+    name: string;
+    nameAr: string | null;
+    rows: readonly ConsumptionKeyRowView[];
+  }[];
+}
+
+/** POST /budgeting/budgets/:id/import/dry-run → data (zero writes). */
+export interface ImportDryRunResponse {
+  rowCount: number;
+  validRows: number;
+  errors: readonly { rowNo: number; messageAr: string; messageEn: string }[];
+  totalsPreview: string;
+}
+
+/** GET /budgeting/budgets/:id/export?locale=ar|en → data (module XLSX). */
+export interface ExportResponse {
+  filename: string;
+  mimeType: string;
+  fileBase64: string;
+  bytes: number;
+}
+
+/** POST /budgeting/control/evaluate → data (the BR-051 advisory guard). */
+export interface ControlEvaluationResult {
+  mode: "OFF" | "ADVISORY" | "ENFORCE_DRAFT";
+  warnings: readonly {
+    accountId: string;
+    periodId: string;
+    budgetId: string;
+    budgetAmount: string;
+    actualAmount: string;
+    projectedAmount: string;
+    percentUsed: string;
+  }[];
+}

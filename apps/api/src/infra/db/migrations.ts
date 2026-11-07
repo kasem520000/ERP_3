@@ -111,6 +111,15 @@ export const MIGRATIONS: readonly string[] = [
   // feature-key plan grants + the RC-11 'NOTES' kind + the notification
   // category widening).
   "0038_notes_installments",
+  // PHASE-028: 0039_budgeting.sql (the budgeting module per DR-004/ED-04
+  // option A: budgets + budget_lines — versioned budgets by fiscal year &
+  // scope with the BR-050 partial unique (one ACTIVE per tenant/year/scope)
+  // + period-level amounts over account/cost-center/project/branch
+  // dimensions; NOT ledger documents — zero journal rules, zero goldens,
+  // zero CoA purposes) + the notifications category widening ('budgeting')
+  // + the six §22 feature-key plan grants. §3.13 permissions pre-seeded in
+  // 0004/0005 (docs-as-contract — nothing to add, drift stays 245=245).
+  "0039_budgeting",
 ];
 
 /**

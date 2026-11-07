@@ -1,6 +1,6 @@
 # Current State
 
-> **Status:** LIVING DOCUMENT — updated at every phase completion · **Updated:** 2026-11-06
+> **Status:** LIVING DOCUMENT — updated at every phase completion · **Updated:** 2026-11-08
 
 What actually exists in this repository right now. Paired with
 [../planning/IMPLEMENTATION_STATUS.md](../planning/IMPLEMENTATION_STATUS.md) (phase
@@ -654,7 +654,12 @@ table) and [NEXT_ACTION.md](NEXT_ACTION.md).
   purge, rate limiting, the findings log) + PHASE-025 Performance, Reliability
   & GA Readiness (the GA release — 10× local load evidence T-01…T-08 ALL PASS,
   DR drills executed, SLOs/error budgets live, the GA checklist closed)
-  (migrations 0001–0036; the centralized posting engine with the full
+  + PHASE-026 Fixed Assets & Depreciation + PHASE-027 Cheques, Promissory
+  Notes & Installments + PHASE-028 Budgeting & Variance Control (the
+  planning layer over the ledger — versioned budgets with BR-050/BR-051,
+  the read-only variance engine, and the negative ledger proof that budgets
+  never write a journal)
+  (migrations 0001–0039; the centralized posting engine with the full
   invariant suite is live and proven by its consumers — treasury posts every
   money movement through it, tax stamps every tax-carrying line with frozen
   rate snapshots BR-033, inventory posts every stock movement through it

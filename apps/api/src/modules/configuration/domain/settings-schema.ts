@@ -412,6 +412,25 @@ export const SETTINGS_REGISTRY: Readonly<Record<string, SettingDefinition>> = Ob
     description:
       "PHASE-019 §4: when true, tagging a contract advance posts the reclass journal (DR AR control · CR DEFERRED_REVENUE, projectId-stamped) and posting a contract invoice releases it (DR DEFERRED · CR AR, allocated); false (platform default) keeps advances as plain on-account credits (BR-027 pure link-only).",
   }),
+  // PHASE-028 budgeting control keys (BR-051 — the advisory-by-default
+  // policy surface; DR-004 option A): mode ADVISORY (default) warns at/over
+  // budget on DRAFT-stage saves; ENFORCE_DRAFT is the explicit tenant
+  // opt-in that blocks ONLY the DRAFT save with a typed, audited
+  // BUDGET_EXCEEDED reason — never a posted document, never the engine.
+  "budgeting.controls.mode": Object.freeze({
+    key: "budgeting.controls.mode",
+    schema: z.enum(["ADVISORY", "ENFORCE_DRAFT"]),
+    default: "ADVISORY",
+    description:
+      "PHASE-028 BR-051: budget controls are advisory by default (over-budget DRAFT saves succeed with a warning); ENFORCE_DRAFT is the explicit hard-block opt-in — it applies only at the DRAFT-stage save/approval step with a typed, visible, audited BUDGET_EXCEEDED reason, never as a posting-engine side-effect.",
+  }),
+  "budgeting.controls.warn_threshold_percent": Object.freeze({
+    key: "budgeting.controls.warn_threshold_percent",
+    schema: z.number().int().min(1).max(1000),
+    default: 100,
+    description:
+      "PHASE-028 BR-051: the at/over-budget warning threshold in percent of the period line (100 = warn at parity; PLACEHOLDER default pending the OQ-002 pricing pass) — evaluation only, the ledger is never blocked by budgets.",
+  }),
 });
 
 export const SETTING_KEYS: readonly string[] = Object.keys(SETTINGS_REGISTRY);

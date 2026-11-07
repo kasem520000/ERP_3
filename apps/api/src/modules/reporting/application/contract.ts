@@ -40,7 +40,8 @@ export type DataSourceModule =
   | "crm" // PHASE-019: the CRM query surface (contract revenue schedule / time billing)
   | "fixed_assets" // PHASE-026: the fixed_assets query surface (asset register/schedule/movements)
   | "notes" // PHASE-027: the notes query surface (maturity calendar / aging / dishonored register)
-  | "installments"; // PHASE-027: the installments query surface (schedule / aging)
+  | "installments" // PHASE-027: the installments query surface (schedule / aging)
+  | "budgeting"; // PHASE-028: the budgeting query surface (budget vs actual / variance analysis)
 
 export interface DataSourceDecl {
   readonly module: DataSourceModule;
@@ -181,6 +182,15 @@ export interface ReportParams {
   readonly reason?: string;
   /** PHASE-027 (installments): the plan of `installments.schedule`. */
   readonly planId?: string;
+  /** PHASE-028 (budgeting): the explicit budget of the variance contracts
+   * (defaults to the ACTIVE version of (fiscalYearId, scope)). */
+  readonly budgetId?: string;
+  /** PHASE-028 (budgeting): the scope filter when no explicit budgetId
+   * (ACCOUNTS / COST_CENTERS / PROJECTS / BRANCHES). */
+  readonly scope?: string;
+  /** PHASE-028 (budgeting): the variance-analysis warning threshold (int
+   * percent — the highlighting cutoff, default 100). */
+  readonly thresholdPercent?: number;
   readonly customerId?: string;
   readonly supplierId?: string;
   readonly itemId?: string;

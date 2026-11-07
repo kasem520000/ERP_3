@@ -1,9 +1,30 @@
 # Changelog
 
-> **Status:** LIVING DOCUMENT — append-only, newest first · **Updated:** 2026-11-07
+> **Status:** LIVING DOCUMENT — append-only, newest first · **Updated:** 2026-11-08
 
 Format: `DATE — item — type` where type ∈ {BLUEPRINT, PHASE-NNN, DOCS, BREAKING-ARCH, DECISION}.
 
+- 2026-11-08 — **PHASE-028 — Budgeting & Variance Control (COMPLETE)**: migration
+  `0039_budgeting.sql` (schema_version 39) — two RLS'd tenant tables (`budgets` with the
+  BR-050 partial unique `uq_budgets_one_active` + the one-directional shape CHECKs +
+  the `revision_no`/`supersedes_id` chain; `budget_lines` the period grid over the four
+  scope dimensions) + the notifications category widening (`budgeting`) + the six §22
+  feature-key plan grants; §3.13 permissions were PRE-SEEDED in 0004/0005 (docs-as-
+  contract — drift stays 245=245). The `budgeting` module: the version machine with SoD
+  approval + the atomic supersede flip, the DRAFT-only grid bulk replace (409
+  IMMUTABLE_DOCUMENT), the read-only dimension-grouped consumption engine (BRANCHES via
+  the source-document LATERAL with the honest unattributed bucket; ADR-0008 cache),
+  the advisory-by-default control guard (BR-051 — ADVISORY warn-once / ENFORCE_DRAFT
+  typed audited BUDGET_EXCEEDED on the DRAFT save only) + the daily sweep, XLSX
+  import/export (exceljs RTL, dry-run per-row AR+EN errors, sha256 LRU idempotency),
+  two report contracts (registry 76→78 with the `budget-ledger-tie` block-on-fail
+  assertion), and the web screens + the `PeriodGrid` pattern (i18n +115/locale →
+  3,914=3,914). THE NEGATIVE LEDGER PROOF: journal counts byte-identical after the
+  full operation set + zero engine submissions + the structural grep — budgets are
+  structurally ledger-incapable (DR-004). Honest deferrals recorded (guard production
+  call-site wiring; import hash LRU scope; BRANCHES attribution story). Evidence:
+  [PHASE-028-COMPLETION.md](../implementation/phases/reports/PHASE-028-COMPLETION.md) —
+  PHASE-028
 - 2026-11-07 — **PHASE-027 — Cheques, Promissory Notes & Installments (IN PROGRESS —
   the build waves + the docs sync landed; the serial orchestrator gate — full DB suite
   re-run + completion report + commit — closes the phase; status flips COMPLETE only on

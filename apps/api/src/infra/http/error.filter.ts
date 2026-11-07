@@ -206,6 +206,24 @@ import {
   NotePartnerNotFoundError,
   NoteSourceInvalidError,
 } from "../../modules/notes/domain/notes-errors";
+// PHASE-028 (in-phase): the budgeting error taxonomy (T2 — registration
+// is expected in-phase per the SF-027-001 lesson): 404 not-founds (A7
+// parity — unknown == foreign ids, never an existence disclosure), 409
+// lifecycle conflicts (the state machine, SoD self-approval, DRAFT-only
+// grid immutability, the BR-050 one-ACTIVE race backstop); the 422
+// validation family (period mismatch, scope dimensions, line caps,
+// duplicate keys, BUDGET_EXCEEDED, import shape) falls through to the
+// 422 default by design.
+import {
+  BudgetActiveExistsError,
+  BudgetBranchNotFoundError,
+  BudgetCostCenterNotFoundError,
+  BudgetImmutableError,
+  BudgetNotFoundError,
+  BudgetNotApprovedError,
+  BudgetSelfApprovalError,
+  BudgetStateError,
+} from "../../modules/budgeting/domain/budgeting-errors";
 // SF-027-001 (the honest 026 gap repair): the fixed_assets error classes
 // were never registered in domainStatus (verified at 027 HEAD — they
 // surfaced over HTTP with the 422 fallback while the codes stayed typed at
@@ -536,6 +554,28 @@ function domainStatus(error: DomainError): number {
     return HttpStatus.NOT_FOUND;
   }
   if (error instanceof NoteAlreadyResolvedError) {
+    return HttpStatus.CONFLICT;
+  }
+  // PHASE-028 budgeting (T2 — 404/409; A7 parity: unknown == foreign
+  // budget/cost-center/branch ids, never an existence disclosure). The
+  // reused accounting not-founds (FiscalYear/Period/Account/Project) are
+  // registered above. The 422 family (period mismatch, scope dimensions,
+  // line caps, duplicate keys, BUDGET_EXCEEDED, import shape) falls
+  // through to the 422 default by design.
+  if (
+    error instanceof BudgetNotFoundError ||
+    error instanceof BudgetCostCenterNotFoundError ||
+    error instanceof BudgetBranchNotFoundError
+  ) {
+    return HttpStatus.NOT_FOUND;
+  }
+  if (
+    error instanceof BudgetStateError ||
+    error instanceof BudgetSelfApprovalError ||
+    error instanceof BudgetImmutableError ||
+    error instanceof BudgetNotApprovedError ||
+    error instanceof BudgetActiveExistsError
+  ) {
     return HttpStatus.CONFLICT;
   }
   // SF-027-001: the fixed_assets 404s + 409s (the policy/validation family

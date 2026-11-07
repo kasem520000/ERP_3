@@ -2117,3 +2117,75 @@ export function localizedInstallmentsError(
       return localizedApiError(d, error, retryAfterSeconds);
   }
 }
+
+// ---------------------------------------------------------------------------
+// PHASE-028 (budgeting): status/scope label maps + the module error pack.
+// ---------------------------------------------------------------------------
+
+/** Budget statuses (the BR-050 machine states; DATA_DICTIONARY §9). */
+export function localizedBudgetStatus(d: Dictionary, status: string): string {
+  const map: Record<string, string> = {
+    DRAFT: d.budgetStatusDraft,
+    PENDING_APPROVAL: d.budgetStatusPendingApproval,
+    ACTIVE: d.budgetStatusActive,
+    REVISED: d.budgetStatusRevised,
+    CLOSED: d.budgetStatusClosed,
+  };
+  return map[status] ?? status;
+}
+
+/** Budget scopes (§9 budget_scope enum — a filter, not a fork). */
+export function localizedBudgetScope(d: Dictionary, scope: string): string {
+  const map: Record<string, string> = {
+    ACCOUNTS: d.budgetScopeAccounts,
+    COST_CENTERS: d.budgetScopeCostCenters,
+    PROJECTS: d.budgetScopeProjects,
+    BRANCHES: d.budgetScopeBranches,
+  };
+  return map[scope] ?? scope;
+}
+
+/** Budgeting module error mapping (the BR-050/051 + import failure packs). */
+export function localizedBudgetsError(
+  d: Dictionary,
+  error: ApiErrorBody,
+  retryAfterSeconds?: number,
+): string {
+  switch (error.code) {
+    case "BUDGET_NOT_FOUND":
+    case "FISCAL_YEAR_NOT_FOUND":
+    case "ACCOUNT_NOT_FOUND":
+    case "COST_CENTER_NOT_FOUND":
+    case "PROJECT_NOT_FOUND":
+    case "BRANCH_NOT_FOUND":
+      return d.errorsNotFound;
+    case "BUDGET_STATE_INVALID":
+      return d.budgetErrState;
+    case "BUDGET_SELF_APPROVAL":
+      return d.budgetErrSelfApproval;
+    case "IMMUTABLE_DOCUMENT":
+      return d.budgetErrImmutable;
+    case "BUDGET_NOT_APPROVED":
+      return d.budgetErrNotApproved;
+    case "BUDGET_ACTIVE_EXISTS":
+      return d.budgetErrActiveExists;
+    case "BUDGET_PERIOD_MISMATCH":
+      return d.budgetErrPeriodMismatch;
+    case "BUDGET_SCOPE_DIMENSION":
+      return d.budgetErrScopeDimension;
+    case "BUDGET_LINE_LIMIT":
+      return d.budgetErrLineLimit;
+    case "BUDGET_DUPLICATE_LINE":
+      return d.budgetErrDuplicateLine;
+    case "BUDGET_EXCEEDED":
+      return d.budgetErrExceeded;
+    case "BUDGET_IMPORT_ROW_LIMIT":
+      return d.budgetErrImportRowLimit;
+    case "BUDGET_IMPORT_FORMAT":
+      return d.budgetErrImportFormat;
+    case "BUDGET_IMPORT_ROW":
+      return d.budgetErrImportRow;
+    default:
+      return localizedApiError(d, error, retryAfterSeconds);
+  }
+}

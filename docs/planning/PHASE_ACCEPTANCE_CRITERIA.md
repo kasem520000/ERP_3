@@ -1,6 +1,6 @@
 # Phase Acceptance Criteria
 
-> **Status:** STABLE · **Owner:** Platform Architecture · **Updated:** 2026-11-07
+> **Status:** STABLE · **Owner:** Platform Architecture · **Updated:** 2026-11-08
 
 Consolidated, objective acceptance criteria and exit gates per phase. The authoritative,
 expanded version lives in each phase document's sections 6–8 ("Verification",
@@ -236,6 +236,49 @@ verdict rows live in
   `payroll_runs`, `payroll_run_lines` 🔒, `employee_loans`, `employee_loan_lines`)
   tenant-owned + RLS + isolation attack tests.
 
+**Acceptance criteria (objective) — copied at completion, 2026-11-08 (verbatim from
+[../implementation/phases/PHASE-029.md](../implementation/phases/PHASE-029.md) §6; the
+verdict rows live in
+[PHASE-029-COMPLETION.md](../implementation/phases/reports/PHASE-029-COMPLETION.md) —
+the planning-docs flip was honestly deferred at 029 commit time and delivered with the
+PHASE-030 docs wave):**
+
+1. All seven tables exist tenant-owned with RLS and pass the isolation
+   registry suite (A1–A10, S-04, A7) including the PII-access attack rows, with
+   audit events on every restricted read and every export.
+2. BR-052 holds: runs require an ACTIVE structure; mid-period changes create a
+   new version; archived/used structures are never edited in place; run lines
+   freeze `component_snapshot`.
+3. G-29 posts exactly through the engine with line-level expected-vs-actual
+   asserts (worked example), official numbers (INV-021), cost-center/project
+   allocation on every line, and INV-013 idempotency per run.
+4. INV-025 is enforced and in the permanently-blocking CI suite: run totals
+   equal Σ lines and net = gross − deductions exactly; posted runs and their
+   lines are immutable (reversal-only).
+5. BR-053 holds: payroll-purpose accounts post only via runs (manual journals
+   rejected with `PAYROLL_ACCOUNT_ENGINE_ONLY`); no other code path can post
+   to them.
+6. Payouts execute as treasury payments with the G-30 shape, INV-019
+   consistency on the paying account, exact remainder tracking, and idempotency
+   per run.
+7. Loans enforce BR-054 (cap percent of net, default 25% PLACEHOLDER,
+   documented in the settings schema), recover through the tenant-mapped
+   control account (no new canonical purpose), and make every waive/write-off
+   an audited, reason-required action.
+8. EOS follows BR-055: accrual per tenant policy (disabled by default; no
+   shipped rates), G-31 settlement with the residual rule; the platform
+   contains no jurisdiction rate tables (grep-verifiable).
+9. The three reports are registered per REPORT_CONTRACT with provenance, GL
+   ledger-tie assertions, permission gating (employee detail requires
+   `payroll.employees.view`), and export-blocked-on-assertion-failure.
+10. All §3.14 permissions enforce on their routes (generated checklist green);
+    `payroll.runs.approve` is SoD-guarded and audited; role templates exclude
+    payroll reads from broad roles.
+11. Navigation group 10 الموظفون والرواتب / HR & Payroll renders with its four
+    items per the nav resolution rule; NAVIGATION_MODEL's group wording is 10
+    everywhere; every screen has AR+EN baselines with axe + keyboard journeys;
+    the payslip template prints RTL-correct in both locales.
+
 ### PHASE-030 — Wholesale & Electronics Templates
 
 - `manifest.wholesale.json` + `manifest.electronics.json` parse, schema-validate, and
@@ -251,6 +294,42 @@ verdict rows live in
   purchasing — every flagship key resolves to an existing module feature (no new core
   surface).
 - CAPABILITY_MATRIX gains WHL/ELC columns; every cell cites an existing feature or N/A.
+
+**Acceptance criteria (objective) — copied at completion, 2026-11-08 (verbatim from
+[../implementation/phases/PHASE-030.md](../implementation/phases/PHASE-030.md) §6; the
+verdict rows live in
+[PHASE-030-COMPLETION.md](../implementation/phases/reports/PHASE-030-COMPLETION.md)):**
+
+1. Both templates apply via the **unmodified PHASE-015 engine** — zero engine-code changes
+   in this phase's diff — and each passes all seven governance tests of
+   [../industries/README.md](../industries/README.md) §8, in AR and EN.
+2. Both manifests pass [../industries/README.md](../industries/README.md) §3 schema
+   validation in CI; ids are exactly `industry.wholesale` / `industry.electronics`,
+   version 1.0.0, registered in `industry_templates`.
+3. Feature-key resolution is fail-closed and proven by test: every required key resolves;
+   a missing OPTIONAL key hides cleanly; a missing REQUIRED key blocks onboarding with
+   actionable plan guidance; `notes.*` entries phase-gate per their
+   `available_from_phase` with the documented ordinary-receipts fallback pre-027.
+4. Switch safety is proven per BR-038 by test: apply a prior template → post documents →
+   switch/extend to each new template → zero data loss, explicit settings intact, series
+   append-only, archived capabilities read-only, audit diff recorded.
+5. The capability cross-check is green and CI-enforced: manifests ≡
+   [../industries/capabilities/CAPABILITY_MATRIX.md](../industries/capabilities/CAPABILITY_MATRIX.md)
+   §1 WHL/ELC columns, including the `pdc_notes`, `installment_terms`, `imei_tracking`,
+   and `job_cards` rows.
+6. Navigation patches obey [../ui/NAVIGATION_MODEL.md](../ui/NAVIGATION_MODEL.md): labels may
+   change, items may be added (bilingual, feature-key-gated, permission-resolving), core
+   items and group order never change — asserted across apply and switch.
+7. The negative ledger proof holds: zero journal rows and zero posting-rule changes from
+   any apply/switch/extend of either template (INV-022); all signature-workflow journals
+   match the existing goldens line-for-line.
+8. Report-pack wiring lands from existing keys only (no new report keys introduced by the
+   phase); every pinned report resolves in the registry and renders its GL tie-out where
+   monetary.
+9. All surfaced screens instantiate existing archetypes (zero new archetypes; zero new
+   API routes); the RTL visual set passes for both industry homes and signature screens.
+10. Docs validation is green, including the 34-phase document set and the 13-manifest
+    extraction (ED-17).
 
 ### PHASE-031 — Healthcare Commercial Shell
 

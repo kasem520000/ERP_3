@@ -4,6 +4,79 @@
 
 Format: `DATE — item — type` where type ∈ {BLUEPRINT, PHASE-NNN, DOCS, BREAKING-ARCH, DECISION}.
 
+- 2026-11-08 — **PHASE-030 — Wholesale & Electronics Templates (COMPLETE)**:
+  migration `0041_industry_wholesale_electronics.sql` (journal idx 40,
+  schema_version 41) — **DATA-ONLY**: the two `industry_templates` registry rows
+  at v1.0.0 (idempotent upsert on key; INV-022 = zero new
+  tables/columns/enums/journals/permissions/plan-grants — every REQUIRED key was
+  already granted: wholesale's notes chain by 0038, the electronics POS set by
+  0024, `crm.service_orders` by 0027). Contracts: `WHOLESALE_TEMPLATE_MANIFEST`
+  + `ELECTRONICS_TEMPLATE_MANIFEST` transcribed verbatim
+  (`SHIPPED_TEMPLATE_MANIFESTS` 7→9, `pnpm validate:manifests` 9/9); report pins
+  reconciled to the LIVE registry keys at every layer (partners.ar_aging →
+  ar.aging, inventory.stock_valuation → inventory.valuation — the 0025/0027
+  convention); NINE typed workflow-policy keys (no settingsKey mappings — the
+  automotive/distribution L1-default posture); CURRENT_SHIPPED_PHASE 028→030
+  (the 029 leg bookkeeping-only — no template capability rides payroll). Tests:
+  `templates-030.spec` 8/8 (clean apply ×2 with the KNOWN 0041 hashes, series,
+  pins, checklists, terminology AR+EN, derived navigation, policies; idempotent
+  re-apply; switch safety retail→wholesale and retail→electronics additive-only
+  with posted invoices byte-identical + series unions + read-only archives +
+  audited switches; degraded entitlement fail-closed with the typed
+  `TemplatePrerequisitesBlockedError` + grant-back recovery — activation is
+  entitlement state, never a manifest edit; L5-beats-L1; THE NEGATIVE LEDGER
+  PROOF — zero journal rows around every apply/switch/re-apply/grant-back) +
+  `capability-matrix-reconciliation.spec` 6 (manifests ≡ CAPABILITY_MATRIX §1
+  WHL/ELC columns, zero mismatches both directions; the 32-entry pre-existing
+  planned-vs-shipped delta frozen as KNOWN_DELTA — growing fails CI) +
+  `report-pack-wiring.spec` 4 (every pin resolves in the live 81-contract
+  registry; the pre-030 retail+grocery doc-spelling gap frozen as
+  KNOWN_PRE030_UNRESOLVED_PINS). Web: ZERO changes (the /settings/templates
+  screen + navigation terminology are data-driven — i18n 4,069=4,069 unchanged,
+  permissions 245=245). Honest notes: the two frozen snapshots, the
+  phase-gating interplay resolved by sequencing (notes at 027 before 030), T11's
+  UI composition reduced to zero code by the data-driven surfaces, the
+  workflow-smoke/RTL-visual carve-outs, no E-commerce/carrier/BNPL. Evidence:
+  [PHASE-030-COMPLETION.md](../implementation/phases/reports/PHASE-030-COMPLETION.md) —
+  PHASE-030
+- 2026-11-08 — **PHASE-029 — Payroll: Salaries, Loans & End-of-Service
+  (COMPLETE — the planning-docs flip was honestly deferred at commit time
+  (`9b251a0`) and is delivered with this PHASE-030 docs wave)**: migration
+  `0040_payroll.sql` (journal idx 39, schema_version 40) — 7 RLS'd tenant tables
+  (`employees` the PII-restricted financial file — national_id C-PII: masked in
+  UI, excluded from logs/non-payroll exports by construction, employee reads are
+  audit events; `salary_structures` + `salary_components` with per-component GL
+  accounts + `is_eos_base`; `payroll_runs` DRAFT→PENDING_APPROVAL→POSTED;
+  `payroll_run_lines` 🔒 append-only frozen `component_snapshot` via
+  `erp.payroll_run_lines_guard`; `employee_loans` + `employee_loan_lines` with
+  the BR-054 cap) + `apply_tenant_policy` ×7 + purge_path policies + §9 enum
+  CHECKs + the CoA six payroll purposes (2170/2180/2190/5270/5280/5295 — the
+  loan control account deliberately NOT a purpose: tenant-mapped via
+  `payroll.loans.control_account_id`, typed `LOAN_ACCOUNT_UNMAPPED` until
+  mapped) + the `cash_movements` widening ('payroll_payout','employee_loan' —
+  ADDITIVE) + notifications category 'payroll' + the settings-registry payroll
+  keys (BR-055 tenant-policy EOS, no jurisdiction rates fabricated) + the 8
+  feature-key plan grants → business+enterprise (§3.14 permissions pre-seeded in
+  0004/0005 — drift 245=245). The `payroll` module — 8 services (employee /
+  structure / run-calculation / approval-workflow / run-posting / payout / loan
+  / eos): G-29 exactly one journal per run through the PHASE-007 engine behind
+  the six-account fail-closed precheck, the posting-engine BR-053 guard with the
+  typed `PAYROLL_ACCOUNT_ENGINE_ONLY`, G-30 treasury payouts + the masked
+  payslips batch, BR-054 deduction cap (default 25% PLACEHOLDER), BR-055 EOS
+  accrual with G-31 settlement; reports `payroll.register` /
+  `payroll.cost-summary` / `payroll.eos-provision` (registry 78→81, the
+  `payroll-register-tie` block-on-fail assertion); web: the 'hr' navigation
+  group (الموظفون والرواتب / HR & Payroll — group 10 filled with its four items)
+  + the 12 `/[locale]/payroll` screens + i18n 4,069=4,069; tests:
+  `payroll-rules.spec` (818 lines — the 14-story rule workbook incl. the G-29
+  worked example 11,800, INV-025, G-30, G-31, BR-052…055, the PII read-audit
+  trail) + `spoof.spec` 5 (S-04) + `fixtures.ts` (518 lines) + the isolation
+  registry +42 → 1,062/1,062. Honest deferrals: "E2 pending" (the P29-E
+  follow-up item, recorded as committed), the payslip print-template artifact
+  (the masked batch + workspace rendering shipped instead), SIF/WPS bank files
+  (the phase-doc §7 boundary). Evidence:
+  [PHASE-029-COMPLETION.md](../implementation/phases/reports/PHASE-029-COMPLETION.md) —
+  PHASE-029
 - 2026-11-08 — **PHASE-028 — Budgeting & Variance Control (COMPLETE)**: migration
   `0039_budgeting.sql` (schema_version 39) — two RLS'd tenant tables (`budgets` with the
   BR-050 partial unique `uq_budgets_one_active` + the one-directional shape CHECKs +

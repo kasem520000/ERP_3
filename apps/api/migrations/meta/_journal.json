@@ -281,6 +281,13 @@
       "when": 1794236400000,
       "tag": "0040_payroll",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1794320000000,
+      "tag": "0041_industry_wholesale_electronics",
+      "breakpoints": true
     }
   ]
 }

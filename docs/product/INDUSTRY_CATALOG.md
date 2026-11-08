@@ -1,6 +1,6 @@
 # Industry Catalog
 
-> **Status:** STABLE · **Owner:** Product & Platform Architecture · **Updated:** 2026-11-02
+> **Status:** STABLE · **Owner:** Product & Platform Architecture · **Updated:** 2026-11-08
 
 The thirteen launch industry templates. A template is a **versioned manifest** (see
 [CONFIGURATION_ENGINE.md](CONFIGURATION_ENGINE.md) and the `industry_templates` entity in
@@ -29,8 +29,8 @@ and industry workflows in [../industries/workflows/](../industries/workflows/).
 | `industry.food_manufacturing` | Food manufacturing · التصنيع الغذائي | 018 | BOM, batches, genealogy, expiry, QC | `manufacturing.*`, `inventory.batch_tracking` |
 | `industry.professional_services` | Professional services · الخدمات المهنية | 019 (**SHIPPED**) | Contracts, recurring billing, projects | `crm.*`, `accounting.projects`, `accounting.cost_centers` |
 | `industry.rental_logistics` | Rental / logistics · التأجير والخدمات اللوجستية | 019 → **deferred** (decision record in [PHASE-019-COMPLETION.md](../implementation/phases/reports/PHASE-019-COMPLETION.md)) | Contracts, deposits, item availability | `crm.service_contracts`, `items.item_master`, `inventory.stock_ledger` |
-| `industry.wholesale` | Wholesale & trade · الجملة والتجارة | 030 | Quantity-break tiers, credit limits, PDC receivables | `items.price_lists` (qty-break), `partners.credit_terms`, `sales.credit_limits`, `distribution.routes` OPT, `notes.received` |
-| `industry.electronics` | Mobile & electronics · الجوالات والإلكترونيات | 030 | IMEI register, repair cards, trade-ins | `inventory.serial_tracking` (IMEI), `crm.service_orders` (repairs), `pos.*`, trade-in via purchasing |
+| `industry.wholesale` | Wholesale & trade · الجملة والتجارة | 030 (**SHIPPED**) | Quantity-break tiers, credit limits, PDC receivables | `items.price_lists` (qty-break), `partners.credit_terms`, `sales.credit_limits`, `distribution.routes` OPT, `notes.received` |
+| `industry.electronics` | Mobile & electronics · الجوالات والإلكترونيات | 030 (**SHIPPED**) | IMEI register, repair cards, trade-ins | `inventory.serial_tracking` (IMEI), `crm.service_orders` (repairs), `pos.*`, trade-in via purchasing |
 | `industry.healthcare` | Healthcare (commercial shell) · الرعاية الصحية | 031 | Patient billing, insurance claims, pharmacy batches | insurance-claim billing (AR per claim), `inventory.batch_tracking` (pharmacy), `notes.received` (claims cheques), `crm.service_orders` (visits) |
 | `industry.education` | Education (commercial shell) · التعليم | 032 | Tuition contracts, installments, sibling discounts | `installments.plans` (tuition), `crm.service_contracts` (enrollment years), sibling discounts via pricing, dunning |
 | `industry.agriculture` | Agriculture (commercial shell) · الزراعة | 033 | Crop-cycle costing, harvest batches, livestock serials | `manufacturing.bom` (crop cycles), `inventory.batch_tracking` (harvest), livestock as serial-tracked items, `accounting.projects` (per-field costing) |
@@ -44,6 +44,14 @@ and industry workflows in [../industries/workflows/](../industries/workflows/).
 > [SUBSCRIPTION_AND_ENTITLEMENTS.md](SUBSCRIPTION_AND_ENTITLEMENTS.md) §3). The other
 > eight templates remain **planned** — their 008 index stubs stay in the registry until
 > their owning phases (018–019, 030–033) ship.
+>
+> **Shipped status update (2026-11-08, PHASE-030).** Migration
+> `0041_industry_wholesale_electronics.sql` (data-only, schema_version 41) seeded
+> **`industry.wholesale` + `industry.electronics` at v1.0.0** — both apply through the
+> unmodified PHASE-015 engine, every REQUIRED feature key already granted by earlier
+> migrations (zero new keys, routes, or web code — the configuration-only phase). The
+> pending v2.0 shells are now healthcare / education / agriculture (PHASE-031…033). See
+> [reports/PHASE-030-COMPLETION.md](../implementation/phases/reports/PHASE-030-COMPLETION.md).
 
 ## 1. `industry.retail` — Retail · قالب التجزئة
 
@@ -175,7 +183,11 @@ and industry workflows in [../industries/workflows/](../industries/workflows/).
 ## 9. `industry.wholesale` — Wholesale & trade · قالب الجملة والتجارة
 
 - **Target businesses.** Wholesale shops, importers, B2B trading houses, cash-and-carry
-  operators selling to retailers on credit terms (PHASE-030; ED-06).
+  operators selling to retailers on credit terms (PHASE-030; ED-06). **SHIPPED with
+  PHASE-030 (2026-11-08)** — seeded at v1.0.0 by the data-only migration
+  `0041_industry_wholesale_electronics.sql`, applying through the unmodified PHASE-015
+  engine on pre-granted keys (zero new feature keys — see
+  [FEATURE_CATALOG.md](FEATURE_CATALOG.md) §18).
 - **Capability needs.** Quantity-break price tiers (`price_list_items.min_qty`) and
   customer price tiers, credit-first trading with credit limits + statements, bulk
   quick-order entry from quotes, goods-receipt intake for imports, PDC notes for
@@ -197,7 +209,10 @@ and industry workflows in [../industries/workflows/](../industries/workflows/).
 ## 10. `industry.electronics` — Mobile & electronics · قالب الجوالات والإلكترونيات
 
 - **Target businesses.** Mobile shops, electronics retailers, accessories + repair
-  combos (PHASE-030; ED-06).
+  combos (PHASE-030; ED-06). **SHIPPED with PHASE-030 (2026-11-08)** — seeded at v1.0.0
+  by the data-only migration `0041_industry_wholesale_electronics.sql`, applying through
+  the unmodified PHASE-015 engine on pre-granted keys (zero new feature keys — see
+  [FEATURE_CATALOG.md](FEATURE_CATALOG.md) §18).
 - **Capability needs.** IMEI-level serial register (capture at GRN and sale), repair job
   cards consuming parts + labor (`crm.service_orders`), POS counter selling, trade-in
   purchases of used devices at branch, warranty claim tracking via service orders.

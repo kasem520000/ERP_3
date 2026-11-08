@@ -80,7 +80,7 @@ purchases of used devices. Ships in PHASE-030
     { "report_key": "retail.imei_register", "pinned": true, "dashboard": true, "default_period": "this_month" },
     { "report_key": "pos.sales_by_terminal", "pinned": true, "dashboard": true, "default_period": "today" },
     { "report_key": "pos.sales_by_hour", "pinned": true, "dashboard": false, "default_period": "this_week" },
-    { "report_key": "inventory.stock_valuation", "pinned": true, "dashboard": false, "default_period": "custom" }
+    { "report_key": "inventory.valuation", "pinned": true, "dashboard": false, "default_period": "custom" }
   ],
   "onboarding_steps": [
     { "id": "counter_branch", "title": { "en": "Create branch, stockroom & terminals", "ar": "إنشاء الفرع والمستودع وأجهزة نقطة البيع" }, "required": true },
@@ -196,7 +196,9 @@ cash/AP** (G-07/G-08 shape) — and resells it as a serial-tracked used item.
 ## Reports emphasized
 
 `retail.imei_register` (dashboard), `pos.sales_by_terminal`, `pos.sales_by_hour`,
-`inventory.stock_valuation` — see [../reports/README.md](../reports/README.md).
+`inventory.valuation` — see [../reports/README.md](../reports/README.md); the valuation pin
+uses the LIVE registry key (`inventory.valuation` — the 0025/0027 reconciliation convention
+for the `inventory.stock_valuation` doc spelling).
 
 ## Out of scope for this template
 

@@ -3,12 +3,14 @@ import { describe, expect, it } from "vitest";
 import {
   AUTOMOTIVE_TEMPLATE_MANIFEST,
   DISTRIBUTION_TEMPLATE_MANIFEST,
+  ELECTRONICS_TEMPLATE_MANIFEST,
   FOOD_MANUFACTURING_TEMPLATE_MANIFEST,
   GROCERY_MANIFEST,
   PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST,
   RESTAURANT_MANIFEST,
   RETAIL_MANIFEST,
   SHIPPED_TEMPLATE_MANIFESTS,
+  WHOLESALE_TEMPLATE_MANIFEST,
   IndustryManifestValidationError,
   IndustryTemplateManifestSchema,
   canonicalManifestJson,
@@ -19,8 +21,9 @@ import {
 } from "../index";
 
 /**
- * PHASE-015 T3 test hook (extended by PHASE-017 T2, PHASE-018 T2, and
- * PHASE-019 T2): all seven v1.0.0 manifests validate against the §3 schema;
+ * PHASE-015 T3 test hook (extended by PHASE-017 T2, PHASE-018 T2,
+ * PHASE-019 T2, and PHASE-030 T2): all nine v1.0.0 manifests validate
+ * against the §3 schema;
  * negative fixtures are rejected with the precise issue; the content hash is
  * canonical and deterministic (applied_manifest_hash). The automotive/
  * distribution pair is transcribed verbatim from the migration 0025 registry
@@ -33,7 +36,11 @@ import {
  * migration 0027 registry seed (docs mirror:
  * docs/industries/templates/manifests/manifest.professional_services.json —
  * the §12 doc reconciliation applied: bom_production N/A entry dropped,
- * ar_aging pinned to the live `ar.aging` registry key).
+ * ar_aging pinned to the live `ar.aging` registry key). The wholesale +
+ * electronics pair is transcribed verbatim from the migration 0041 registry
+ * seeds (docs mirrors: manifest.wholesale.json / manifest.electronics.json —
+ * the same reconciliation applied: partners.ar_aging → ar.aging,
+ * inventory.stock_valuation → inventory.valuation).
  */
 
 function cloneManifest(manifest: IndustryTemplateManifest): IndustryTemplateManifest {
@@ -86,14 +93,14 @@ function expectSingleIssue(
   }
 }
 
-describe("shipped industry template manifests (v1.0.0 — retail / grocery / restaurant / automotive / distribution / food_manufacturing / professional_services)", () => {
-  it("all seven parse against the §3 schema and round-trip identically", () => {
+describe("shipped industry template manifests (v1.0.0 — retail / grocery / restaurant / automotive / distribution / food_manufacturing / professional_services / wholesale / electronics)", () => {
+  it("all nine parse against the §3 schema and round-trip identically", () => {
     for (const manifest of SHIPPED_TEMPLATE_MANIFESTS) {
       expect(parseIndustryTemplateManifest(manifest)).toStrictEqual(manifest);
     }
   });
 
-  it("the registry ships exactly the seven ids at 1.0.0", () => {
+  it("the registry ships exactly the nine ids at 1.0.0", () => {
     expect(SHIPPED_TEMPLATE_MANIFESTS.map((manifest) => manifest.id)).toEqual([
       "industry.retail",
       "industry.grocery",
@@ -102,6 +109,8 @@ describe("shipped industry template manifests (v1.0.0 — retail / grocery / res
       "industry.distribution",
       "industry.food_manufacturing",
       "industry.professional_services",
+      "industry.wholesale",
+      "industry.electronics",
     ]);
     expect(SHIPPED_TEMPLATE_MANIFESTS.every((manifest) => manifest.version === "1.0.0")).toBe(true);
   });
@@ -130,9 +139,7 @@ describe("shipped industry template manifests (v1.0.0 — retail / grocery / res
       "inventory.valuation",
       "ar.aging",
     ]);
-    expect(
-      DISTRIBUTION_TEMPLATE_MANIFEST.report_defaults.map((pin) => pin.report_key),
-    ).toEqual([
+    expect(DISTRIBUTION_TEMPLATE_MANIFEST.report_defaults.map((pin) => pin.report_key)).toEqual([
       "distribution.rep_settlement",
       "distribution.van_stock_balances",
       "distribution.route_visit_compliance",
@@ -140,10 +147,9 @@ describe("shipped industry template manifests (v1.0.0 — retail / grocery / res
       "sales.commissions_due",
     ]);
     // The workshop + parts / field + settle navigation groups ship as-is.
-    expect(AUTOMOTIVE_TEMPLATE_MANIFEST.navigation_manifest.groups.map((group) => group.id)).toEqual([
-      "workshop",
-      "parts",
-    ]);
+    expect(
+      AUTOMOTIVE_TEMPLATE_MANIFEST.navigation_manifest.groups.map((group) => group.id),
+    ).toEqual(["workshop", "parts"]);
     expect(
       DISTRIBUTION_TEMPLATE_MANIFEST.navigation_manifest.groups.map((group) => group.id),
     ).toEqual(["field", "settle"]);
@@ -188,13 +194,14 @@ describe("shipped industry template manifests (v1.0.0 — retail / grocery / res
       consumption_variance_threshold_pct: 5,
     });
     // The PRD- numbering rule: per-branch, reserved at approval.
-    expect(FOOD_MANUFACTURING_TEMPLATE_MANIFEST.document_numbering_defaults.production_order)
-      .toEqual({
-        prefix: "PRD",
-        format: "PRD-{yyyy}-{seq:5}",
-        per_branch: true,
-        reserve_on_approval: true,
-      });
+    expect(
+      FOOD_MANUFACTURING_TEMPLATE_MANIFEST.document_numbering_defaults.production_order,
+    ).toEqual({
+      prefix: "PRD",
+      format: "PRD-{yyyy}-{seq:5}",
+      per_branch: true,
+      reserve_on_approval: true,
+    });
   });
 
   it("the PHASE-019 template pins the practice/billing navigation and the crm policy set (0027)", () => {
@@ -218,9 +225,7 @@ describe("shipped industry template manifests (v1.0.0 — retail / grocery / res
     // keys (crm.time / crm.contracts / crm.recurring_billing /
     // accounting.projects).
     expect(
-      PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST.navigation_manifest.groups.map(
-        (group) => group.id,
-      ),
+      PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST.navigation_manifest.groups.map((group) => group.id),
     ).toEqual(["practice", "billing"]);
     const practice = PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST.navigation_manifest.groups.find(
       (group) => group.id === "practice",
@@ -240,11 +245,7 @@ describe("shipped industry template manifests (v1.0.0 — retail / grocery / res
     ]);
     // The PHASE-019 intake set rides in the required keys (the 0027 plan
     // grants cover it on business/enterprise; starter excluded).
-    for (const key of [
-      "crm.service_contracts",
-      "crm.recurring_billing",
-      "accounting.projects",
-    ]) {
+    for (const key of ["crm.service_contracts", "crm.recurring_billing", "accounting.projects"]) {
       expect(PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST.required_feature_keys).toContain(key);
     }
     // The six §9 workflow policies land as L1 defaults (module "crm"; the
@@ -261,29 +262,218 @@ describe("shipped industry template manifests (v1.0.0 — retail / grocery / res
     // The INV-/RCP-/CN- numbering rules (contract_invoice is a series-bearing
     // §3 document type; all four series are tenant-level, assigned at
     // posting).
-    expect(PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST.document_numbering_defaults.contract_invoice)
-      .toEqual({
-        prefix: "INV",
-        format: "INV-{yyyy}-{seq:6}",
-        per_branch: false,
-        reserve_on_approval: false,
-      });
+    expect(
+      PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST.document_numbering_defaults.contract_invoice,
+    ).toEqual({
+      prefix: "INV",
+      format: "INV-{yyyy}-{seq:6}",
+      per_branch: false,
+      reserve_on_approval: false,
+    });
     expect(PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST.document_numbering_defaults.receipt).toEqual({
       prefix: "RCP",
       format: "RCP-{yyyy}-{seq:6}",
       per_branch: false,
       reserve_on_approval: false,
     });
-    expect(PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST.document_numbering_defaults.credit_note).toEqual({
-      prefix: "CN",
-      format: "CN-{yyyy}-{seq:5}",
-      per_branch: false,
-      reserve_on_approval: false,
-    });
+    expect(PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST.document_numbering_defaults.credit_note).toEqual(
+      {
+        prefix: "CN",
+        format: "CN-{yyyy}-{seq:5}",
+        per_branch: false,
+        reserve_on_approval: false,
+      },
+    );
     // The terminology carries the practice-management Arabic (svc.case).
     expect(PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST.terminology_overrides["svc.case"]).toEqual({
       en: "Case / Matter",
       ar: "القضية / الملف",
+    });
+  });
+
+  it("the PHASE-030 wholesale template pins the live report keys and the trading/credit groups (0041)", () => {
+    // The report pins: the two PHASE-027 notes.* registry keys plus the
+    // composed already-live `ar.aging` + `inventory.valuation` (the 0041
+    // reconciliation — the pre-0041 doc drafts said partners.ar_aging /
+    // inventory.stock_valuation, the 0025/0027 convention).
+    expect(WHOLESALE_TEMPLATE_MANIFEST.report_defaults.map((pin) => pin.report_key)).toEqual([
+      "notes.maturity-calendar",
+      "notes.aging",
+      "ar.aging",
+      "inventory.valuation",
+    ]);
+    expect(
+      WHOLESALE_TEMPLATE_MANIFEST.report_defaults.find((pin) => pin.report_key === "ar.aging"),
+    ).toMatchObject({ pinned: true, dashboard: true, default_period: "this_month" });
+    // The trading + credit & collections navigation groups ship as-is.
+    expect(WHOLESALE_TEMPLATE_MANIFEST.navigation_manifest.groups.map((group) => group.id)).toEqual(
+      ["trading", "credit"],
+    );
+    const trading = WHOLESALE_TEMPLATE_MANIFEST.navigation_manifest.groups.find(
+      (group) => group.id === "trading",
+    )!;
+    expect(trading.items.map((item) => item.target)).toEqual([
+      "sales.quick_order",
+      "sales.quotations",
+      "sales.orders",
+      "sales.deliveries",
+    ]);
+    const credit = WHOLESALE_TEMPLATE_MANIFEST.navigation_manifest.groups.find(
+      (group) => group.id === "credit",
+    )!;
+    expect(credit.items.map((item) => item.target)).toEqual([
+      "sales.invoices",
+      "partners.statements",
+      "notes.received",
+      "notes.pdc_calendar",
+    ]);
+    // The PDC entries carry their feature_key gates (notes.received /
+    // notes.pdc_calendar — the §3.13 keys the 0038 grants put on
+    // business+enterprise).
+    expect(credit.items.find((item) => item.target === "notes.received")?.feature_key).toBe(
+      "notes.received",
+    );
+    // The notes chain rides in the required keys + the pdc_notes capability
+    // (REQUIRED, PHASE-027 — live platform-wide since stage 9).
+    expect(WHOLESALE_TEMPLATE_MANIFEST.required_feature_keys).toContain("notes.received");
+    expect(WHOLESALE_TEMPLATE_MANIFEST.capability_prerequisites.pdc_notes).toEqual({
+      level: "REQUIRED",
+      feature_keys: ["notes.received", "notes.pdc_calendar"],
+      available_from_phase: "PHASE-027",
+    });
+    // The seven §2 wholesale workflow policies land as L1 defaults
+    // (qty_break_pricing_automatic / tier_price_automatic_by_partner /
+    // bulk_order_from_quote_one_click / delivery_before_credit_invoice /
+    // statement_monthly_by_default / pdc_note_requires_maturity_date are
+    // POLICY_REGISTRY keys the 0041 wave registers; credit_sale_credit_limit_
+    // enforced rides the PHASE-017 registration verbatim).
+    expect(WHOLESALE_TEMPLATE_MANIFEST.workflow_policies).toEqual({
+      credit_sale_credit_limit_enforced: true,
+      qty_break_pricing_automatic: true,
+      tier_price_automatic_by_partner: true,
+      bulk_order_from_quote_one_click: true,
+      delivery_before_credit_invoice: true,
+      statement_monthly_by_default: true,
+      pdc_note_requires_maturity_date: true,
+    });
+    // The QT/ORD/DLV/INV/CN/RCP/GRN/TRF numbering rules — the ORD- bulk
+    // order series is reserved at approval (§3 reserve_on_approval).
+    expect(WHOLESALE_TEMPLATE_MANIFEST.document_numbering_defaults.sales_order).toEqual({
+      prefix: "ORD",
+      format: "ORD-{yyyy}-{seq:6}",
+      per_branch: false,
+      reserve_on_approval: true,
+    });
+    expect(WHOLESALE_TEMPLATE_MANIFEST.document_numbering_defaults.quotation).toEqual({
+      prefix: "QT",
+      format: "QT-{yyyy}-{seq:5}",
+      per_branch: false,
+      reserve_on_approval: false,
+    });
+    // The trading Arabic (أمر التوريد / شريحة الكمية).
+    expect(WHOLESALE_TEMPLATE_MANIFEST.terminology_overrides["doc.sales_order"]).toEqual({
+      en: "Bulk order",
+      ar: "أمر التوريد",
+    });
+    expect(WHOLESALE_TEMPLATE_MANIFEST.terminology_overrides["price.qty_break"]).toEqual({
+      en: "Quantity break",
+      ar: "شريحة الكمية",
+    });
+  });
+
+  it("the PHASE-030 electronics template pins the counter/repair groups and the serial-on defaults (0041)", () => {
+    // The report pins: retail.imei_register (dashboard) + the two pos.*
+    // live keys + inventory.valuation (the 0041 reconciliation — the doc
+    // draft said inventory.stock_valuation).
+    expect(ELECTRONICS_TEMPLATE_MANIFEST.report_defaults.map((pin) => pin.report_key)).toEqual([
+      "retail.imei_register",
+      "pos.sales_by_terminal",
+      "pos.sales_by_hour",
+      "inventory.valuation",
+    ]);
+    expect(
+      ELECTRONICS_TEMPLATE_MANIFEST.report_defaults.find(
+        (pin) => pin.report_key === "retail.imei_register",
+      ),
+    ).toMatchObject({ pinned: true, dashboard: true, default_period: "this_month" });
+    // The counter + repair navigation groups ship as-is.
+    expect(
+      ELECTRONICS_TEMPLATE_MANIFEST.navigation_manifest.groups.map((group) => group.id),
+    ).toEqual(["counter", "service"]);
+    const counter = ELECTRONICS_TEMPLATE_MANIFEST.navigation_manifest.groups.find(
+      (group) => group.id === "counter",
+    )!;
+    expect(counter.items.map((item) => item.target)).toEqual([
+      "pos.counter",
+      "inventory.imei",
+      "purchasing.tradein",
+    ]);
+    const service = ELECTRONICS_TEMPLATE_MANIFEST.navigation_manifest.groups.find(
+      (group) => group.id === "service",
+    )!;
+    expect(service.items.map((item) => item.target)).toEqual([
+      "crm.service_orders",
+      "sales.credit_notes",
+      "treasury.receipts",
+    ]);
+    // The REQUIRED chain: the pos.* set + crm.service_orders + serials.
+    for (const key of [
+      "inventory.serial_tracking",
+      "pos.terminals",
+      "pos.sales",
+      "pos.offline_queue",
+      "pos.receipts",
+      "crm.service_orders",
+      "treasury.cashier_shifts",
+    ]) {
+      expect(ELECTRONICS_TEMPLATE_MANIFEST.required_feature_keys).toContain(key);
+    }
+    expect(ELECTRONICS_TEMPLATE_MANIFEST.capability_prerequisites.job_cards).toEqual({
+      level: "REQUIRED",
+      feature_keys: ["crm.service_orders"],
+      available_from_phase: "PHASE-019",
+    });
+    expect(ELECTRONICS_TEMPLATE_MANIFEST.capability_prerequisites.imei_tracking).toEqual({
+      level: "REQUIRED",
+      feature_keys: ["inventory.serial_tracking"],
+      available_from_phase: "PHASE-010",
+    });
+    // R3: serial + IMEI tracking ON by default for NEWLY created items.
+    expect(ELECTRONICS_TEMPLATE_MANIFEST.inventory_policy_defaults).toMatchObject({
+      costing_method: "WAC",
+      default_track_serial: true,
+      default_imei_tracking: true,
+      allow_negative_stock: false,
+    });
+    // The seven §2 electronics workflow policies (cash_sales_autopost /
+    // shift_variance_approval_required / warranty_credit_note_requires_
+    // original_invoice ride the earlier registrations verbatim; the four
+    // repair/trade-in keys are the 0041 POLICY_REGISTRY wave).
+    expect(ELECTRONICS_TEMPLATE_MANIFEST.workflow_policies).toEqual({
+      cash_sales_autopost: true,
+      imei_capture_required_flagged_items: true,
+      repair_parts_issue_mode: "reserve",
+      repair_card_labor_rate_source: "price_list",
+      tradein_purchase_at_branch: true,
+      warranty_credit_note_requires_original_invoice: true,
+      shift_variance_approval_required: true,
+    });
+    // The INV/POS/RC/CN/GRN numbering rules — RC- repair cards are
+    // per-branch (§3).
+    expect(ELECTRONICS_TEMPLATE_MANIFEST.document_numbering_defaults.job_card).toEqual({
+      prefix: "RC",
+      format: "RC-{yyyy}-{seq:5}",
+      per_branch: true,
+      reserve_on_approval: false,
+    });
+    // The repair-bench Arabic (بطاقة صيانة / الرقم التسلسلي (IMEI)).
+    expect(ELECTRONICS_TEMPLATE_MANIFEST.terminology_overrides["svc.repair_card"]).toEqual({
+      en: "Repair card",
+      ar: "بطاقة صيانة",
+    });
+    expect(ELECTRONICS_TEMPLATE_MANIFEST.terminology_overrides["item.imei"]).toEqual({
+      en: "IMEI",
+      ar: "الرقم التسلسلي (IMEI)",
     });
   });
 });
@@ -470,9 +660,8 @@ describe("negative fixtures — each §3 violation is rejected with the right is
 
   it("(p) food_manufacturing: report default with an unknown period preset", () => {
     const draft = cloneManifest(FOOD_MANUFACTURING_TEMPLATE_MANIFEST);
-    (
-      draft.report_defaults[0] as unknown as { default_period: string }
-    ).default_period = "this_quarter";
+    (draft.report_defaults[0] as unknown as { default_period: string }).default_period =
+      "this_quarter";
     const result = IndustryTemplateManifestSchema.safeParse(draft);
     expect(result.success).toBe(false);
     if (result.success) {

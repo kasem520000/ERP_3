@@ -3,11 +3,13 @@ import { describe, expect, it } from "vitest";
 import {
   AUTOMOTIVE_TEMPLATE_MANIFEST,
   DISTRIBUTION_TEMPLATE_MANIFEST,
+  ELECTRONICS_TEMPLATE_MANIFEST,
   FOOD_MANUFACTURING_TEMPLATE_MANIFEST,
   GROCERY_MANIFEST,
   PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST,
   RESTAURANT_MANIFEST,
   RETAIL_MANIFEST,
+  WHOLESALE_TEMPLATE_MANIFEST,
   hashManifestJson,
   type IndustryTemplateManifest,
 } from "@erp/contracts";
@@ -18,10 +20,11 @@ import { PLAN_KEYS, layerInputsFixture, l1Of, type PlanKey } from "./layer-fixtu
 /**
  * PHASE-015 §6 golden effective-configs (CONFIGURATION_ENGINE §10 #2):
  * one pinned, hashed effective config per shipped template × plan ×
- * jurisdiction example — the seven v1.0.0 manifests (retail / grocery /
+ * jurisdiction example — the nine v1.0.0 manifests (retail / grocery /
  * restaurant + the PHASE-017 automotive / distribution pair + the
  * PHASE-018 food manufacturing template + the PHASE-019 professional
- * services template) × the plan seeds
+ * services template + the PHASE-030 wholesale / electronics pair) × the
+ * plan seeds
  * (migration 0008/0021/0024/0025/0026/0027) × the SA jurisdiction seed
  * (migration 0013, pack 1.0.0-baseline, VAT in force, registered tenant).
  *
@@ -73,6 +76,15 @@ import { PLAN_KEYS, layerInputsFixture, l1Of, type PlanKey } from "./layer-fixtu
  * pins a second notch — the same two-notch pattern as 028). Starter
  * carries only the policy-default shift (no new grants). Recorded in
  * agent-ctx/P29-B-payroll-core.md.
+ *
+ * PHASE-030 review note: the fifteen business/enterprise pins (7 templates
+ * × business + 7 × enterprise + the no-template business row) moved — the
+ * layer fixtures now mirror the 0038 notes + installments grant wave
+ * (twelve keys → business + enterprise, transcribed because the wholesale
+ * template's REQUIRED pdc_notes chain consumes it; the P28/P29 grant waves
+ * stay un-mirrored per the recorded posture). Starter rows unchanged. The
+ * six new wholesale/electronics rows pin with the 0041 seeds. The old→new
+ * table is recorded in agent-ctx/P30-A-contracts-migration.md.
  */
 
 const GOLDEN: Readonly<
@@ -84,11 +96,11 @@ const GOLDEN: Readonly<
   },
   "industry.retail × business": {
     template: RETAIL_MANIFEST,
-    hash: "sha256:27b85f373156152cef6522a43bb563522d80b5fac1cc6d7e5f19763583481951",
+    hash: "sha256:211598c8c1728a9b32026ec6d7d36056c266666a71c79b9ca37aeac51ffb4acf",
   },
   "industry.retail × enterprise": {
     template: RETAIL_MANIFEST,
-    hash: "sha256:0cb551324091bb9485627099d505e098721194c87d7c5645e44e91b040e5e735",
+    hash: "sha256:8b1530d732c939cf851c5922b4d2733d283bb3e834aa18178ca6a73e746def92",
   },
   "industry.grocery × starter": {
     template: GROCERY_MANIFEST,
@@ -96,11 +108,11 @@ const GOLDEN: Readonly<
   },
   "industry.grocery × business": {
     template: GROCERY_MANIFEST,
-    hash: "sha256:d8a42afc9c1ad3e19724d17ef2c41556d022a056c7a894e91a6fddb36c85bd00",
+    hash: "sha256:e80f9c37197c066b315385a2e1715825571f148917d5d5d75af148ea3de862e1",
   },
   "industry.grocery × enterprise": {
     template: GROCERY_MANIFEST,
-    hash: "sha256:d261c9198ee669b1d1b42f4bd0a9d57977743f4e3b1c29e5e70878c6c05bc3bb",
+    hash: "sha256:9f5f602fa07c59f3545b79788c11509e0b492905a9fa637bd77ca432634b754b",
   },
   "industry.restaurant × starter": {
     template: RESTAURANT_MANIFEST,
@@ -108,11 +120,11 @@ const GOLDEN: Readonly<
   },
   "industry.restaurant × business": {
     template: RESTAURANT_MANIFEST,
-    hash: "sha256:d6a5727db720cf456cc71f24a809fcb8160c204621068552ba2eaa98ecd99eed",
+    hash: "sha256:2730405c744e919b8e0daf8f39e6dc39caec3600d9e1d575d732b132bb04308d",
   },
   "industry.restaurant × enterprise": {
     template: RESTAURANT_MANIFEST,
-    hash: "sha256:a5e2828b96d6e6d12398308e6f0c0095aab974b144e19155ff9169cf0b4caf50",
+    hash: "sha256:db34e45ef98f7d5cf8f862d10e293a50b090ba7f0336c8d70817d21b757bd98e",
   },
   // -- PHASE-017 pair (migration 0025 seeds; starter = degraded back-office)
   "industry.automotive × starter": {
@@ -121,11 +133,11 @@ const GOLDEN: Readonly<
   },
   "industry.automotive × business": {
     template: AUTOMOTIVE_TEMPLATE_MANIFEST,
-    hash: "sha256:371afb6f8bd6a5f19ba4120306b2a52d2c1ba63425f86ccd1922de2162d78efa",
+    hash: "sha256:3c9302b0b57718fb87e9e07a276254a8bc63c211850f795467609512837188d4",
   },
   "industry.automotive × enterprise": {
     template: AUTOMOTIVE_TEMPLATE_MANIFEST,
-    hash: "sha256:5df8a82ace3d15910db6203425bab94811c2e6d0b72488ed8d330b323dee08ad",
+    hash: "sha256:78fc2144e3ae0e0dd70ad8fef3051622febcb1f53adf687d1ab5f491710a8a28",
   },
   "industry.distribution × starter": {
     template: DISTRIBUTION_TEMPLATE_MANIFEST,
@@ -133,11 +145,11 @@ const GOLDEN: Readonly<
   },
   "industry.distribution × business": {
     template: DISTRIBUTION_TEMPLATE_MANIFEST,
-    hash: "sha256:3c7146127b27c5faf6cc3b0f4281a791eb4082d01f9721a0d4ab33f709b71c03",
+    hash: "sha256:77f2893fd6f962921e6ed33de9efe27f042384a13600c64f2bba51f8c2a11373",
   },
   "industry.distribution × enterprise": {
     template: DISTRIBUTION_TEMPLATE_MANIFEST,
-    hash: "sha256:8535962ae435fff64dbadf213772ce79537f829eb1a33f694b1b5795635952b9",
+    hash: "sha256:2100745a5ceed55442866505e58735f0471012114c92e4e8d9e085c56cf1a348",
   },
   // -- PHASE-018 (migration 0026 seed; starter = degraded back-office)
   "industry.food_manufacturing × starter": {
@@ -146,11 +158,11 @@ const GOLDEN: Readonly<
   },
   "industry.food_manufacturing × business": {
     template: FOOD_MANUFACTURING_TEMPLATE_MANIFEST,
-    hash: "sha256:ee699d0c55d8894dce8d4b129b0b7a20c1390e728e51fc58d21bb6e17221042f",
+    hash: "sha256:80964a32bbdbf971bab1af6d14a4442d9976e074c8e1351c3864bfef6ca01af0",
   },
   "industry.food_manufacturing × enterprise": {
     template: FOOD_MANUFACTURING_TEMPLATE_MANIFEST,
-    hash: "sha256:0e8e8405625ada31b56354a263f6f35761a762ee727f16ca26607c0f60ee894e",
+    hash: "sha256:34cdbf0f93124b1e68b268821c2ba8d40b7528cb642653ae9ab200d807d65433",
   },
   // -- PHASE-019 (migration 0027 seed; starter = degraded back-office)
   "industry.professional_services × starter": {
@@ -159,16 +171,42 @@ const GOLDEN: Readonly<
   },
   "industry.professional_services × business": {
     template: PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST,
-    hash: "sha256:9c0fc111092d2f528fa1f3834cb01b3309505800447dfd410b60a0810498c8b3",
+    hash: "sha256:f2210855a976c6adbc8670d18577764133c9fac28f068d38c1d117e8eb0c6063",
   },
   "industry.professional_services × enterprise": {
     template: PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST,
-    hash: "sha256:753d422b2fd4d9e46afeb1cd7bdb6440abfe4c8094e1ee6b121df2fb7b9417a2",
+    hash: "sha256:7531130f64c8eccc3b81c0cc4422168b00d398bb7d28a20038b175b7d404a5d5",
+  },
+  // -- PHASE-030 (migration 0041 seeds; starter = degraded back-office —
+  // the notes chain + POS/service-order sets are business+enterprise)
+  "industry.wholesale × starter": {
+    template: WHOLESALE_TEMPLATE_MANIFEST,
+    hash: "sha256:0a8dc4b683049cfdc2a2cb28f7d8712061442b78f0bce0f337aa633d4a4f802c",
+  },
+  "industry.wholesale × business": {
+    template: WHOLESALE_TEMPLATE_MANIFEST,
+    hash: "sha256:5f113ee0ffbd16085924066461698a2f9120c7b91b836d3e80b99b3c6b1f1028",
+  },
+  "industry.wholesale × enterprise": {
+    template: WHOLESALE_TEMPLATE_MANIFEST,
+    hash: "sha256:35aab1413ccea9da60d44b8e6c4d00173114346e7249e969704ad920feff395a",
+  },
+  "industry.electronics × starter": {
+    template: ELECTRONICS_TEMPLATE_MANIFEST,
+    hash: "sha256:c5ec279713ce522dcde582822c006e93549efdd25ceacd6f21aa21b130df44a9",
+  },
+  "industry.electronics × business": {
+    template: ELECTRONICS_TEMPLATE_MANIFEST,
+    hash: "sha256:699731c811096d401c43ce8963a95f9cd6db8517ab1ed0f2c764234dae9ed683",
+  },
+  "industry.electronics × enterprise": {
+    template: ELECTRONICS_TEMPLATE_MANIFEST,
+    hash: "sha256:eee6dc38af26b4a3f5ee8a8abc24956e471dd51d63181d707ca78f12555cb9d9",
   },
   // The platform-default tenant (no template applied — L1 neutral).
   "(no template) × business": {
     template: null,
-    hash: "sha256:5a53bdd97ba67c4334dcf76abc2256a885674c0dafccab615ff6996d13ca1129",
+    hash: "sha256:393178c237ab9bad52fe62fb81e18c44a5b281202851e33fe0ccc1890d6f8435",
   },
 });
 
@@ -222,9 +260,7 @@ describe("golden effective-configs: template × plan × jurisdiction SA (pinned 
       expect(config.layers.l3_plan?.limits).toMatchObject({
         users: { starter: 3, business: 10, enterprise: 50 }[planOf(caseName)],
       });
-      expect(config.layers.l4_entitlements.active).toEqual(
-        [...PLAN_KEYS[planOf(caseName)]].sort(),
-      );
+      expect(config.layers.l4_entitlements.active).toEqual([...PLAN_KEYS[planOf(caseName)]].sort());
       expect(config.invariants_note).toContain("INV-022");
       // L1 block shape + manifest-hash provenance.
       if (golden.template === null) {
@@ -240,10 +276,14 @@ describe("golden effective-configs: template × plan × jurisdiction SA (pinned 
         // The retail/grocery/restaurant L1 defaults all auto-post cash
         // sales; the PHASE-017 pair (back-office workshop / van sales, not
         // POS-first) deliberately leaves the platform default in place.
+        // PHASE-030: electronics auto-posts its counter cash sales (POS-first
+        // like retail); wholesale is credit-first trading and leaves the
+        // platform default in place.
         if (
           golden.template.id === "industry.retail" ||
           golden.template.id === "industry.grocery" ||
-          golden.template.id === "industry.restaurant"
+          golden.template.id === "industry.restaurant" ||
+          golden.template.id === "industry.electronics"
         ) {
           expect(config.policies["sales.cash_autopost"]).toBe(true);
         } else {
@@ -347,14 +387,14 @@ describe("golden effective-configs: template × plan × jurisdiction SA (pinned 
     expect(distribution.layers.l4_entitlements.missing).toEqual([]);
     expect(distribution.ui.navigation).toEqual(["field", "settle"]);
     expect(
-      distribution.ui.navigation_tree.find((group) => group.id === "field")!.items.map(
-        (item) => item.id,
-      ),
+      distribution.ui.navigation_tree
+        .find((group) => group.id === "field")!
+        .items.map((item) => item.id),
     ).toEqual(["routes", "van_stock", "collections"]);
     expect(
-      distribution.ui.navigation_tree.find((group) => group.id === "settle")!.items.map(
-        (item) => item.id,
-      ),
+      distribution.ui.navigation_tree
+        .find((group) => group.id === "settle")!
+        .items.map((item) => item.id),
     ).toEqual(["rep_settlements", "commissions"]);
     expect(distribution.ui.terminology["route.route"]).toEqual({ en: "Route", ar: "خط السير" });
     expect(distribution.ui.terminology["van.load_out"]).toEqual({
@@ -388,9 +428,7 @@ describe("golden effective-configs: template × plan × jurisdiction SA (pinned 
     const production = food.ui.navigation_tree.find((group) => group.id === "production")!;
     expect(production.items.map((item) => item.id)).toEqual(["recipes", "orders", "qc"]);
     expect(
-      food.ui.navigation_tree.find((group) => group.id === "trace")!.items.map(
-        (item) => item.id,
-      ),
+      food.ui.navigation_tree.find((group) => group.id === "trace")!.items.map((item) => item.id),
     ).toEqual(["genealogy", "expiry"]);
     expect(food.ui.terminology["mfg.recipe"]).toEqual({
       en: "Recipe (BOM)",
@@ -418,11 +456,15 @@ describe("golden effective-configs: template × plan × jurisdiction SA (pinned 
     expect(services.layers.l4_entitlements.missing).toEqual([]);
     expect(services.ui.navigation).toEqual(["practice", "billing"]);
     const practiceGroup = services.ui.navigation_tree.find((group) => group.id === "practice")!;
-    expect(practiceGroup.items.map((item) => item.id)).toEqual(["cases", "timesheets", "contracts"]);
+    expect(practiceGroup.items.map((item) => item.id)).toEqual([
+      "cases",
+      "timesheets",
+      "contracts",
+    ]);
     expect(
-      services.ui.navigation_tree.find((group) => group.id === "billing")!.items.map(
-        (item) => item.id,
-      ),
+      services.ui.navigation_tree
+        .find((group) => group.id === "billing")!
+        .items.map((item) => item.id),
     ).toEqual(["recurring", "invoices", "statements"]);
     expect(services.ui.terminology["svc.case"]).toEqual({
       en: "Case / Matter",

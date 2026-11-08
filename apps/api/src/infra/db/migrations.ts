@@ -132,6 +132,16 @@ export const MIGRATIONS: readonly string[] = [
   // feature-key plan grants. §3.14 permissions pre-seeded in 0004/0005
   // with the payroll_officer role template (drift stays 245=245).
   "0040_payroll",
+  // PHASE-030: 0041_industry_wholesale_electronics.sql (the first two
+  // Blueprint v2.0 stage-10 industry templates per ED-06 — DATA-ONLY:
+  // industry.wholesale + industry.electronics registry rows at v1.0.0,
+  // the report pins reconciled to the live keys ar.aging /
+  // inventory.valuation; zero new tables/columns/enums/journals/
+  // permissions/plan-grants — INV-022: templates are configuration,
+  // never a fork; every REQUIRED key was granted by earlier migrations
+  // (notes by 0038, POS by 0024, crm.service_orders by 0027), and the
+  // typed workflow-policy keys register in the code-owned POLICY_REGISTRY).
+  "0041_industry_wholesale_electronics",
 ];
 
 /**

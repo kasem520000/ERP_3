@@ -1,11 +1,13 @@
 import {
   AUTOMOTIVE_TEMPLATE_MANIFEST,
   DISTRIBUTION_TEMPLATE_MANIFEST,
+  ELECTRONICS_TEMPLATE_MANIFEST,
   FOOD_MANUFACTURING_TEMPLATE_MANIFEST,
   GROCERY_MANIFEST,
   PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST,
   RESTAURANT_MANIFEST,
   RETAIL_MANIFEST,
+  WHOLESALE_TEMPLATE_MANIFEST,
   hashManifestJson,
   type IndustryTemplateManifest,
 } from "@erp/contracts";
@@ -23,11 +25,19 @@ import type {
 } from "../domain/layer-model";
 
 /**
- * Unit-test layer-input fixtures (PHASE-015 §6): the seven shipped
- * manifests × the three plan seeds (migration 0008/0021/0024/0025/0026/0027
- * key and limits lists, transcribed) × the SA jurisdiction seed (migration
- * 0013). Shared by config-resolution.spec (property/precedence tests) and
- * golden-effective-configs.spec (pinned hashes).
+ * Unit-test layer-input fixtures (PHASE-015 §6): the nine shipped
+ * manifests × the three plan seeds (migration 0008/0021/0024/0025/0026/
+ * 0027/0038 key and limits lists, transcribed) × the SA jurisdiction seed
+ * (migration 0013). Shared by config-resolution.spec (property/precedence
+ * tests) and golden-effective-configs.spec (pinned hashes).
+ *
+ * PHASE-030 mirror note: the 0038 notes + installments grant wave (twelve
+ * keys → business + enterprise, the tier-4 financial-depth precedent) is
+ * mirrored HERE because the wholesale template's REQUIRED pdc_notes chain
+ * consumes it in the unit prerequisite tests — the fixtures mirror the
+ * plans table again from this phase on. The 0039 budgeting + 0040 payroll
+ * grant waves stay un-mirrored (the P28/P29 posture: no template consumes
+ * those keys; nothing in the unit fixtures depends on them).
  */
 
 export const SHIPPED_TEMPLATES: readonly IndustryTemplateManifest[] = [
@@ -38,6 +48,8 @@ export const SHIPPED_TEMPLATES: readonly IndustryTemplateManifest[] = [
   DISTRIBUTION_TEMPLATE_MANIFEST,
   FOOD_MANUFACTURING_TEMPLATE_MANIFEST,
   PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST,
+  WHOLESALE_TEMPLATE_MANIFEST,
+  ELECTRONICS_TEMPLATE_MANIFEST,
 ];
 
 /** L1 from a shipped manifest (applied state, no tenant overrides). */
@@ -72,70 +84,150 @@ export const SA_JURISDICTION: L2JurisdictionLayer = {
 // ---------------------------------------------------------------------------
 
 const STARTER_KEYS: readonly string[] = [
-  "platform.registration", "platform.onboarding", "platform.branches",
-  "platform.users_roles", "platform.audit_trail", "platform.data_export",
-  "platform.tenant_lifecycle", "platform.files",
-  "accounting.chart_of_accounts", "accounting.fiscal_calendar",
-  "accounting.journal_entries", "accounting.approvals", "accounting.general_ledger",
-  "accounting.opening_balances", "accounting.period_close", "accounting.year_end_close",
+  "platform.registration",
+  "platform.onboarding",
+  "platform.branches",
+  "platform.users_roles",
+  "platform.audit_trail",
+  "platform.data_export",
+  "platform.tenant_lifecycle",
+  "platform.files",
+  "accounting.chart_of_accounts",
+  "accounting.fiscal_calendar",
+  "accounting.journal_entries",
+  "accounting.approvals",
+  "accounting.general_ledger",
+  "accounting.opening_balances",
+  "accounting.period_close",
+  "accounting.year_end_close",
   "accounting.reconciliation",
-  "partners.directory", "partners.credit_terms", "partners.statements",
-  "items.item_master", "items.categories", "items.units_of_measure",
-  "items.barcodes", "items.price_lists",
-  "inventory.stock_ledger", "inventory.valuation", "inventory.multi_warehouse",
-  "sales.quotations", "sales.orders", "sales.deliveries", "sales.invoices",
-  "sales.credit_notes", "sales.receipts", "sales.allocations", "sales.receivables_aging",
-  "purchasing.requests", "purchasing.orders", "purchasing.goods_receipts",
-  "purchasing.supplier_invoices", "purchasing.debit_notes", "purchasing.payments",
+  "partners.directory",
+  "partners.credit_terms",
+  "partners.statements",
+  "items.item_master",
+  "items.categories",
+  "items.units_of_measure",
+  "items.barcodes",
+  "items.price_lists",
+  "inventory.stock_ledger",
+  "inventory.valuation",
+  "inventory.multi_warehouse",
+  "sales.quotations",
+  "sales.orders",
+  "sales.deliveries",
+  "sales.invoices",
+  "sales.credit_notes",
+  "sales.receipts",
+  "sales.allocations",
+  "sales.receivables_aging",
+  "purchasing.requests",
+  "purchasing.orders",
+  "purchasing.goods_receipts",
+  "purchasing.supplier_invoices",
+  "purchasing.debit_notes",
+  "purchasing.payments",
   "purchasing.three_way_matching",
-  "treasury.accounts", "treasury.receipts_disbursements", "treasury.expenses",
+  "treasury.accounts",
+  "treasury.receipts_disbursements",
+  "treasury.expenses",
   "treasury.expense_categories",
-  "tax.engine", "tax.codes", "tax.registrations", "tax.jurisdiction_packs", "tax.vat_return",
-  "reporting.engine", "reporting.financial_statements", "reporting.operational_reports",
-  "reporting.print_templates", "reporting.exports",
+  "tax.engine",
+  "tax.codes",
+  "tax.registrations",
+  "tax.jurisdiction_packs",
+  "tax.vat_return",
+  "reporting.engine",
+  "reporting.financial_statements",
+  "reporting.operational_reports",
+  "reporting.print_templates",
+  "reporting.exports",
 ];
 
 const BUSINESS_KEYS: readonly string[] = [
   ...STARTER_KEYS,
   "platform.notifications",
-  "accounting.multi_currency", "accounting.cost_centers",
+  "accounting.multi_currency",
+  "accounting.cost_centers",
   "partners.credit_management",
-  "inventory.batch_tracking", "inventory.serial_tracking", "inventory.stock_counts",
+  "inventory.batch_tracking",
+  "inventory.serial_tracking",
+  "inventory.stock_counts",
   "inventory.stock_transfers",
-  "sales.credit_limits", "sales.reps", "sales.discount_management",
+  "sales.credit_limits",
+  "sales.reps",
+  "sales.discount_management",
   "purchasing.landed_costs",
-  "treasury.petty_cash", "treasury.cash_transfers", "treasury.bank_reconciliation",
-  "treasury.cashier_shifts", "treasury.cheques",
+  "treasury.petty_cash",
+  "treasury.cash_transfers",
+  "treasury.bank_reconciliation",
+  "treasury.cashier_shifts",
+  "treasury.cheques",
   "reporting.dashboards",
-  "pos.terminals", "pos.sales", "pos.shifts", "pos.receipts",
-  "pos.barcode_scanning", "pos.offline_queue",
+  "pos.terminals",
+  "pos.sales",
+  "pos.shifts",
+  "pos.receipts",
+  "pos.barcode_scanning",
+  "pos.offline_queue",
   // PHASE-016 T1 intake (0024 plan grants): the table-service set + the
   // composite-products substrate the restaurant combos consume.
-  "pos.table_service", "pos.kitchen_display", "items.composite_products",
-  "industry.template_engine", "industry.terminology",
+  "pos.table_service",
+  "pos.kitchen_display",
+  "items.composite_products",
+  "industry.template_engine",
+  "industry.terminology",
   // PHASE-017 (0025 plan grants): the job-card/distribution set — business
   // + enterprise gain sales.job_cards, the commission/distribution keys,
   // and inventory.reservations (automotive's REQUIRED capability chain).
-  "sales.job_cards", "sales.commissions", "distribution.routes",
-  "distribution.van_stock", "distribution.settlements",
-  "distribution.customer_tiers", "distribution.free_goods",
+  "sales.job_cards",
+  "sales.commissions",
+  "distribution.routes",
+  "distribution.van_stock",
+  "distribution.settlements",
+  "distribution.customer_tiers",
+  "distribution.free_goods",
   "inventory.reservations",
   // PHASE-018 (0026 plan grants): the manufacturing set — business gains
   // the seven keys (enterprise already carries them from the 0008 base
   // seed, so the array_cat was a no-op there); starter does NOT.
-  "manufacturing.bom", "manufacturing.production_orders", "manufacturing.wip",
-  "manufacturing.costing", "manufacturing.scrap", "manufacturing.batch_genealogy",
+  "manufacturing.bom",
+  "manufacturing.production_orders",
+  "manufacturing.wip",
+  "manufacturing.costing",
+  "manufacturing.scrap",
+  "manufacturing.batch_genealogy",
   "manufacturing.qc",
   // PHASE-019 (0027 plan grants): the CRM + projects set — business gains
   // the six keys (enterprise already carries them from the 0008 base seed,
   // so the array_cat was a no-op there); starter does NOT.
-  "crm.leads", "crm.tasks_activities", "crm.service_contracts",
-  "crm.recurring_billing", "crm.service_orders", "accounting.projects",
+  "crm.leads",
+  "crm.tasks_activities",
+  "crm.service_contracts",
+  "crm.recurring_billing",
+  "crm.service_orders",
+  "accounting.projects",
   // PHASE-020 (0029 plan grants): the offline sync foundation — business
   // gains the sync protocol + device management keys (enterprise already
   // carries them from the 0008 base seed); the 021/022 app keys
   // (desktop/android/mobile_accounts) stay enterprise-only until they ship.
-  "offline.sync_protocol", "offline.device_management",
+  "offline.sync_protocol",
+  "offline.device_management",
+  // PHASE-030 mirror (0038 plan grants — transcribed now because the
+  // wholesale template's REQUIRED pdc_notes chain consumes it; the
+  // twelve-key tier-4 financial-depth wave): notes + installments on
+  // business + enterprise, starter NOT.
+  "notes.received",
+  "notes.issued",
+  "notes.pdc_calendar",
+  "notes.endorsement",
+  "notes.dishonor",
+  "notes.discounting",
+  "notes.reports",
+  "installments.plans",
+  "installments.schedules",
+  "installments.collections",
+  "installments.late_fees",
+  "installments.reports",
 ];
 
 const ENTERPRISE_KEYS: readonly string[] = [
@@ -154,7 +246,8 @@ const ENTERPRISE_KEYS: readonly string[] = [
   // Likewise the offline sync foundation (0029 granted sync_protocol +
   // device_management to business; only the 021/022 app keys stay here).
   "offline.desktop_app",
-  "offline.android_app", "offline.mobile_accounts",
+  "offline.android_app",
+  "offline.mobile_accounts",
 ];
 
 export const PLAN_KEYS: Readonly<Record<"starter" | "business" | "enterprise", readonly string[]>> =
@@ -168,19 +261,37 @@ export const PLAN_LIMITS: Readonly<
   Record<"starter" | "business" | "enterprise", Record<string, unknown>>
 > = Object.freeze({
   starter: Object.freeze({
-    users: 3, branches: 1, warehouses: 2, documents_per_month: 500,
-    pos_terminals: 0, offline_devices: 0, industry_addons: 0,
-    support_level: "standard", _placeholder: true,
+    users: 3,
+    branches: 1,
+    warehouses: 2,
+    documents_per_month: 500,
+    pos_terminals: 0,
+    offline_devices: 0,
+    industry_addons: 0,
+    support_level: "standard",
+    _placeholder: true,
   }),
   business: Object.freeze({
-    users: 10, branches: 3, warehouses: 6, documents_per_month: 5000,
-    pos_terminals: 3, offline_devices: 5, industry_addons: 1,
-    support_level: "standard", _placeholder: true,
+    users: 10,
+    branches: 3,
+    warehouses: 6,
+    documents_per_month: 5000,
+    pos_terminals: 3,
+    offline_devices: 5,
+    industry_addons: 1,
+    support_level: "standard",
+    _placeholder: true,
   }),
   enterprise: Object.freeze({
-    users: 50, branches: "unlimited", warehouses: "unlimited",
-    documents_per_month: 250000, pos_terminals: "unlimited", offline_devices: 100,
-    industry_addons: 3, support_level: "priority", _placeholder: true,
+    users: 50,
+    branches: "unlimited",
+    warehouses: "unlimited",
+    documents_per_month: 250000,
+    pos_terminals: "unlimited",
+    offline_devices: 100,
+    industry_addons: 3,
+    support_level: "priority",
+    _placeholder: true,
   }),
 });
 
@@ -208,7 +319,10 @@ export interface FixtureOptions {
   readonly plan?: PlanKey | null;
   readonly jurisdiction?: L2JurisdictionLayer | null;
   readonly settings?: Record<string, unknown>;
-  readonly branches?: Record<string, { id: string; isActive: boolean; seriesFormats: Record<string, string> }>;
+  readonly branches?: Record<
+    string,
+    { id: string; isActive: boolean; seriesFormats: Record<string, string> }
+  >;
   readonly flags?: Record<string, boolean>;
   readonly approvals?: L10PolicyLayer["approvals"];
   readonly tenantTerminology?: Record<string, { en: string; ar: string }>;
@@ -218,8 +332,7 @@ export const TENANT_ID = "01920000-0000-7000-8000-000000000001";
 
 /** A complete LayerInputs fixture (defaults: retail × business × SA). */
 export function layerInputsFixture(options: FixtureOptions = {}): LayerInputs {
-  const template =
-    options.template === undefined ? RETAIL_MANIFEST : options.template;
+  const template = options.template === undefined ? RETAIL_MANIFEST : options.template;
   return {
     tenantId: TENANT_ID,
     baseCurrency: "SAR",

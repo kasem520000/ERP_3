@@ -53,7 +53,12 @@ describe("migration manifest (MIGRATION_STRATEGY §1)", () => {
     // source widening (additive) + the notifications 'payroll' category +
     // the eight feature-key plan grants; §3.14 permissions pre-seeded in
     // 0004/0005).
-    expect(files.at(-1)?.tag).toBe("0040_payroll");
+    // PHASE-030: 0041_industry_wholesale_electronics (the first two Blueprint
+    // v2.0 stage-10 industry templates per ED-06 — DATA-ONLY registry seeds:
+    // industry.wholesale + industry.electronics at v1.0.0 with the report
+    // pins reconciled to the live ar.aging / inventory.valuation keys; zero
+    // new schema objects, permissions, or grants — INV-022).
+    expect(files.at(-1)?.tag).toBe("0041_industry_wholesale_electronics");
   });
 
   it("journal entries mirror the manifest order (drizzle-kit manifest)", () => {
@@ -66,10 +71,7 @@ describe("migration manifest (MIGRATION_STRATEGY §1)", () => {
   it("every migration upserts its own schema-state number (readiness mirror)", () => {
     readMigrationFiles().forEach((file, index) => {
       const number = String(index + 1);
-      expect(
-        file.content,
-        `${file.tag} must upsert ('schema_version', ${number})`,
-      ).toMatch(
+      expect(file.content, `${file.tag} must upsert ('schema_version', ${number})`).toMatch(
         new RegExp(
           `INSERT INTO erp\\._schema_state \\(key, value\\) VALUES \\('schema_version', ${number}\\)`,
         ),

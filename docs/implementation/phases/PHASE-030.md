@@ -1,6 +1,14 @@
 # PHASE-030 — Wholesale & Electronics Templates
 
-> **Status:** PLANNED · **Updated:** 2026-10-28
+> **Status:** COMPLETE · **Updated:** 2026-11-08 (delivered per
+> [reports/PHASE-030-COMPLETION.md](reports/PHASE-030-COMPLETION.md); the
+> task-table drift was corrected in-delivery: the migration is
+> `0041_industry_wholesale_electronics.sql` (not 0030) and the test suites live
+> under `apps/api/src/__db__/configuration/templates-030.spec.ts` +
+> `apps/api/src/modules/configuration/__tests__/capability-matrix-reconciliation.spec.ts`
+> + `apps/api/src/modules/reporting/__tests__/report-pack-wiring.spec.ts` — the
+> repo conventions; T11's "UI composition" reduced to zero web code by the
+> data-driven surfaces, exactly the phase's configuration-only ethos)
 
 ## 1. Phase Overview
 

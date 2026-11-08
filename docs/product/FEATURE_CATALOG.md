@@ -1,6 +1,6 @@
 # Feature Catalog
 
-> **Status:** STABLE · **Owner:** Product & Platform Architecture · **Updated:** 2026-11-07
+> **Status:** STABLE · **Owner:** Product & Platform Architecture · **Updated:** 2026-11-08
 
 The canonical, exhaustive registry of product features. Every feature has exactly one
 **feature key** (`module.feature_name`). This file is the single source of truth referenced by:
@@ -336,6 +336,17 @@ General sync foundation and native clients (PHASE-020…022) —
 
 The industry template engine (PHASE-015) — templates detailed in
 [INDUSTRY_CATALOG.md](INDUSTRY_CATALOG.md).
+
+**Cross-check (PHASE-030, shipped 2026-11-08): ZERO new feature keys.** The
+wholesale + electronics templates compose **pre-granted keys only** (wholesale:
+`items.price_lists`, `partners.credit_terms`, `partners.statements`,
+`sales.credit_limits`, `notes.received`…; electronics: `inventory.serial_tracking`,
+`crm.service_orders`, the `pos.*` set, trade-in via purchasing) — the
+configuration-only phase constraint (INV-022) held: no key, plan grant, or route was
+added, and the key count above is unchanged (the CI cross-checks are
+`capability-matrix-reconciliation.spec.ts` + the drift gate 245=245). The nine new
+typed workflow-**policy** keys live in the policy registry
+([CONFIGURATION_ENGINE.md](CONFIGURATION_ENGINE.md) §4), not here.
 
 | Feature key | Name (EN · AR) | Description | Priority | Phase | Permission key | Depends on |
 |---|---|---|---|---|---|---|

@@ -658,8 +658,20 @@ table) and [NEXT_ACTION.md](NEXT_ACTION.md).
   Notes & Installments + PHASE-028 Budgeting & Variance Control (the
   planning layer over the ledger — versioned budgets with BR-050/BR-051,
   the read-only variance engine, and the negative ledger proof that budgets
-  never write a journal)
-  (migrations 0001–0039; the centralized posting engine with the full
+  never write a journal) + PHASE-029 Payroll: Salaries, Loans &
+  End-of-Service (financial scope per DR-005 — the PII-restricted employee
+  financial file with audit-on-read, BR-052 structure versioning, G-29/G-30/
+  G-31 through the engine, INV-025 self-proving run totals, employee loans
+  under the BR-054 cap, tenant-policy EOS per BR-055 with no fabricated
+  jurisdiction rates, and the report registry 78→81) + PHASE-030 Wholesale
+  & Electronics Templates (the first two Blueprint v2.0 industry templates
+  as configuration over existing modules — data-only migration 0041: zero
+  new tables, columns, journals, permission keys, or web code; the nine
+  typed policy keys; the negative ledger proof that template apply/switch
+  writes zero journal rows)
+  (migrations 0001–0041 — schema_version 41; CURRENT_SHIPPED_PHASE
+  PHASE-030; 9 shipped industry templates; report registry 81 contracts;
+  permissions 245=245; web i18n 4,069=4,069; the centralized posting engine with the full
   invariant suite is live and proven by its consumers — treasury posts every
   money movement through it, tax stamps every tax-carrying line with frozen
   rate snapshots BR-033, inventory posts every stock movement through it

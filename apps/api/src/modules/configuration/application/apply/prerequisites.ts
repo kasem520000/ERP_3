@@ -76,7 +76,18 @@ import {
 // + the in-process SLO substrate — GA hardening only, zero new plan keys or
 // template capabilities (the 024→025 bump is bookkeeping only; the roadmap
 // notes PHASE-026+ fixed-assets keys arrive with their own phase).
-export const CURRENT_SHIPPED_PHASE = "PHASE-028";
+// PHASE-029 payroll shipped (2026-11-08): the financial-scope payroll
+// module + its eight feature-key plan grants — no industry-template
+// capability rides payroll (no template's prerequisite chain cites a
+// payroll key), so the 028→029 leg is bookkeeping only.
+// PHASE-030 wholesale + electronics shipped (2026-11-08): the first two
+// Blueprint v2.0 stage-10 templates register over already-granted keys —
+// their REQUIRED chains (notes 0038, POS 0024, crm.service_orders 0027,
+// distribution.customer_tiers 0025) resolve LIVE from this bump (the
+// wholesale pdc_notes capability's available_from_phase PHASE-027 ≤ 030);
+// zero new capability ids past PHASE-027 exist in any shipped manifest, so
+// nothing phase-gates at 030.
+export const CURRENT_SHIPPED_PHASE = "PHASE-030";
 
 /** "PHASE-0NN" → the numeric phase (for ordering). */
 export function phaseNumber(phase: string): number {
@@ -93,11 +104,7 @@ export function phaseNumber(phase: string): number {
 
 /** Per-capability classification for the "included / optional / coming
  *  soon / blocked" screen (onboarding wizard + admin preview). */
-export type PrerequisiteCapabilityStatus =
-  | "included"
-  | "phase_gated"
-  | "hidden"
-  | "blocked";
+export type PrerequisiteCapabilityStatus = "included" | "phase_gated" | "hidden" | "blocked";
 
 export interface PrerequisiteCapabilityState {
   readonly capabilityId: string;

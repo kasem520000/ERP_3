@@ -1,6 +1,6 @@
 # Configuration Engine
 
-> **Status:** STABLE · IMPLEMENTED (PHASE-015) · **Owner:** Product & Platform Architecture · **Updated:** 2026-11-02
+> **Status:** STABLE · IMPLEMENTED (PHASE-015) · **Owner:** Product & Platform Architecture · **Updated:** 2026-11-08
 
 The layered configuration resolution architecture. This is the mechanism behind
 "configuration without chaos" ([../PROJECT_VISION.md](../PROJECT_VISION.md) pillar 2): ten
@@ -117,6 +117,25 @@ are validated server-side. Unknown or unvalidated keys are rejected. Selected ke
 | `numbering.<doctype>.assign_at` | enum `approval`\|`posting` | `posting` | L5/L7 | BR-029 |
 | `tax.pricing_inclusive_default` | bool | `false` | L1/L5 | [../localization/TAX_ENGINE.md](../localization/TAX_ENGINE.md) §5 |
 | `accounting.fx_revaluation_enabled` | bool | `false` | L5 | BR-036 |
+
+The manifest `workflow_policies` keys are typed in the code-owned **policy registry**
+(`POLICY_REGISTRY`, `configuration` domain — NFR-011: unknown keys are rejected at
+manifest validation). Keys that map onto a settings key above land as its L1 default;
+the nine PHASE-030 keys (wholesale + electronics) carry **no settings mapping** — the
+manifest value resolves directly into the §5 policy map as the L1 rung over the platform
+default (the automotive/distribution posture):
+
+| Key | Type | Default | Layer origin | Backing rule |
+|---|---|---|---|---|
+| `qty_break_pricing_automatic` | bool | `true` | L1 (platform default beneath) | BR-003 — quantity-break tiers (`price_list_items.min_qty`) resolve automatically at entry and display the resolved break; the quoted price is never overridden |
+| `bulk_order_from_quote_one_click` | bool | `true` | L1 (platform default beneath) | BR-006 — an accepted quotation converts to a bulk order (ORD-) in one action; lines, tiers, and resolved prices carry over verbatim (conversion never re-prices) |
+| `delivery_before_credit_invoice` | bool | `true` | L1 (platform default beneath) | PHASE-012 chain — the credit-invoice flow expects the delivery note (DLV-) first; off = invoicing undelivered quantities per the standard sales policy |
+| `statement_monthly_by_default` | bool | `true` | L1 (platform default beneath) | INV-009/012 — the customer statement defaults to a monthly cadence reconciling to the AR control; statements are read models over the same allocations, never a second ledger |
+| `pdc_note_requires_maturity_date` | bool | `true` | L1 (platform default beneath) | BR-045 family — receiving a post-dated note requires its maturity date (a note without one is an ordinary on-demand instrument, never a PDC calendar row) |
+| `imei_capture_required_flagged_items` | bool | `true` | L1 (platform default beneath) | PHASE-010 serial register — GRNs of IMEI-flagged items must capture serials; selling an unregistered IMEI is blocked (fail-closed; required for flagged items exactly) |
+| `repair_parts_issue_mode` | enum `reserve`\|`issue_immediate` | `reserve` | L1 (platform default beneath) | industry-workflows (b) over `crm.service_orders` — `reserve` = approved cards hold parts via `inventory.reservations` (COGS at invoice); `issue_immediate` = COGS journal + stock move at issue (mirrors `job_card_parts_issue_mode`) |
+| `repair_card_labor_rate_source` | enum `price_list` | `price_list` | L1 (platform default beneath) | — (labor lines bill from the labor-rate price list; the only supported source — technician cost stays untracked until payroll reporting consumes it) |
+| `tradein_purchase_at_branch` | bool | `true` | L1 (platform default beneath) | G-07/G-08 — trade-in intake is an ordinary branch goods receipt of a serial-tracked used-device item with a condition-grade attribute; never a special document type |
 
 Schema governance: each module ships its settings schema with its features; adding a key =
 phase scope + schema version bump + migration default; removing/renaming a key requires a

@@ -116,6 +116,10 @@ export const notesMaturityCalendarContract = defineReport({
     direction: z.enum(["RECEIVED", "ISSUED"]).optional(),
     partnerId: z.string().uuid().optional(),
     bank: z.string().optional(),
+    /** PHASE-031 (§2 item 8): group the rows by the source invoice's claim
+     * ref (claim cheques per claim) — display-only, the custody tie stays
+     * whole-tenant. */
+    groupByClaim: z.boolean().optional(),
     locale: LOCALE,
   }),
   requiredPermission: "notes.notes.view",
@@ -133,6 +137,13 @@ export const notesMaturityCalendarContract = defineReport({
       ["journal_entries", "journal_lines", "account_purposes"],
       "أرصدة حسابات أوراق القبض والدفع حتى التاريخ للمطابقة",
       "The notes-purpose account balances as-of for the tie-out",
+    ),
+    source(
+      "sales",
+      "sales_invoices.claim_ref (the source invoice's insurer claim reference — the PHASE-031 group-by-claim key)",
+      ["sales_invoices"],
+      "مرجع المطالبة على الفاتورة المصدر للتجميع حسب المطالبة",
+      "The source invoice's claim reference for the group-by-claim view",
     ),
   ],
   scopeRules: { dateRange: "optional", asOf: "required", branches: "optional" },
@@ -162,6 +173,7 @@ export const notesMaturityCalendarContract = defineReport({
     let baseTotal = "0.0000";
     let receivedTotal = "0.0000";
     let issuedTotal = "0.0000";
+    const claimGroupTotals = new Map<string, string>();
     for (const row of rows) {
       baseTotal = addExact(baseTotal, row.baseAmount);
       if (row.direction === "RECEIVED") {
@@ -169,7 +181,29 @@ export const notesMaturityCalendarContract = defineReport({
       } else {
         issuedTotal = addExact(issuedTotal, row.baseAmount);
       }
+      const claimGroupKey = row.claimRef ?? "(no-claim)";
+      claimGroupTotals.set(
+        claimGroupKey,
+        addExact(claimGroupTotals.get(claimGroupKey) ?? "0.0000", row.baseAmount),
+      );
     }
+
+    // PHASE-031 (§2 item 8): the claim groups — one per distinct claim ref
+    // present in the displayed rows (sorted; the no-claim bucket last), each
+    // with its base subtotal. Σ group subtotals == baseTotal exactly.
+    const groups =
+      params.groupByClaim === true
+        ? [...claimGroupTotals.keys()]
+            .sort((a, b) => (a === "(no-claim)" ? 1 : b === "(no-claim)" ? -1 : a.localeCompare(b)))
+            .map((claimGroupKey) => ({
+              key: claimGroupKey,
+              label: bilingual(
+                claimGroupKey === "(no-claim)" ? "بدون مطالبة" : `المطالبة ${claimGroupKey}`,
+                claimGroupKey === "(no-claim)" ? "(no claim)" : `Claim ${claimGroupKey}`,
+              ),
+              subtotal: { baseAmount: claimGroupTotals.get(claimGroupKey)! },
+            }))
+        : [];
 
     const ties = await notes.maturityCalendarTies({ asOf: params.asOf! });
 
@@ -184,10 +218,17 @@ export const notesMaturityCalendarContract = defineReport({
         col("currency", "العملة", "Currency"),
         col("status", "الحالة حتى التاريخ", "Status (as-of)", "status"),
         col("maturityDate", "تاريخ الاستحقاق", "Maturity", "date"),
+        // PHASE-031 (0042): the source invoice's claim ref — the group-by-claim
+        // key (مطالبة تأمينية; null renders the no-claim group).
+        col("claimRef", "المطالبة", "Claim"),
       ],
-      groups: [],
+      groups,
       rows: rows.map((row) => ({
         key: row.noteId,
+        // PHASE-031: with groupByClaim on, each row carries its claim group
+        // key (the source invoice's claim_ref; "(no-claim)" for non-claim
+        // notes — never dropped, so the group subtotal ties to the footer).
+        ...(params.groupByClaim === true ? { groupKey: row.claimRef ?? "(no-claim)" } : {}),
         values: {
           bucket: row.bucket,
           direction: row.direction,
@@ -198,6 +239,7 @@ export const notesMaturityCalendarContract = defineReport({
           currency: row.currency,
           status: row.statusAsOf,
           maturityDate: row.maturityDate,
+          claimRef: row.claimRef,
         },
       })),
       totals: [

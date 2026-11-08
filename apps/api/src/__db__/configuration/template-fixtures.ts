@@ -200,12 +200,16 @@ export async function seedPostingSubstrate(
 /**
  * Post one back-office service invoice through the REAL sales flow
  * (create → submit → approve → post): DR AR 100 / CR service 100, no VAT
- * (NOT_SUBJECT) — the golden NS shape from the sales suite.
+ * (NOT_SUBJECT) — the golden NS shape from the sales suite. PHASE-031:
+ * the optional insured/claimRef pair rides the same flow (a claim invoice
+ * is an ordinary CREDIT invoice whose only difference is the external
+ * claim_ref marker — migration 0042; the journals are byte-identical).
  */
 export async function postServiceInvoice(
   substrate: PostingSubstrate,
   note: string,
   invoiceDate = "2026-02-15",
+  claim?: { insured: boolean; claimRef: string | null },
 ): Promise<{ invoiceId: string; invoiceNo: string; journalEntryId: string }> {
   const posting = new PostingService(audit, new PartnerSubledgerService());
   const numbering = new NumberingService(audit);
@@ -224,6 +228,8 @@ export async function postServiceInvoice(
       deliveryId: null,
       warehouseId: null,
       cashAccountId: null,
+      insured: claim?.insured ?? false,
+      claimRef: claim?.claimRef ?? null,
       note,
       noteAr: null,
       actorId: substrate.ownerId,

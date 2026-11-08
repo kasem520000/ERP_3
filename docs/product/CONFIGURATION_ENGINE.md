@@ -106,6 +106,7 @@ are validated server-side. Unknown or unvalidated keys are rejected. Selected ke
 | `sales.cash_autopost` | bool | `false` (back office) | L1/L5 | BR-005 |
 | `pos.cash_autopost` | bool | `true` | L1 | BR-005 |
 | `sales.return_window_days` | int ≥ 0 | `14` | L1/L5 | BR-004 |
+| `sales.claim_ref_required_for_insured` | bool | `true` | L1 default / L5 override | PHASE-031 healthcare (ED-07) — insurance-selected invoices require their external claim reference (`sales_invoices.claim_ref`, migration 0042; typed `CLAIM_REF_REQUIRED` rejection); capture behavior only, never posting (INV-022) |
 | `inventory.allow_negative_stock` | bool | `false` | L5 | BR-013 |
 | `inventory.count_variance_tolerance` | decimal ≥ 0 | `0` | L5 | BR-015 |
 | `inventory.fefo_for_expiry_items` | bool | `true` | L1 | BR-017 |
@@ -123,7 +124,11 @@ The manifest `workflow_policies` keys are typed in the code-owned **policy regis
 manifest validation). Keys that map onto a settings key above land as its L1 default;
 the nine PHASE-030 keys (wholesale + electronics) carry **no settings mapping** — the
 manifest value resolves directly into the §5 policy map as the L1 rung over the platform
-default (the automotive/distribution posture):
+default (the automotive/distribution posture). The six PHASE-031 healthcare keys follow
+both postures: five registry-only (the same L1-rung shape) + ONE settings-mapped —
+`claim_ref_required_for_insured_invoices` → `sales.claim_ref_required_for_insured`
+(the §3 L5 override surface; the platform default true = the capture invariant, the
+manifest ships the same true as its L1 default):
 
 | Key | Type | Default | Layer origin | Backing rule |
 |---|---|---|---|---|
@@ -136,6 +141,12 @@ default (the automotive/distribution posture):
 | `repair_parts_issue_mode` | enum `reserve`\|`issue_immediate` | `reserve` | L1 (platform default beneath) | industry-workflows (b) over `crm.service_orders` — `reserve` = approved cards hold parts via `inventory.reservations` (COGS at invoice); `issue_immediate` = COGS journal + stock move at issue (mirrors `job_card_parts_issue_mode`) |
 | `repair_card_labor_rate_source` | enum `price_list` | `price_list` | L1 (platform default beneath) | — (labor lines bill from the labor-rate price list; the only supported source — technician cost stays untracked until payroll reporting consumes it) |
 | `tradein_purchase_at_branch` | bool | `true` | L1 (platform default beneath) | G-07/G-08 — trade-in intake is an ordinary branch goods receipt of a serial-tracked used-device item with a condition-grade attribute; never a special document type |
+| `patient_file_financial_only` | bool | `true` | L1 (platform default beneath) | ED-07/ED-11 — the patient is a partner FINANCIAL file only (identity, contacts, credit terms, opening balances); machine-checked by the zero-clinical-surface gate (PHASE-031 T10); reopening clinical operations requires a new product decision record |
+| `claim_ref_required_for_insured_invoices` | bool | `true` | L1 → **`sales.claim_ref_required_for_insured`** (the L5 surface) | PHASE-031 §2 item 3 — an insurance-selected invoice without its claim ref (`sales_invoices.claim_ref`, migration 0042) is rejected with the typed `CLAIM_REF_REQUIRED`; self-pay saves null; capture behavior ONLY, never posting (INV-022) |
+| `insurance_invoice_billed_to_company_partner` | bool | `true` | L1 (platform default beneath) | PHASE-031 §2 item 3 — a claim invoice is billed to the insurance-company partner; insurers are ordinary customer-kind partners identified by use (no partner classification enum; INV-009 subledger exposure) |
+| `pharmacy_fefo_enforced` | bool | `true` | L1 (platform default beneath) | BR-017 — dispensing proposes/forces the nearest-expiry batch over `inventory.batch_tracking` (consumed unchanged) and never exceeds on-hand; expiry write-off stays approval-gated with reason EXPIRED |
+| `dunning_by_claim_enabled` | bool | `true` | L1 (platform default beneath) | PHASE-031 §2 item 8 — claim dunning composes the PHASE-027 reports with the optional group-by-claim parameter (grouping key: the source invoice's claim_ref); a report-contract parameter, never a new report key (register §J closed) |
+| `insurance_credit_limit_per_company` | bool | `true` | L1 (platform default beneath) | BR-001/PHASE-012 — per-insurer exposure enforces through the EXISTING per-partner credit_limit before invoice save (the template sets the posture, never new mathematics; cross-insurer group aggregation is consolidation territory, not fabricated) |
 
 Schema governance: each module ships its settings schema with its features; adding a key =
 phase scope + schema version bump + migration default; removing/renaming a key requires a

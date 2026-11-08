@@ -29,6 +29,7 @@ import { requireCustomer, requireSellableItem } from "./quotations";
 import { resolveOutputTaxLines, type SalesTaxLine } from "./tax-lines";
 import { salesLineNetAmount, PRICE_RE } from "./pricing";
 import { enforceAtApproval, runCreditCheck } from "./credit-limits";
+import { assertClaimRefCapture, normalizeClaimRef } from "./invoice-claim-ref";
 
 /**
  * Sales-invoice service (PHASE-012 T5/T6; POSTING_ENGINE §4/§5; goldens
@@ -177,6 +178,19 @@ export class SalesInvoiceService {
     contractId?: string | null;
     serviceOrderId?: string | null;
     projectId?: string | null;
+    /** PHASE-031 (0042 — the healthcare claim-ref light extension, ED-07):
+     *  `insured` is the request-scoped payer selection (the UI's patient /
+     *  insurer picker — insurance billing selected); `claimRef` is the
+     *  external insurer claim reference (مطالبة تأمينية, varchar(64), never
+     *  a document number per ADR-0006). A claimRef-carrying invoice is a
+     *  claim invoice billed to the insurance-company partner; a null one is
+     *  self-pay (دفع مباشر) billed to the patient. With the
+     *  sales.claim_ref_required_for_insured policy resolved true (platform
+     *  default; L5 may relax), insured invoices cannot save without their
+     *  claim ref — the typed CLAIM_REF_REQUIRED error (capture behavior
+     *  ONLY, never posting; INV-022). */
+    insured?: boolean;
+    claimRef?: string | null;
     note: string | null;
     noteAr: string | null;
     actorId: string | null;
@@ -196,6 +210,18 @@ export class SalesInvoiceService {
     if (input.lines.length === 0) throw new EmptyDocumentError("sales invoice");
     const customer = await requireCustomer(input.customerId);
     const base = await ownTenantBaseCurrency();
+    // PHASE-031 T4 — the claim-ref capture (policy-gated, validated BEFORE
+    // the insert so every failure path leaves zero residue): the payer
+    // selection + the normalized claim reference against the resolved
+    // sales.claim_ref_required_for_insured setting (platform default true;
+    // the healthcare manifest ships the same true as its L1 default; an
+    // explicit L5 row may relax it — toggling changes only capture).
+    const claimRef = normalizeClaimRef(input.claimRef ?? null);
+    assertClaimRefCapture({
+      insured: input.insured === true,
+      claimRef,
+      required: (await store.readSetting<boolean>("sales.claim_ref_required_for_insured")) ?? true,
+    });
     if (input.currencyCode !== base && (input.exchangeRate === null || Number(input.exchangeRate) <= 0)) {
       throw new InvoiceLineInvalidError(
         `invoice in ${input.currencyCode} requires a positive exchange rate (base ${base})`,
@@ -470,6 +496,7 @@ export class SalesInvoiceService {
       contractId: input.contractId ?? null,
       serviceOrderId: input.serviceOrderId ?? null,
       projectId: input.projectId ?? null,
+      claimRef,
       note: input.note,
       noteAr: input.noteAr,
       actorId: input.actorId,

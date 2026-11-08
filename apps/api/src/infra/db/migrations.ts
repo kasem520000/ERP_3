@@ -142,6 +142,26 @@ export const MIGRATIONS: readonly string[] = [
   // (notes by 0038, POS by 0024, crm.service_orders by 0027), and the
   // typed workflow-policy keys register in the code-owned POLICY_REGISTRY).
   "0041_industry_wholesale_electronics",
+  // PHASE-031: 0042_healthcare_claim_ref.sql (the Healthcare Commercial
+  // Shell's SINGLE schema change per ED-07 — the additive nullable
+  // sales_invoices.claim_ref varchar(64), the external insurer claim
+  // reference: non-null = a claim (insured) invoice billed to the
+  // insurance-company partner, NULL = self-pay; plus the optional partial
+  // (tenant_id, claim_ref) grouping index. No backfill, no default, RLS
+  // untouched — ADR-0006 (never an official document number) + INV-022
+  // (metadata that never enters a journal line)).
+  "0042_healthcare_claim_ref",
+  // PHASE-031: 0043_industry_healthcare.sql (the industry.healthcare
+  // v1.0.0 registry seed — DATA-ONLY per the 0041 convention: the manifest
+  // transcribed VERBATIM with the partners.ar_aging pin reconciled to the
+  // live ar.aging key (inventory.expiry_list / notes.aging /
+  // notes.maturity-calendar resolve verbatim); every REQUIRED key granted by
+  // earlier migrations so the engine classifies everything LIVE, including
+  // the shell's own insurance_claim_billing capability at
+  // available_from_phase PHASE-031; the six typed workflow-policy keys
+  // register in the code-owned POLICY_REGISTRY — zero new tables/columns/
+  // enums/journals/permissions/plan-grants, INV-022).
+  "0043_industry_healthcare",
 ];
 
 /**

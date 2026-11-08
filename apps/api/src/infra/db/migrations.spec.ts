@@ -58,7 +58,15 @@ describe("migration manifest (MIGRATION_STRATEGY §1)", () => {
     // industry.wholesale + industry.electronics at v1.0.0 with the report
     // pins reconciled to the live ar.aging / inventory.valuation keys; zero
     // new schema objects, permissions, or grants — INV-022).
-    expect(files.at(-1)?.tag).toBe("0041_industry_wholesale_electronics");
+    // PHASE-031: 0042_healthcare_claim_ref (the Healthcare Commercial Shell's
+    // single schema change per ED-07 — the additive nullable claim_ref
+    // varchar(64) + the partial (tenant_id, claim_ref) grouping index;
+    // external reference semantics only, never a document number) +
+    // 0043_industry_healthcare (the industry.healthcare v1.0.0 DATA-ONLY
+    // registry seed with the partners.ar_aging → ar.aging pin reconciliation;
+    // the six typed workflow-policy keys register in the code-owned
+    // POLICY_REGISTRY — zero new schema objects, permissions, or grants).
+    expect(files.at(-1)?.tag).toBe("0043_industry_healthcare");
   });
 
   it("journal entries mirror the manifest order (drizzle-kit manifest)", () => {

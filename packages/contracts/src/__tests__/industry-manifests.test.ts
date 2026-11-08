@@ -6,6 +6,7 @@ import {
   ELECTRONICS_TEMPLATE_MANIFEST,
   FOOD_MANUFACTURING_TEMPLATE_MANIFEST,
   GROCERY_MANIFEST,
+  HEALTHCARE_TEMPLATE_MANIFEST,
   PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST,
   RESTAURANT_MANIFEST,
   RETAIL_MANIFEST,
@@ -40,7 +41,11 @@ import {
  * electronics pair is transcribed verbatim from the migration 0041 registry
  * seeds (docs mirrors: manifest.wholesale.json / manifest.electronics.json —
  * the same reconciliation applied: partners.ar_aging → ar.aging,
- * inventory.stock_valuation → inventory.valuation).
+ * inventory.stock_valuation → inventory.valuation). The healthcare
+ * commercial shell is transcribed verbatim from the migration 0043 registry
+ * seed (docs mirror: manifest.healthcare.json — the same ar.aging
+ * reconciliation applied; inventory.expiry_list / notes.aging /
+ * notes.maturity-calendar resolve verbatim).
  */
 
 function cloneManifest(manifest: IndustryTemplateManifest): IndustryTemplateManifest {
@@ -93,14 +98,14 @@ function expectSingleIssue(
   }
 }
 
-describe("shipped industry template manifests (v1.0.0 — retail / grocery / restaurant / automotive / distribution / food_manufacturing / professional_services / wholesale / electronics)", () => {
-  it("all nine parse against the §3 schema and round-trip identically", () => {
+describe("shipped industry template manifests (v1.0.0 — retail / grocery / restaurant / automotive / distribution / food_manufacturing / professional_services / wholesale / electronics / healthcare)", () => {
+  it("all ten parse against the §3 schema and round-trip identically", () => {
     for (const manifest of SHIPPED_TEMPLATE_MANIFESTS) {
       expect(parseIndustryTemplateManifest(manifest)).toStrictEqual(manifest);
     }
   });
 
-  it("the registry ships exactly the nine ids at 1.0.0", () => {
+  it("the registry ships exactly the ten ids at 1.0.0", () => {
     expect(SHIPPED_TEMPLATE_MANIFESTS.map((manifest) => manifest.id)).toEqual([
       "industry.retail",
       "industry.grocery",
@@ -111,6 +116,7 @@ describe("shipped industry template manifests (v1.0.0 — retail / grocery / res
       "industry.professional_services",
       "industry.wholesale",
       "industry.electronics",
+      "industry.healthcare",
     ]);
     expect(SHIPPED_TEMPLATE_MANIFESTS.every((manifest) => manifest.version === "1.0.0")).toBe(true);
   });
@@ -474,6 +480,152 @@ describe("shipped industry template manifests (v1.0.0 — retail / grocery / res
     expect(ELECTRONICS_TEMPLATE_MANIFEST.terminology_overrides["item.imei"]).toEqual({
       en: "IMEI",
       ar: "الرقم التسلسلي (IMEI)",
+    });
+  });
+
+  it("the PHASE-031 healthcare template pins the live report keys and the billing/pharmacy groups (0043)", () => {
+    // The report pins: the two PHASE-027 notes.* registry keys (both
+    // dashboard — the billing desk's claim aging + PDC calendar) plus the
+    // composed already-live `ar.aging` (the 0043 reconciliation — the doc
+    // draft said partners.ar_aging, the 0025/0027/0041 convention) and
+    // inventory.expiry_list (the PHASE-015 industry contract, verbatim —
+    // الرقابة على الصلاحية).
+    expect(HEALTHCARE_TEMPLATE_MANIFEST.report_defaults.map((pin) => pin.report_key)).toEqual([
+      "notes.aging",
+      "notes.maturity-calendar",
+      "ar.aging",
+      "inventory.expiry_list",
+    ]);
+    expect(
+      HEALTHCARE_TEMPLATE_MANIFEST.report_defaults.find((pin) => pin.report_key === "notes.aging"),
+    ).toMatchObject({ pinned: true, dashboard: true, default_period: "this_month" });
+    expect(
+      HEALTHCARE_TEMPLATE_MANIFEST.report_defaults.find(
+        (pin) => pin.report_key === "notes.maturity-calendar",
+      ),
+    ).toMatchObject({ pinned: true, dashboard: true, default_period: "this_month" });
+    expect(
+      HEALTHCARE_TEMPLATE_MANIFEST.report_defaults.find((pin) => pin.report_key === "ar.aging"),
+    ).toMatchObject({ pinned: true, dashboard: false, default_period: "this_month" });
+    expect(
+      HEALTHCARE_TEMPLATE_MANIFEST.report_defaults.find(
+        (pin) => pin.report_key === "inventory.expiry_list",
+      ),
+    ).toMatchObject({ pinned: true, dashboard: false, default_period: "this_week" });
+    // The billing + pharmacy navigation groups ship as-is.
+    expect(HEALTHCARE_TEMPLATE_MANIFEST.navigation_manifest.groups.map((group) => group.id)).toEqual(
+      ["billing", "pharmacy"],
+    );
+    const billing = HEALTHCARE_TEMPLATE_MANIFEST.navigation_manifest.groups.find(
+      (group) => group.id === "billing",
+    )!;
+    expect(billing.items.map((item) => item.target)).toEqual([
+      "crm.service_orders",
+      "sales.invoices",
+      "partners.statements",
+    ]);
+    const pharmacy = HEALTHCARE_TEMPLATE_MANIFEST.navigation_manifest.groups.find(
+      (group) => group.id === "pharmacy",
+    )!;
+    expect(pharmacy.items.map((item) => item.target)).toEqual([
+      "inventory.expiry_list",
+      "pos.counter",
+      "notes.received",
+    ]);
+    // The gated entries carry their feature_key gates (the visits entry on
+    // crm.service_orders; the expiry entry on inventory.batch_tracking; the
+    // claims-cheques entry on notes.received — the §3.13/0027/0038 keys).
+    expect(billing.items.find((item) => item.target === "crm.service_orders")?.feature_key).toBe(
+      "crm.service_orders",
+    );
+    expect(pharmacy.items.find((item) => item.target === "inventory.expiry_list")?.feature_key).toBe(
+      "inventory.batch_tracking",
+    );
+    expect(pharmacy.items.find((item) => item.target === "notes.received")?.feature_key).toBe(
+      "notes.received",
+    );
+    // The claim chain rides in the required keys + the shell's OWN
+    // insurance_claim_billing capability (REQUIRED, PHASE-031 — live at its
+    // release) + the REQUIRED pdc_notes (claims settle by cheque/PDC, so
+    // 027 is a prerequisite of this template).
+    expect(HEALTHCARE_TEMPLATE_MANIFEST.required_feature_keys).toContain("notes.received");
+    expect(HEALTHCARE_TEMPLATE_MANIFEST.required_feature_keys).toContain("crm.service_orders");
+    expect(HEALTHCARE_TEMPLATE_MANIFEST.capability_prerequisites.insurance_claim_billing).toEqual({
+      level: "REQUIRED",
+      feature_keys: ["sales.invoices", "notes.received", "partners.statements"],
+      available_from_phase: "PHASE-031",
+    });
+    expect(HEALTHCARE_TEMPLATE_MANIFEST.capability_prerequisites.pdc_notes).toEqual({
+      level: "REQUIRED",
+      feature_keys: ["notes.received", "notes.pdc_calendar"],
+      available_from_phase: "PHASE-027",
+    });
+    // The six §2 healthcare workflow policies land as L1 defaults
+    // (claim_ref_required_for_insured_invoices maps onto the
+    // sales.claim_ref_required_for_insured settings key — the L5 override
+    // surface; the other five are registry-only).
+    expect(HEALTHCARE_TEMPLATE_MANIFEST.workflow_policies).toEqual({
+      patient_file_financial_only: true,
+      claim_ref_required_for_insured_invoices: true,
+      insurance_invoice_billed_to_company_partner: true,
+      pharmacy_fefo_enforced: true,
+      dunning_by_claim_enabled: true,
+      insurance_credit_limit_per_company: true,
+    });
+    // The INV/CN/RCP/GRN numbering rules — all posting-assigned (the §3
+    // healthcare defaults; no per-branch series).
+    expect(HEALTHCARE_TEMPLATE_MANIFEST.document_numbering_defaults.sales_invoice).toEqual({
+      prefix: "INV",
+      format: "INV-{yyyy}-{seq:6}",
+      per_branch: false,
+      reserve_on_approval: false,
+    });
+    expect(HEALTHCARE_TEMPLATE_MANIFEST.document_numbering_defaults.receipt).toEqual({
+      prefix: "RCP",
+      format: "RCP-{yyyy}-{seq:6}",
+      per_branch: false,
+      reserve_on_approval: false,
+    });
+    // The pharmacy defaults: batch + expiry ON, serial OFF, FEFO ON — the
+    // FEFO store reusing inventory.batch_tracking unchanged (new items only,
+    // §5 R3).
+    expect(HEALTHCARE_TEMPLATE_MANIFEST.inventory_policy_defaults).toMatchObject({
+      costing_method: "WAC",
+      default_track_batch: true,
+      default_track_expiry: true,
+      default_track_serial: false,
+      default_imei_tracking: false,
+      fefo_picking: true,
+      allow_negative_stock: false,
+    });
+    // The billing-desk Arabic (المريض (الملف المالي) / مطالبة تأمينية /
+    // دفع مباشر) — the commercial-shell vocabulary, financial file first.
+    expect(HEALTHCARE_TEMPLATE_MANIFEST.terminology_overrides["partner.patient"]).toEqual({
+      en: "Patient (financial file)",
+      ar: "المريض (الملف المالي)",
+    });
+    expect(HEALTHCARE_TEMPLATE_MANIFEST.terminology_overrides["claim.ref"]).toEqual({
+      en: "Insurance claim",
+      ar: "مطالبة تأمينية",
+    });
+    expect(HEALTHCARE_TEMPLATE_MANIFEST.terminology_overrides["billing.self_pay"]).toEqual({
+      en: "Self-pay",
+      ar: "دفع مباشر",
+    });
+    // The onboarding checklist carries the honest "no clinical data"
+    // framing (ED-07/ED-11 — the boundary stated in the doc, enforced by
+    // the zero-clinical-surface gate).
+    expect(
+      HEALTHCARE_TEMPLATE_MANIFEST.onboarding_steps.find((step) => step.id === "patients")!.title,
+    ).toEqual({
+      en: "Patient financial files (no clinical data)",
+      ar: "الملفات المالية للمرضى (بيانات مالية فقط)",
+    });
+    expect(
+      HEALTHCARE_TEMPLATE_MANIFEST.onboarding_steps.find((step) => step.id === "first_claim"),
+    ).toMatchObject({
+      required: false,
+      feature_key: "notes.received",
     });
   });
 });

@@ -668,9 +668,21 @@ table) and [NEXT_ACTION.md](NEXT_ACTION.md).
   as configuration over existing modules — data-only migration 0041: zero
   new tables, columns, journals, permission keys, or web code; the nine
   typed policy keys; the negative ledger proof that template apply/switch
-  writes zero journal rows)
-  (migrations 0001–0041 — schema_version 41; CURRENT_SHIPPED_PHASE
-  PHASE-030; 9 shipped industry templates; report registry 81 contracts;
+  writes zero journal rows) + PHASE-031 Healthcare Commercial Shell (ED-07,
+  the register's "configuration + light extension" pattern: the single
+  additive `sales_invoices.claim_ref` column by migration 0042 + the
+  `industry.healthcare` v1.0.0 seed by the data-only migration 0043; the
+  policy-gated claim-ref capture with the typed CLAIM_REF_REQUIRED
+  rejection; the `(partner, claim_ref)` claim-slice read model
+  partitioning the AR open items (INV-009); the group_by_claim parameter
+  on the existing notes.aging / notes.maturity-calendar /
+  partner.statement contracts (register §J stays closed); the
+  claim-lifecycle end-to-end suite line-asserting G-01/G-03/G-24/G-25/G-26
+  incl. the FEFO dispensing pick and the G-26 dishonor restoring the claim
+  exactly; the zero-clinical-surface CI gate — no clinical field, key, or
+  screen exists anywhere in the shell)
+  (migrations 0001–0043 — schema_version 43; CURRENT_SHIPPED_PHASE
+  PHASE-031; 10 shipped industry templates; report registry 81 contracts;
   permissions 245=245; web i18n 4,069=4,069; the centralized posting engine with the full
   invariant suite is live and proven by its consumers — treasury posts every
   money movement through it, tax stamps every tax-carrying line with frozen

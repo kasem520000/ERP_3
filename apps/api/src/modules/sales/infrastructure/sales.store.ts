@@ -695,6 +695,12 @@ export interface SalesInvoiceRow {
   contractId: string | null;
   serviceOrderId: string | null;
   projectId: string | null;
+  // PHASE-031 (0042): the external insurer claim reference (the healthcare
+  // shell's single additive column) — non-null = a CLAIM (insured) invoice
+  // billed to the insurance-company partner; null = SELF-PAY (دفع مباشر)
+  // billed to the patient. Metadata only: never a document number
+  // (ADR-0006) and never a journal-line rider (INV-022).
+  claimRef: string | null;
 }
 
 /** PHASE-016: a POS tender split line (jsonb on sales_invoices). */
@@ -716,7 +722,8 @@ const INVOICE_COLUMNS = sql`id, branch_id AS "branchId", customer_id AS "custome
   channel, pos_terminal_id AS "posTerminalId", order_type AS "orderType",
   pos_table_id AS "posTableId", offline_receipt_no AS "offlineReceiptNo", tenders,
   job_card_id AS "jobCardId", vehicle_id AS "vehicleId",
-  contract_id AS "contractId", service_order_id AS "serviceOrderId", project_id AS "projectId"`;
+  contract_id AS "contractId", service_order_id AS "serviceOrderId", project_id AS "projectId",
+  claim_ref AS "claimRef"`;
 
 export async function insertSalesInvoice(input: {
   /** PHASE-016: the offline-sync client id (ADR-0006) — same id across
@@ -759,6 +766,10 @@ export async function insertSalesInvoice(input: {
   contractId?: string | null;
   serviceOrderId?: string | null;
   projectId?: string | null;
+  /** PHASE-031 (0042): the external insurer claim reference — non-null =
+   * a claim (insured) invoice, null = self-pay (validated + normalized at
+   * the application layer before this write; metadata only, INV-022). */
+  claimRef?: string | null;
   lines: readonly {
     itemId: string | null;
     accountId: string | null;
@@ -788,7 +799,7 @@ export async function insertSalesInvoice(input: {
                                 tax_summary, credit_check, note, note_ar, created_by,
                                 channel, pos_terminal_id, order_type, pos_table_id,
                                 offline_receipt_no, tenders, job_card_id, vehicle_id,
-                                contract_id, service_order_id, project_id)
+                                contract_id, service_order_id, project_id, claim_ref)
     VALUES (${id}, erp.current_tenant_id(), ${input.branchId}, ${input.customerId}, ${input.salesRepId},
             ${input.kind}, ${input.invoiceDate}, ${input.dueDate}, ${input.currencyCode}, ${input.exchangeRate},
             ${input.orderId}, ${input.deliveryId}, ${input.warehouseId}, ${input.cashAccountId},
@@ -799,7 +810,8 @@ export async function insertSalesInvoice(input: {
             ${input.posTableId ?? null}, ${input.offlineReceiptNo ?? null},
             ${input.tenders === undefined || input.tenders === null ? null : JSON.stringify(input.tenders)}::jsonb,
             ${input.jobCardId ?? null}, ${input.vehicleId ?? null},
-            ${input.contractId ?? null}, ${input.serviceOrderId ?? null}, ${input.projectId ?? null})
+            ${input.contractId ?? null}, ${input.serviceOrderId ?? null}, ${input.projectId ?? null},
+            ${input.claimRef ?? null})
   `);
   let lineNo = 0;
   for (const line of input.lines) {
@@ -1227,6 +1239,64 @@ export async function arOpenItemsAsOf(input: {
   return all.filter((row) => Number(row.outstanding) > 0);
 }
 
+/**
+ * PHASE-031 (0042 — the healthcare claim grouping read model): the open
+ * AR claim slices — one row per (partner, claim_ref, currency) over the
+ * OPEN DEBIT subledger items of claim (insured) invoices (claim_ref IS NOT
+ * NULL; self-pay and non-invoice items never appear). The bounded query
+ * rides the partial ix_sales_invoices_tenant_claim index and reconciles by
+ * CONSTRUCTION: the slices are a partition of the partner's open items, so
+ * Σ slices + Σ self-pay/non-invoice open items = the partner's AR open
+ * total (INV-009/012 — asserted by the claim-lifecycle spec at every step).
+ */
+export interface ClaimSliceRow {
+  customerId: string;
+  customerCode: string;
+  customerName: string;
+  customerNameAr: string | null;
+  claimRef: string;
+  currencyCode: string;
+  itemCount: number;
+  outstandingTotal: string;
+}
+
+export async function arClaimSlicesAsOf(input: {
+  customerId?: string;
+  asOf: string;
+}): Promise<ClaimSliceRow[]> {
+  const rows = await tenantTx().execute(sql`
+    SELECT s.partner_id AS "customerId", p.code AS "customerCode",
+           p.name AS "customerName", p.name_ar AS "customerNameAr",
+           i.claim_ref AS "claimRef", s.currency_code AS "currencyCode",
+           count(*)::int AS "itemCount",
+           SUM(s.amount - COALESCE(settled.total, 0))::numeric(19,4)::text AS "outstandingTotal"
+    FROM partner_subledger_entries s
+    JOIN journal_lines l ON l.id = s.journal_line_id
+    JOIN sales_invoices i ON i.posted_journal_id = s.journal_entry_id AND i.claim_ref IS NOT NULL
+    JOIN partners p ON p.id = s.partner_id
+    LEFT JOIN LATERAL (
+      SELECT SUM(a.amount) AS total FROM treasury_allocations a
+      WHERE a.open_item_id = s.id
+        AND ((a.receipt_id IS NOT NULL AND EXISTS (SELECT 1 FROM receipts r
+                 WHERE r.id = a.receipt_id AND r.status = 'POSTED'))
+          OR (a.payment_id IS NOT NULL AND EXISTS (SELECT 1 FROM payments pm
+                 WHERE pm.id = a.payment_id AND pm.status = 'POSTED'))
+          -- PHASE-027 (0038): note-owned allocations are effective by
+          -- presence (see lockOpenItemAndSumPostedAllocations).
+          OR (a.note_id IS NOT NULL))
+    ) settled ON true
+    WHERE s.entry_date <= ${input.asOf}
+      AND (${input.customerId ?? null}::uuid IS NULL OR s.partner_id = ${input.customerId ?? null})
+      AND s.direction = 'DEBIT'
+      AND l.account_id = (SELECT account_id FROM account_purposes
+                          WHERE purpose_key = 'AR_CONTROL' AND active_to IS NULL LIMIT 1)
+      AND (s.amount - COALESCE(settled.total, 0)) > 0
+    GROUP BY s.partner_id, p.code, p.name, p.name_ar, i.claim_ref, s.currency_code
+    ORDER BY s.partner_id, i.claim_ref, s.currency_code
+  `);
+  return rows.rows as unknown as ClaimSliceRow[];
+}
+
 /** Customers with AR activity as-of (statement listing). */
 export async function customersWithArActivity(asOf: string, limit: number): Promise<
   { customerId: string; code: string; name: string; nameAr: string | null }[]
@@ -1260,6 +1330,10 @@ export async function partnerArStatementEntries(input: {
     sourceId: string | null;
     memo: string | null;
     docRef: string | null;
+    /** PHASE-031 (0042): the source sales invoice's claim ref (null for
+     *  non-invoice entries + self-pay invoices) — the group-by-claim
+     *  grouping key on the per-insurer statement view. */
+    claimRef: string | null;
     settledAmount: string;
     outstanding: string;
   }[]
@@ -1269,6 +1343,7 @@ export async function partnerArStatementEntries(input: {
            s.base_amount::text AS "baseAmount", s.currency_code AS "currencyCode",
            s.source_type AS "sourceType", s.source_id AS "sourceId", s.memo,
            COALESCE(i.invoice_no, c.note_no)::text AS "docRef",
+           i.claim_ref AS "claimRef",
            COALESCE(settled.total, 0)::numeric(19,4)::text AS "settledAmount",
            (s.amount - COALESCE(settled.total, 0))::numeric(19,4)::text AS outstanding
     FROM partner_subledger_entries s
@@ -1305,6 +1380,7 @@ export async function partnerArStatementEntries(input: {
     sourceId: string | null;
     memo: string | null;
     docRef: string | null;
+    claimRef: string | null;
     settledAmount: string;
     outstanding: string;
   }[];

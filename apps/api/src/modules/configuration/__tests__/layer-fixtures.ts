@@ -4,6 +4,7 @@ import {
   ELECTRONICS_TEMPLATE_MANIFEST,
   FOOD_MANUFACTURING_TEMPLATE_MANIFEST,
   GROCERY_MANIFEST,
+  HEALTHCARE_TEMPLATE_MANIFEST,
   PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST,
   RESTAURANT_MANIFEST,
   RETAIL_MANIFEST,
@@ -25,7 +26,7 @@ import type {
 } from "../domain/layer-model";
 
 /**
- * Unit-test layer-input fixtures (PHASE-015 §6): the nine shipped
+ * Unit-test layer-input fixtures (PHASE-015 §6): the ten shipped
  * manifests × the three plan seeds (migration 0008/0021/0024/0025/0026/
  * 0027/0038 key and limits lists, transcribed) × the SA jurisdiction seed
  * (migration 0013). Shared by config-resolution.spec (property/precedence
@@ -38,6 +39,12 @@ import type {
  * plans table again from this phase on. The 0039 budgeting + 0040 payroll
  * grant waves stay un-mirrored (the P28/P29 posture: no template consumes
  * those keys; nothing in the unit fixtures depends on them).
+ *
+ * PHASE-031 mirror note: NO new grant wave — the healthcare template's
+ * REQUIRED chain (notes 0038, crm.service_orders 0027,
+ * inventory.batch_tracking + sales.credit_limits base/0021,
+ * partners.statements + sales.invoices base) is fully covered by the
+ * already-mirrored sets, so the fixtures gain only the manifest itself.
  */
 
 export const SHIPPED_TEMPLATES: readonly IndustryTemplateManifest[] = [
@@ -50,6 +57,7 @@ export const SHIPPED_TEMPLATES: readonly IndustryTemplateManifest[] = [
   PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST,
   WHOLESALE_TEMPLATE_MANIFEST,
   ELECTRONICS_TEMPLATE_MANIFEST,
+  HEALTHCARE_TEMPLATE_MANIFEST,
 ];
 
 /** L1 from a shipped manifest (applied state, no tenant overrides). */

@@ -343,6 +343,45 @@ verdict rows live in
 - Visits via `crm.service_orders`; every flagship key resolves to an existing feature.
 - CAPABILITY_MATRIX gains the HLT column and `insurance_claim_billing` row with citations.
 
+**Acceptance criteria (objective) — copied at completion, 2026-11-08 (verbatim from
+[../implementation/phases/PHASE-031.md](../implementation/phases/PHASE-031.md) §6; the
+verdict rows live in
+[PHASE-031-COMPLETION.md](../implementation/phases/reports/PHASE-031-COMPLETION.md)):**
+
+1. The shell applies and switches via the **unmodified PHASE-015 engine** per BR-038
+   (additive-only, audited diff, zero data loss on switch-back) and passes all seven
+   governance tests of industries/README §8, in AR and EN.
+2. The claim billing workflow runs **end-to-end on a template tenant** — visit → invoice
+   (self-pay and insured) → claim open item → claim cheque/PDC note → collection (and
+   the dishonor path) — with every journal line-asserted to the existing goldens
+   (G-01/G-03/G-24/G-25/G-26) and zero residue on every failure path.
+3. The schema change is exactly one additive nullable column (`sales_invoices.claim_ref`)
+   with the catalog note per conventions; fresh + regression migrations green; existing
+   tenants' behavior unchanged with the template off.
+4. `claim_ref_required_for_insured_invoices` enforcement is policy-driven (L1 default,
+   L5 override): insured invoices cannot save without a claim ref (typed
+   `CLAIM_REF_REQUIRED`); self-pay invoices save with null; toggling the policy changes
+   only the capture behavior, never posting.
+5. Per-claim tracking reconciles: `Σ per-insurer claim open items = AR control`
+   (INV-009/012) at every step; claim allocations respect INV-016; claim cheques obey
+   INV-024 (dishonor restores the claim exactly).
+6. Dunning and report packs wire **existing** keys only — `notes.aging`,
+   `notes.maturity-calendar`, `partners.ar_aging`, `partners.statements`,
+   `inventory.expiry_list` — with the optional `group_by_claim` parameter inside the
+   existing report contracts; **no new report key is registered** (register §J).
+7. Pharmacy flows reuse `inventory.batch_tracking` unchanged: batch/expiry capture at
+   GRN, FEFO proposed/forced at dispensing (BR-017), dispensing never exceeds on-hand,
+   expiry write-off stays approval-gated with reason `EXPIRED`.
+8. **Zero clinical data surfaces** — machine-checked: no clinical field, terminology
+   key, or screen exists in the shell; the patient file is a partner financial file only
+   (ED-07/ED-11 bolded in the template doc and enforced by CI).
+9. Degraded entitlement is graceful: missing OPTIONAL keys (`pos.*`, price lists/tiers,
+   `installments.plans`) hide cleanly with the upgrade path; a missing REQUIRED key blocks
+   onboarding with actionable guidance; the capability cross-check (HLT column, including
+   `insurance_claim_billing` REQ) is green.
+10. Docs validation is green (34-phase set, 13 manifests, all links/headings per ED-17),
+    with the `sales_invoices` catalog note and CONFIGURATION_ENGINE §4 policy rows landed.
+
 ### PHASE-032 — Education Commercial Shell
 
 - Manifest + template doc pass the **7 governance tests**; additive switching rules hold.

@@ -7,10 +7,11 @@ import type { WorkflowPolicyValue } from "@erp/contracts";
  * the platform policy registry; unknown keys are rejected").
  *
  * A manifest may only set policy keys THIS registry knows — every key used
- * by the nine shipped templates (retail / grocery / restaurant + the
+ * by the ten shipped templates (retail / grocery / restaurant + the
  * PHASE-017 automotive / distribution pair + the PHASE-018
  * food_manufacturing template + the PHASE-019 professional_services
- * template + the PHASE-030 wholesale / electronics pair, v1.0.0,
+ * template + the PHASE-030 wholesale / electronics pair + the PHASE-031
+ * healthcare commercial shell, v1.0.0,
  * `packages/contracts/src/industry/templates.ts`) is transcribed below with
  * its canonical type, owning module, and optional mapping onto a
  * SETTINGS_REGISTRY key (L5 override surface).
@@ -378,6 +379,44 @@ export const POLICY_REGISTRY: Readonly<Record<string, PolicyDefinition>> = Objec
     "purchasing",
     true,
     "PHASE-030 electronics: trade-in intake is an ordinary branch goods receipt (G-07/G-08 shape) of a serial-tracked used-device item with a condition-grade attribute — never a special document type; the branch cash account settles the payout.",
+  ),
+  // --- healthcare (PHASE-031) ----------------------------------------------
+  patient_file_financial_only: booleanPolicy(
+    "patient_file_financial_only",
+    "partners",
+    true,
+    "PHASE-031 healthcare (ED-07/ED-11): the patient is a partner FINANCIAL file only — identity, contacts, credit terms, opening balances; the honest guard is machine-checked (the zero-clinical-surface test asserts no diagnosis/prescription/appointment/clinical-note key exists anywhere in the shell). Reopening clinical operations requires a new product decision record, never a phase document.",
+  ),
+  claim_ref_required_for_insured_invoices: booleanPolicy(
+    "claim_ref_required_for_insured_invoices",
+    "sales",
+    true,
+    "PHASE-031 healthcare (§2 item 3): an invoice saved with insurance billing selected but an empty claim ref is rejected with the typed CLAIM_REF_REQUIRED error — self-pay invoices save the field null. Capture discipline only: toggling never touches posting (INV-022). Maps onto the sales.claim_ref_required_for_insured settings key (L5 override; the platform default true = the capture invariant, the manifest ships the same true as its L1 default).",
+    "sales.claim_ref_required_for_insured",
+  ),
+  insurance_invoice_billed_to_company_partner: booleanPolicy(
+    "insurance_invoice_billed_to_company_partner",
+    "sales",
+    true,
+    "PHASE-031 healthcare (§2 item 3): a claim (insured) invoice is billed to the insurance-company partner — insurers are ordinary customer-kind partners identified by use (no partner classification enum is added); per-insurer exposure is the existing partner subledger (INV-009).",
+  ),
+  pharmacy_fefo_enforced: booleanPolicy(
+    "pharmacy_fefo_enforced",
+    "inventory",
+    true,
+    "PHASE-031 healthcare (§2 item 7): dispensing proposes/forces the nearest-expiry batch (BR-017 FEFO over inventory.batch_tracking, consumed unchanged) and never exceeds on-hand (negative stock forbidden); expiry write-off stays behind approval with reason EXPIRED (INVENTORY_ACCOUNTING §1–§4 discipline).",
+  ),
+  dunning_by_claim_enabled: booleanPolicy(
+    "dunning_by_claim_enabled",
+    "reporting",
+    true,
+    "PHASE-031 healthcare (§2 item 8): claim dunning composes the PHASE-027 reports with the optional group-by-claim parameter (grouping key: the source invoice's claim_ref) — dunning runs per claim مطالبة, not only per insurer; a report-contract parameter extension, never a new report key (register §J stays closed).",
+  ),
+  insurance_credit_limit_per_company: booleanPolicy(
+    "insurance_credit_limit_per_company",
+    "sales",
+    true,
+    "PHASE-031 healthcare (§2 item 5): per-insurer exposure enforces through the EXISTING per-partner credit_limit before invoice save (BR-001 machinery, PHASE-012) — the template sets the enforcement posture, never new mathematics; cross-insurer group exposure aggregation is NOT fabricated (consolidation territory, documented honestly).",
   ),
 });
 

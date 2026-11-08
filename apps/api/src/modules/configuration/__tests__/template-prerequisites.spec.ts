@@ -5,6 +5,7 @@ import {
   DISTRIBUTION_TEMPLATE_MANIFEST,
   ELECTRONICS_TEMPLATE_MANIFEST,
   GROCERY_MANIFEST,
+  HEALTHCARE_TEMPLATE_MANIFEST,
   PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST,
   RESTAURANT_MANIFEST,
   RETAIL_MANIFEST,
@@ -44,9 +45,9 @@ describe("phase gate helpers", () => {
     expect(() => phaseNumber("PHASE-16")).toThrow();
   });
 
-  it("CURRENT_SHIPPED_PHASE is PHASE-030 (the wholesale + electronics templates shipped with it)", () => {
-    expect(CURRENT_SHIPPED_PHASE).toBe("PHASE-030");
-    expect(phaseNumber(CURRENT_SHIPPED_PHASE)).toBe(30);
+  it("CURRENT_SHIPPED_PHASE is PHASE-031 (the healthcare commercial shell shipped with it)", () => {
+    expect(CURRENT_SHIPPED_PHASE).toBe("PHASE-031");
+    expect(phaseNumber(CURRENT_SHIPPED_PHASE)).toBe(31);
   });
 });
 
@@ -181,24 +182,23 @@ describe("capability classification (industries/README §4)", () => {
     // An OPTIONAL capability whose roadmap phase has not shipped labels
     // coming-soon instead — hidden vs phase_gated is exactly the §4 optional
     // split. No shipped manifest carries an OPTIONAL capability past
-    // PHASE-030 any more (the 0027/0029 grants put the crm + offline sets on
-    // business, the 029 payroll keys granted, and the 030 wholesale/
-    // electronics chains all cite ≤027 phases), so the later-phase
-    // example is a synthetic OPTIONAL PHASE-031 entry (the healthcare
-    // shell intake horizon, §17 — healthcare.patients is not yet a
-    // catalog key).
+    // PHASE-031 any more (the 0027/0029 grants put the crm + offline sets on
+    // business, the 029 payroll keys granted, and the 030/031 wholesale/
+    // electronics/healthcare chains all cite ≤031 phases), so the later-phase
+    // example is a synthetic OPTIONAL PHASE-032 entry (the education shell
+    // intake horizon, §17 — education.students is not yet a catalog key).
     const autoWithLater = JSON.parse(
       JSON.stringify(AUTOMOTIVE_TEMPLATE_MANIFEST),
     ) as typeof AUTOMOTIVE_TEMPLATE_MANIFEST;
-    autoWithLater.capability_prerequisites.patient_records = {
+    autoWithLater.capability_prerequisites.student_records = {
       level: "OPTIONAL",
-      feature_keys: ["healthcare.patients"],
-      available_from_phase: "PHASE-031",
+      feature_keys: ["education.students"],
+      available_from_phase: "PHASE-032",
     };
     const laterCheck = checkPrerequisites(autoWithLater, keys);
-    expect(stateOf(laterCheck, "patient_records")).toMatchObject({
+    expect(stateOf(laterCheck, "student_records")).toMatchObject({
       status: "phase_gated",
-      phase: "PHASE-031",
+      phase: "PHASE-032",
     });
     // Retail's free_goods_promo (PHASE-017 keys) is now included on the
     // post-0025 business set — the gate lifted with the phase bump.
@@ -218,30 +218,33 @@ describe("capability classification (industries/README §4)", () => {
     });
   });
 
-  it("a REQUIRED capability beyond the shipped phase still phase-gates (the mechanism outlives the 030 bump)", () => {
-    // No shipped template carries a REQUIRED capability past PHASE-030 any
-    // more (the bump is the point of this task — the 030 release resolves
-    // LIVE), so prove the §4 mechanism on a synthetic manifest: a REQUIRED
-    // PHASE-031 capability whose key is off-plan ⇒ phase_gated +
+  it("a REQUIRED capability beyond the shipped phase still phase-gates (the mechanism outlives the 031 bump)", () => {
+    // No shipped template carries a REQUIRED capability past PHASE-031 any
+    // more (the bump is the point of this task — the 031 release resolves
+    // LIVE, including the healthcare shell's own insurance_claim_billing
+    // capability at available_from_phase PHASE-031), so prove the §4
+    // mechanism on a synthetic manifest: a REQUIRED PHASE-032 capability
+    // whose key is off-plan ⇒ phase_gated +
     // requiresAcknowledgement — the switch flow's acknowledgement contract
     // (TemplateSwitchAcknowledgementRequiredError) keys off exactly this
-    // flag. (A PHASE-029 synthetic no longer works: 029 shipped with the
-    // payroll grants and no template requires a post-030 key, so such a
-    // capability classifies on its keys alone, not gated. §18 lesson 5's
-    // pattern keeps the proof on a FUTURE phase key — healthcare.patients
-    // @PHASE-031, the next roadmap shell's intake, not yet a catalog key.)
+    // flag. (A PHASE-030 synthetic no longer works: 030 shipped with the
+    // wholesale/electronics chains and no template requires a post-031 key,
+    // so such a capability classifies on its keys alone, not gated. §18
+    // lesson 5's pattern keeps the proof on a FUTURE phase key —
+    // education.students @PHASE-032, the next roadmap shell's intake, not
+    // yet a catalog key.)
     const synthetic = JSON.parse(JSON.stringify(GROCERY_MANIFEST)) as typeof GROCERY_MANIFEST;
-    synthetic.capability_prerequisites.patient_records = {
+    synthetic.capability_prerequisites.student_records = {
       level: "REQUIRED",
-      feature_keys: ["healthcare.patients"],
-      available_from_phase: "PHASE-031",
+      feature_keys: ["education.students"],
+      available_from_phase: "PHASE-032",
     };
     const check = checkPrerequisites(synthetic, business());
     expect(check.status).toBe("ok"); // phase-gated keys are satisfied-but-labeled
-    expect(stateOf(check, "patient_records")).toMatchObject({
+    expect(stateOf(check, "student_records")).toMatchObject({
       status: "phase_gated",
-      phase: "PHASE-031",
-      missingKeys: ["healthcare.patients"],
+      phase: "PHASE-032",
+      missingKeys: ["education.students"],
     });
     expect(check.requiresAcknowledgement).toBe(true);
   });
@@ -383,6 +386,78 @@ describe("capability classification (industries/README §4)", () => {
       missingKeys: ["crm.service_orders"],
     });
   });
+
+  it("healthcare × business: the full billing set is INCLUDED — insurance_claim_billing LIVE at its own release (0043)", () => {
+    const check = checkPrerequisites(HEALTHCARE_TEMPLATE_MANIFEST, business());
+    expect(check.status).toBe("ok");
+    expect(check.missingChain).toEqual([]);
+    expect(check.closureViolations).toEqual([]);
+    expect(check.requiresAcknowledgement).toBe(false);
+    // The four REQUIRED capabilities: insurance_claim_billing (the shell's
+    // OWN capability, available_from_phase PHASE-031 ≤ 031 — LIVE on its
+    // release day; sales.invoices + notes.received + partners.statements all
+    // granted), pdc_notes (0038 grants — REQUIRED here, unlike wholesale's
+    // OPTIONAL posture: claims settle by cheque/PDC so 027 is a prereq),
+    // expiry_tracking_fefo (inventory.batch_tracking on business), and
+    // job_cards (crm.service_orders via 0027 — the visit document).
+    for (const capabilityId of [
+      "insurance_claim_billing",
+      "pdc_notes",
+      "expiry_tracking_fefo",
+      "job_cards",
+    ]) {
+      expect(stateOf(check, capabilityId), capabilityId).toMatchObject({ status: "included" });
+    }
+    // The OPTIONAL pharmacy-counter surface rides the granted keys (POS by
+    // 0024, shifts by base, tiers by 0025, service contracts + installments
+    // by 0027/0038).
+    for (const capabilityId of [
+      "barcode_pos",
+      "cashier_shifts",
+      "customer_price_tiers",
+      "service_contracts",
+      "installment_terms",
+    ]) {
+      expect(stateOf(check, capabilityId), capabilityId).toMatchObject({ status: "included" });
+    }
+  });
+
+  it("healthcare × starter: blocked with the notes + service-order chain in the guided plan selection", () => {
+    const check = checkPrerequisites(HEALTHCARE_TEMPLATE_MANIFEST, [...PLAN_KEYS.starter]);
+    expect(check.status).toBe("blocked");
+    // Starter carries the classic sales chain but NOT the notes keys (the
+    // 0038 tier-4 wave) nor crm.service_orders (0027) nor
+    // inventory.batch_tracking — the claim settlement chain (cheques/PDC)
+    // is exactly what the higher plans unlock.
+    expect(check.missingChain).toContain("notes.received");
+    expect(check.missingChain).toContain("crm.service_orders");
+    expect(check.missingChain).toContain("inventory.batch_tracking");
+    expect(stateOf(check, "pdc_notes")).toMatchObject({
+      status: "blocked",
+      missingKeys: expect.arrayContaining(["notes.received", "notes.pdc_calendar"]),
+    });
+    expect(stateOf(check, "insurance_claim_billing")).toMatchObject({ status: "blocked" });
+    expect(check.guidance?.ar).toContain("notes.received");
+    expect(check.guidance?.en).toContain("notes.received");
+  });
+
+  it("healthcare without notes.received (downgraded plan): blocked with the exact claim chain", () => {
+    const keys = business().filter((key) => key !== "notes.received");
+    const check = checkPrerequisites(HEALTHCARE_TEMPLATE_MANIFEST, keys);
+    expect(check.status).toBe("blocked");
+    expect(check.missingChain).toContain("notes.received");
+    // notes.received is BOTH a required_feature_key and the key of TWO
+    // REQUIRED capabilities (insurance_claim_billing + pdc_notes) — the
+    // chain names it once, honestly.
+    expect(stateOf(check, "insurance_claim_billing")).toMatchObject({
+      status: "blocked",
+      missingKeys: ["notes.received"],
+    });
+    expect(stateOf(check, "pdc_notes")).toMatchObject({
+      status: "blocked",
+      missingKeys: expect.arrayContaining(["notes.received"]),
+    });
+  });
 });
 
 describe("BR-040 dependency closure over required_feature_keys (§7)", () => {
@@ -407,6 +482,7 @@ describe("BR-040 dependency closure over required_feature_keys (§7)", () => {
       DISTRIBUTION_TEMPLATE_MANIFEST,
       WHOLESALE_TEMPLATE_MANIFEST,
       ELECTRONICS_TEMPLATE_MANIFEST,
+      HEALTHCARE_TEMPLATE_MANIFEST,
     ]) {
       const check = checkPrerequisites(manifest, enterprise());
       expect(check.status, manifest.id).toBe("ok");

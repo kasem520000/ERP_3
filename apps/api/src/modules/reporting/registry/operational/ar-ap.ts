@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { addExact } from "../../../accounting/application/decimal-strings";
 import type { ReportContent } from "../../application/contract";
 import { assertExact, ledgerTie } from "../../application/assertions";
 import { ISO_DATE, LOCALE, assertDecl, bilingual, col, defineReport, moneyCol, source } from "../kit";
@@ -186,12 +187,18 @@ export const partnerStatementContract = defineReport({
   title: bilingual("كشف حساب العميل", "Customer Statement"),
   category: "ar-ap",
   description: bilingual(
-    "حركات العميل: فواتير وإشعارات دائنة ومقبوضات مع الرصيد الجاري ومطابقة INV-009",
-    "Customer movements — invoices, credit notes, receipts — with running balance and the INV-009 tie",
+    "حركات العميل: فواتير وإشعارات دائنة ومقبوضات مع الرصيد الجاري ومطابقة INV-009 — مع خيار التجميع حسب المطالبة (PHASE-031): المطالبات التأمينية تُعرض كمجموعات مستقلة داخل كشف شركة التأمين",
+    "Customer movements — invoices, credit notes, receipts — with running balance and the INV-009 tie; with the PHASE-031 group-by-claim option, insurance claims render as their own groups inside the per-insurer statement",
   ),
   parameters: z.object({
     partnerId: z.string().uuid(),
     asOf: ISO_DATE,
+    /** PHASE-031 (§2 item 5/§2 item 8): group the invoice entries by their
+     * claim ref (المطالبات حسب الشركة — the per-insurer statement's claim
+     * grouping; grouping key: the invoice's claim_ref, null = non-claim
+     * movements). Display-only — the INV-009 tie is computed over the same
+     * entries regardless. */
+    groupByClaim: z.boolean().optional(),
     locale: LOCALE,
   }),
   requiredPermission: "sales.statements.read",
@@ -202,6 +209,13 @@ export const partnerStatementContract = defineReport({
       ["sales_invoices", "credit_notes", "receipts", "treasury_allocations"],
       "حركات الذمم للعميل",
       "The customer's AR subledger movements",
+    ),
+    source(
+      "sales",
+      "sales_invoices.claim_ref (the invoice's insurer claim reference — the PHASE-031 group-by-claim key)",
+      ["sales_invoices"],
+      "مرجع المطالبة على الفاتورة للتجميع حسب المطالبة",
+      "The invoice's claim reference for the group-by-claim view",
     ),
   ],
   printTemplate: "a4-document",
@@ -219,22 +233,67 @@ export const partnerStatementContract = defineReport({
   run: async (_ctx, params) => {
     const { ar } = reportingServices();
     const statement = await ar.statement({ customerId: params.partnerId!, asOf: params.asOf! });
+    // PHASE-031 (§2 item 5): the claim groups — one per distinct claim ref
+    // on the invoice entries (sorted; non-claim movements form the
+    // "(no-claim)" group, never dropped), each with its debit/credit
+    // subtotal. Σ group debits/credits == the statement's Σ debits/credits
+    // exactly (the INV-009 tie stays over the same entries).
+    const claimGroupDebits = new Map<string, string>();
+    const claimGroupCredits = new Map<string, string>();
+    const claimGroupKeys = new Set<string>();
+    if (params.groupByClaim === true) {
+      for (const entry of statement.entries) {
+        const claimGroupKey = entry.claimRef ?? "(no-claim)";
+        claimGroupKeys.add(claimGroupKey);
+        claimGroupDebits.set(
+          claimGroupKey,
+          addExact(claimGroupDebits.get(claimGroupKey) ?? "0.0000", entry.debit),
+        );
+        claimGroupCredits.set(
+          claimGroupKey,
+          addExact(claimGroupCredits.get(claimGroupKey) ?? "0.0000", entry.credit),
+        );
+      }
+    }
+    const groups =
+      params.groupByClaim === true
+        ? [...claimGroupKeys]
+            .sort((a, b) => (a === "(no-claim)" ? 1 : b === "(no-claim)" ? -1 : a.localeCompare(b)))
+            .map((claimGroupKey) => ({
+              key: claimGroupKey,
+              label: bilingual(
+                claimGroupKey === "(no-claim)" ? "بدون مطالبة" : `المطالبة ${claimGroupKey}`,
+                claimGroupKey === "(no-claim)" ? "(no claim)" : `Claim ${claimGroupKey}`,
+              ),
+              subtotal: {
+                debit: claimGroupDebits.get(claimGroupKey)!,
+                credit: claimGroupCredits.get(claimGroupKey)!,
+              },
+            }))
+        : [];
     return {
       columns: [
         col("entryDate", "التاريخ", "Date", "date"),
         col("docRef", "المستند", "Document"),
+        // PHASE-031 (0042): the invoice's claim ref — the group-by-claim key
+        // (مطالبة تأمينية; null renders the no-claim group).
+        col("claimRef", "المطالبة", "Claim"),
         col("memo", "البيان", "Memo"),
         col("currency", "العملة", "Currency"),
         moneyCol("debit", "مدين", "Debit"),
         moneyCol("credit", "دائن", "Credit"),
         moneyCol("balance", "الرصيد", "Balance"),
       ],
-      groups: [],
+      groups,
       rows: statement.entries.map((entry, index) => ({
         key: `${entry.docRef ?? entry.sourceType}:${index}`,
+        // PHASE-031: with groupByClaim on, each entry carries its claim group
+        // key (the invoice's claim_ref; "(no-claim)" for non-claim movements).
+        ...(params.groupByClaim === true ? { groupKey: entry.claimRef ?? "(no-claim)" } : {}),
         values: {
           entryDate: entry.entryDate,
           docRef: entry.docRef,
+          claimRef: entry.claimRef,
           memo: entry.memo,
           currency: entry.currencyCode,
           debit: entry.debit,

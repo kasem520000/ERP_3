@@ -151,6 +151,13 @@ const createInvoiceSchema = z.object({
   deliveryId: UUID.nullable().optional(),
   warehouseId: UUID.nullable().optional(),
   cashAccountId: UUID.nullable().optional(),
+  /** PHASE-031 (0042 — healthcare claim-ref light extension, read-compat
+   * per CONFIGURATION_ENGINE §4 governance): `insured` is the payer
+   * selection (insurance billing selected); `claimRef` the external
+   * insurer claim reference (varchar(64), never a document number,
+   * ADR-0006). Older clients ignore both — absent = self-pay. */
+  insured: z.boolean().optional(),
+  claimRef: z.string().min(1).max(64).nullable().optional(),
   note: z.string().min(1).max(500).nullable().optional(),
   noteAr: z.string().min(1).max(500).nullable().optional(),
   lines: z.array(invoiceLineSchema).min(1).max(200),
@@ -557,6 +564,8 @@ export class SalesController {
         deliveryId: input.deliveryId ?? null,
         warehouseId: input.warehouseId ?? null,
         cashAccountId: input.cashAccountId ?? null,
+        insured: input.insured ?? false,
+        claimRef: input.claimRef ?? null,
         note: input.note ?? null,
         noteAr: input.noteAr ?? null,
         actorId: identity.userId,

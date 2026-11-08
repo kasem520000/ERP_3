@@ -15,6 +15,15 @@ import { reportingServices } from "../services";
  * rebuilt from the custody log — the latest event with event_date ≤ asOf,
  * RECLASSIFY never changes custody BR-047, no event yet ⇒ IN_CUSTODY).
  *
+ * PHASE-031 (§2 item 8 — the group-by-claim parameter extension): the
+ * OPTIONAL `groupByClaim` boolean groups the rows by the SOURCE invoice's
+ * claim_ref (the note→invoice source join; claim dunning runs per claim
+ * مطالبة, not only per insurer) — a parameter on the EXISTING contract,
+ * never a new report key (register §J stays closed). With the parameter on
+ * OR off, the footer tie `Σ open notes = NOTES_RECEIVABLE` is unchanged
+ * (the grouping never narrows the ledger check — the same display-filter
+ * discipline as direction/partner).
+ *
  * Buckets are the ar-queries convention (fixed shape): notDue / 1–30 /
  * 31–60 / 61–90 / 90+ days overdue — integral day difference
  * ((asOfMs − dueMs) / 86_400_000 | 0). Bucket columns carry BASE amounts
@@ -98,6 +107,9 @@ export const notesAgingContract = defineReport({
     direction: z.enum(["RECEIVED", "ISSUED"]).optional(),
     partnerId: z.string().uuid().optional(),
     buckets: z.array(z.enum(["notDue", "1_30", "31_60", "61_90", "90_plus"])).optional(),
+    /** PHASE-031 (§2 item 8): group the rows by the source invoice's claim
+     * ref (claim dunning per claim) — display-only, the ties stay whole-tenant. */
+    groupByClaim: z.boolean().optional(),
     locale: LOCALE,
   }),
   requiredPermission: "notes.notes.view",
@@ -115,6 +127,13 @@ export const notesAgingContract = defineReport({
       ["journal_entries", "journal_lines", "account_purposes"],
       "أرصدة حسابات أوراق القبض والدفع حتى التاريخ للمطابقتين",
       "The notes-purpose account balances as-of for the footer ties",
+    ),
+    source(
+      "sales",
+      "sales_invoices.claim_ref (the source invoice's insurer claim reference — the PHASE-031 group-by-claim key)",
+      ["sales_invoices"],
+      "مرجع المطالبة على الفاتورة المصدر للتجميع حسب المطالبة",
+      "The source invoice's claim reference for the group-by-claim view",
     ),
   ],
   scopeRules: { dateRange: "optional", asOf: "required", branches: "optional" },
@@ -159,6 +178,7 @@ export const notesAgingContract = defineReport({
       "90_plus": "0.0000",
     };
     const currencyTotals = new Map<string, string>();
+    const claimGroupTotals = new Map<string, string>();
     let baseTotal = "0.0000";
     const reportRows = [];
     for (const row of rows) {
@@ -166,6 +186,11 @@ export const notesAgingContract = defineReport({
       bucketTotals[row.bucket] = addExact(bucketTotals[row.bucket], row.baseAmount);
       baseTotal = addExact(baseTotal, row.baseAmount);
       currencyTotals.set(row.currency, addExact(currencyTotals.get(row.currency) ?? "0.0000", row.baseAmount));
+      const claimGroupKey = row.claimRef ?? "(no-claim)";
+      claimGroupTotals.set(
+        claimGroupKey,
+        addExact(claimGroupTotals.get(claimGroupKey) ?? "0.0000", row.baseAmount),
+      );
 
       const values: Record<string, string | number | null> = {
         number: row.number,
@@ -175,13 +200,39 @@ export const notesAgingContract = defineReport({
         amount: row.amount,
         maturityDate: row.maturityDate,
         status: row.statusAsOf,
+        claimRef: row.claimRef,
       };
       for (const bucket of AGING_BUCKETS) {
         values[BUCKET_FIELD[bucket]] = bucket === row.bucket ? row.baseAmount : "0.0000";
       }
       values.baseTotal = row.baseAmount;
-      reportRows.push({ key: row.noteId, values });
+      reportRows.push({
+        key: row.noteId,
+        // PHASE-031: with groupByClaim on, each row carries its claim group
+        // key (the source invoice's claim_ref; "(no-claim)" for non-claim
+        // notes — never dropped, so the group subtotal ties to the footer).
+        ...(params.groupByClaim === true ? { groupKey: claimGroupKey } : {}),
+        values,
+      });
     }
+
+    // PHASE-031 (§2 item 8): the claim groups — one per distinct claim ref
+    // present in the DISPLAYED rows (sorted; the no-claim bucket last), each
+    // with its base subtotal. Σ group subtotals == baseTotal exactly (the
+    // partition property the claim-lifecycle spec asserts).
+    const groups =
+      params.groupByClaim === true
+        ? [...claimGroupTotals.keys()]
+            .sort((a, b) => (a === "(no-claim)" ? 1 : b === "(no-claim)" ? -1 : a.localeCompare(b)))
+            .map((claimGroupKey) => ({
+              key: claimGroupKey,
+              label: bilingual(
+                claimGroupKey === "(no-claim)" ? "بدون مطالبة" : `المطالبة ${claimGroupKey}`,
+                claimGroupKey === "(no-claim)" ? "(no claim)" : `Claim ${claimGroupKey}`,
+              ),
+              subtotal: { baseTotal: claimGroupTotals.get(claimGroupKey)! },
+            }))
+        : [];
 
     const ties = await notes.maturityCalendarTies({ asOf: params.asOf! });
 
@@ -226,6 +277,9 @@ export const notesAgingContract = defineReport({
         moneyCol("amount", "المبلغ", "Amount"),
         col("maturityDate", "الاستحقاق", "Maturity", "date"),
         col("status", "الحالة حتى التاريخ", "Status (as-of)", "status"),
+        // PHASE-031 (0042): the source invoice's claim ref — the group-by-claim
+        // key (مطالبة تأمينية; null renders the no-claim group).
+        col("claimRef", "المطالبة", "Claim"),
         moneyCol("notDue", "غير مستحق", "Not due"),
         moneyCol("b1_30", "1–30 يوم", "1–30 days"),
         moneyCol("b31_60", "31–60 يوم", "31–60 days"),
@@ -233,7 +287,7 @@ export const notesAgingContract = defineReport({
         moneyCol("b90Plus", "أكثر من 90", "90+ days"),
         moneyCol("baseTotal", "الإجمالي (أساس)", "Total (base)"),
       ],
-      groups: [],
+      groups,
       rows: reportRows,
       totals,
       assertionResults: [

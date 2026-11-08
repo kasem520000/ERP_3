@@ -189,6 +189,14 @@ export const SETTINGS_REGISTRY: Readonly<Record<string, SettingDefinition>> = Ob
     description:
       "RECEIVABLES_AND_PAYABLES §3.4: standalone credit notes (no stock/revenue reference semantics) only when policy-flagged — default OFF keeps the invoice reference mandatory (BR-004).",
   }),
+  // PHASE-031 healthcare keys (§2 item 3 — the claim-ref capture discipline).
+  "sales.claim_ref_required_for_insured": Object.freeze({
+    key: "sales.claim_ref_required_for_insured",
+    schema: z.boolean(),
+    default: true,
+    description:
+      "PHASE-031 healthcare (ED-07): an invoice saved with insurance billing selected but an empty claim ref (sales_invoices.claim_ref, migration 0042) is rejected with the typed CLAIM_REF_REQUIRED error — self-pay invoices save the field null. Default ON is the capture invariant (an insured invoice carries its external insurer reference, exactly what the industry.healthcare manifest ships as its L1 default); an explicit tenant setting (L5) relaxes it. Capture behavior ONLY: the policy never touches posting — claim_ref is metadata that never enters a journal line (INV-022, machine-checked by the negative ledger proof).",
+  }),
   "accounting.fx_revaluation_enabled": Object.freeze({
     key: "accounting.fx_revaluation_enabled",
     schema: z.boolean(),

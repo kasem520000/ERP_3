@@ -348,6 +348,18 @@ added, and the key count above is unchanged (the CI cross-checks are
 typed workflow-**policy** keys live in the policy registry
 ([CONFIGURATION_ENGINE.md](CONFIGURATION_ENGINE.md) §4), not here.
 
+**Cross-check (PHASE-031, shipped 2026-11-08): ZERO new feature keys again.** The
+healthcare commercial shell composes **pre-granted keys only** (its claim chain:
+`sales.invoices` + `notes.received` + `partners.statements` + `crm.service_orders` +
+`inventory.batch_tracking` + `sales.credit_limits`) — the "configuration + light
+extension" register pattern held: the single additive `sales_invoices.claim_ref`
+column (migration 0042) carries no entitlement semantics, the `insurance_claim_billing`
+capability is a CAPABILITY_MATRIX row over existing keys (NOT a catalog key), and no
+plan grant, route, or permission key was added (drift stays 245=245). The six new typed
+workflow-**policy** keys live in the policy registry
+([CONFIGURATION_ENGINE.md](CONFIGURATION_ENGINE.md) §4), not here; the group_by_claim
+report parameter rides existing contracts (register §J stays closed).
+
 | Feature key | Name (EN · AR) | Description | Priority | Phase | Permission key | Depends on |
 |---|---|---|---|---|---|---|
 | `industry.template_engine` | Template engine · محرك قوالب الصناعة | Manifest schema, application at onboarding or later, versioned application records | 1 | 015 | `industry.templates.manage` | `platform.onboarding` |

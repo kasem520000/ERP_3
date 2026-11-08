@@ -1,16 +1,17 @@
 import type { IndustryTemplateManifest } from "./manifest";
 
 /**
- * The nine shipped v1.0.0 templates — the three PHASE-015 priority ones
+ * The ten shipped v1.0.0 templates — the three PHASE-015 priority ones
  * (transcribed VERBATIM from the normative template documents), the
  * two PHASE-017 industry templates (transcribed VERBATIM from the
  * migration 0025 registry seeds), the PHASE-018 manufacturing
  * template (transcribed VERBATIM from the migration 0026 registry seed),
- * and the PHASE-019 professional-services template (transcribed VERBATIM
- * from the migration 0027 registry seed), and the PHASE-030
+ * the PHASE-019 professional-services template (transcribed VERBATIM
+ * from the migration 0027 registry seed), the PHASE-030
  * wholesale + electronics pair (transcribed VERBATIM from the migration
- * 0041 registry seeds; the seeds are canonical; every key, every Arabic
- * string, every numbering rule):
+ * 0041 registry seeds), and the PHASE-031 healthcare commercial shell
+ * (transcribed VERBATIM from the migration 0043 registry seed; the seeds
+ * are canonical; every key, every Arabic string, every numbering rule):
  *
  *   - RETAIL_MANIFEST      docs/industries/templates/retail.md
  *   - GROCERY_MANIFEST     docs/industries/templates/grocery-supermarket.md
@@ -30,6 +31,11 @@ import type { IndustryTemplateManifest } from "./manifest";
  *   - ELECTRONICS_TEMPLATE_MANIFEST apps/api/migrations/0041 (docs mirror:
  *     docs/industries/templates/manifests/manifest.electronics.json — the
  *     valuation pin reconciled to inventory.valuation likewise)
+ *   - HEALTHCARE_TEMPLATE_MANIFEST apps/api/migrations/0043 (docs mirror:
+ *     docs/industries/templates/manifests/manifest.healthcare.json — the
+ *     aging pin reconciled to the LIVE registry key ar.aging likewise;
+ *     inventory.expiry_list / notes.aging / notes.maturity-calendar resolve
+ *     verbatim)
  *
  * CI (scripts/validate-manifests.ts, wired into scripts/ci/local-gate.sh)
  * re-parses each constant against the §3 schema so contracts and docs cannot
@@ -2416,6 +2422,296 @@ export const ELECTRONICS_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreez
   },
 });
 
+// ---------------------------------------------------------------------------
+// PHASE-031 · industry.healthcare — the Healthcare Commercial Shell (ED-07)
+// ---------------------------------------------------------------------------
+
+/**
+ * The healthcare commercial shell (transcribed VERBATIM from the migration
+ * 0043 registry seed — the source docs/industries/templates/healthcare.md
+ * with the single §J pin reconciliation partners.ar_aging → ar.aging):
+ * the patient is a partner FINANCIAL file only (the bold ED-07/ED-11
+ * zero-clinical boundary — no diagnosis/prescription/appointment field
+ * exists anywhere in the shell, machine-checked by the
+ * zero-clinical-surface test), insurers are customer-kind partners with
+ * per-claim open items tracked through the single additive
+ * sales_invoices.claim_ref column (migration 0042 — a claim_ref-carrying
+ * invoice is a claim invoice billed to the insurer partner; a null one is
+ * self-pay دفع مباشر billed to the patient), the pharmacy is a FEFO batch
+ * store reusing inventory.batch_tracking unchanged, and claims settle by
+ * cheque / post-dated note through the PHASE-027 notes module
+ * (G-24/G-25/G-26 — REQUIRED pdc_notes, live at apply time since 027
+ * shipped before this template registered).
+ */
+export const HEALTHCARE_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreeze({
+  id: "industry.healthcare",
+  name: "Healthcare (Commercial Shell)",
+  name_ar: "الرعاية الصحية — الغلاف التجاري",
+  version: "1.0.0",
+  required_feature_keys: [
+    "industry.template_engine",
+    "partners.directory",
+    "partners.statements",
+    "sales.invoices",
+    "sales.credit_limits",
+    "notes.received",
+    "inventory.batch_tracking",
+    "crm.service_orders",
+  ],
+  default_modules_enabled: [
+    "accounting",
+    "partners",
+    "items",
+    "inventory",
+    "sales",
+    "purchasing",
+    "treasury",
+    "tax",
+    "reporting",
+    "crm",
+    "notes",
+    "configuration",
+  ],
+  terminology_overrides: {
+    "partner.patient": { en: "Patient (financial file)", ar: "المريض (الملف المالي)" },
+    "partner.insurer": { en: "Insurance company", ar: "شركة التأمين" },
+    "claim.ref": { en: "Insurance claim", ar: "مطالبة تأمينية" },
+    "pharmacy.store": { en: "Pharmacy", ar: "صيدلية" },
+    "svc.visit": { en: "Visit", ar: "الزيارة" },
+    "doc.services_invoice": { en: "Medical services invoice", ar: "فاتورة الخدمات الطبية" },
+    "billing.self_pay": { en: "Self-pay", ar: "دفع مباشر" },
+    "notes.pdc": { en: "Post-dated note", ar: "شيك مؤجل" },
+    "billing.collection": { en: "Collection", ar: "التحصيل" },
+  },
+  navigation_manifest: {
+    groups: [
+      {
+        id: "billing",
+        label: { en: "Billing", ar: "الفوترة" },
+        order: 1,
+        items: [
+          {
+            id: "visits",
+            label: { en: "Visits & service orders", ar: "الزيارات وأوامر الخدمة" },
+            target: "crm.service_orders",
+            feature_key: "crm.service_orders",
+          },
+          {
+            id: "invoices",
+            label: { en: "Invoices (patient / insurance)", ar: "الفواتير (مريض / تأمين)" },
+            target: "sales.invoices",
+          },
+          {
+            id: "claims",
+            label: { en: "Claims by insurer", ar: "المطالبات حسب الشركة" },
+            target: "partners.statements",
+          },
+        ],
+      },
+      {
+        id: "pharmacy",
+        label: { en: "Pharmacy", ar: "الصيدلية" },
+        order: 2,
+        items: [
+          {
+            id: "expiry",
+            label: { en: "Expiry control", ar: "الرقابة على الصلاحية" },
+            target: "inventory.expiry_list",
+            feature_key: "inventory.batch_tracking",
+          },
+          {
+            id: "counter",
+            label: { en: "Pharmacy counter", ar: "كاونتر الصيدلية" },
+            target: "pos.counter",
+            feature_key: "pos.sales",
+          },
+          {
+            id: "pdc",
+            label: { en: "Claims cheques", ar: "شيكات المطالبات" },
+            target: "notes.received",
+            feature_key: "notes.received",
+          },
+        ],
+      },
+    ],
+  },
+  workflow_policies: {
+    patient_file_financial_only: true,
+    claim_ref_required_for_insured_invoices: true,
+    insurance_invoice_billed_to_company_partner: true,
+    pharmacy_fefo_enforced: true,
+    dunning_by_claim_enabled: true,
+    insurance_credit_limit_per_company: true,
+  },
+  document_numbering_defaults: {
+    sales_invoice: {
+      prefix: "INV",
+      format: "INV-{yyyy}-{seq:6}",
+      per_branch: false,
+      reserve_on_approval: false,
+    },
+    credit_note: {
+      prefix: "CN",
+      format: "CN-{yyyy}-{seq:5}",
+      per_branch: false,
+      reserve_on_approval: false,
+    },
+    receipt: {
+      prefix: "RCP",
+      format: "RCP-{yyyy}-{seq:6}",
+      per_branch: false,
+      reserve_on_approval: false,
+    },
+    goods_receipt: {
+      prefix: "GRN",
+      format: "GRN-{yyyy}-{seq:6}",
+      per_branch: false,
+      reserve_on_approval: false,
+    },
+  },
+  inventory_policy_defaults: {
+    costing_method: "WAC",
+    default_track_batch: true,
+    default_track_expiry: true,
+    default_track_serial: false,
+    default_imei_tracking: false,
+    fefo_picking: true,
+    allow_negative_stock: false,
+  },
+  report_defaults: [
+    {
+      report_key: "notes.aging",
+      pinned: true,
+      dashboard: true,
+      default_period: "this_month",
+    },
+    {
+      report_key: "notes.maturity-calendar",
+      pinned: true,
+      dashboard: true,
+      default_period: "this_month",
+    },
+    {
+      report_key: "ar.aging",
+      pinned: true,
+      dashboard: false,
+      default_period: "this_month",
+    },
+    {
+      report_key: "inventory.expiry_list",
+      pinned: true,
+      dashboard: false,
+      default_period: "this_week",
+    },
+  ],
+  onboarding_steps: [
+    {
+      id: "coa_confirm",
+      title: {
+        en: "Confirm chart of accounts (services, pharmacy, notes receivable)",
+        ar: "تأكيد دليل الحسابات (الخدمات، الصيدلية، أوراق القبض)",
+      },
+      required: true,
+    },
+    {
+      id: "payers",
+      title: {
+        en: "Insurers with credit limits & contracted fee schedules",
+        ar: "شركات التأمين مع سقوف الائتمان وأسعار التعاقد",
+      },
+      required: true,
+    },
+    {
+      id: "patients",
+      title: {
+        en: "Patient financial files (no clinical data)",
+        ar: "الملفات المالية للمرضى (بيانات مالية فقط)",
+      },
+      required: true,
+    },
+    {
+      id: "pharmacy_items",
+      title: {
+        en: "Pharmacy items with batches & expiry",
+        ar: "أصناف الصيدلية مع الدفعات والصلاحية",
+      },
+      required: true,
+    },
+    {
+      id: "service_items",
+      title: {
+        en: "Service items (consultation, procedure fees)",
+        ar: "بنود الخدمات (الاستشارات، الرسوم الطبية)",
+      },
+      required: true,
+    },
+    {
+      id: "first_visit",
+      title: {
+        en: "Bill a first visit (self-pay and insurance)",
+        ar: "فوترة أول زيارة (دفع مباشر وتأمين)",
+      },
+      required: false,
+    },
+    {
+      id: "first_claim",
+      title: {
+        en: "Register a first claim cheque",
+        ar: "تسجيل أول شيك مطالبة",
+      },
+      required: false,
+      feature_key: "notes.received",
+    },
+  ],
+  capability_prerequisites: {
+    insurance_claim_billing: {
+      level: "REQUIRED",
+      feature_keys: ["sales.invoices", "notes.received", "partners.statements"],
+      available_from_phase: "PHASE-031",
+    },
+    pdc_notes: {
+      level: "REQUIRED",
+      feature_keys: ["notes.received", "notes.pdc_calendar"],
+      available_from_phase: "PHASE-027",
+    },
+    expiry_tracking_fefo: {
+      level: "REQUIRED",
+      feature_keys: ["inventory.batch_tracking"],
+      available_from_phase: "PHASE-010",
+    },
+    job_cards: {
+      level: "REQUIRED",
+      feature_keys: ["crm.service_orders"],
+      available_from_phase: "PHASE-019",
+    },
+    barcode_pos: {
+      level: "OPTIONAL",
+      feature_keys: ["pos.terminals", "pos.sales", "pos.receipts"],
+      available_from_phase: "PHASE-016",
+    },
+    cashier_shifts: {
+      level: "OPTIONAL",
+      feature_keys: ["treasury.cashier_shifts"],
+      available_from_phase: "PHASE-016",
+    },
+    customer_price_tiers: {
+      level: "OPTIONAL",
+      feature_keys: ["items.price_lists", "distribution.customer_tiers"],
+      available_from_phase: "PHASE-017",
+    },
+    service_contracts: {
+      level: "OPTIONAL",
+      feature_keys: ["crm.service_contracts"],
+      available_from_phase: "PHASE-019",
+    },
+    installment_terms: {
+      level: "OPTIONAL",
+      feature_keys: ["installments.plans"],
+      available_from_phase: "PHASE-027",
+    },
+  },
+});
+
 /** Every manifest shipped by this build — the CI validation set (§8). */
 export const SHIPPED_TEMPLATE_MANIFESTS: readonly IndustryTemplateManifest[] = Object.freeze([
   RETAIL_MANIFEST,
@@ -2427,4 +2723,6 @@ export const SHIPPED_TEMPLATE_MANIFESTS: readonly IndustryTemplateManifest[] = O
   PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST,
   WHOLESALE_TEMPLATE_MANIFEST,
   ELECTRONICS_TEMPLATE_MANIFEST,
+  HEALTHCARE_TEMPLATE_MANIFEST,
 ]);
+

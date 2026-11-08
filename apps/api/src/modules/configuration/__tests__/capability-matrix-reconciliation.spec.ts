@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   ELECTRONICS_TEMPLATE_MANIFEST,
+  HEALTHCARE_TEMPLATE_MANIFEST,
   SHIPPED_TEMPLATE_MANIFESTS,
   WHOLESALE_TEMPLATE_MANIFEST,
   type IndustryTemplateManifest,
@@ -14,9 +15,9 @@ import {
  * PHASE-030 T7 — the capability-matrix cross-check (register §L
  * reconciliation rule; CAPABILITY_MATRIX §1):
  *
- * (a) The two PHASE-030 templates reconcile STRICTLY, both directions and
+ * (a) The three stage-10 templates reconcile STRICTLY, both directions and
  *     zero mismatches: manifest `capability_prerequisites` ≡ the matrix's
- *     WHL / ELC columns (REQ ⇔ REQUIRED, OPT ⇔ OPTIONAL, N/A ⇔ absent).
+ *     WHL / ELC / HLT columns (REQ ⇔ REQUIRED, OPT ⇔ OPTIONAL, N/A ⇔ absent).
  *     Drift in either direction fails CI.
  * (b) The seven pre-existing templates reconcile on the strict legs only —
  *     a manifest capability with NO matrix row fails (the typo guard), and
@@ -25,7 +26,7 @@ import {
  *     carries but the shipped manifests predate — the matrix is dated
  *     2026-11-02, after the 015/017/018/019 manifests froze) is pinned as
  *     the KNOWN_DELTA snapshot below: shrinking it is a reviewed
- *     doc-change, growing it fails CI. PHASE-031/032/033 extend
+ *     doc-change, growing it fails CI. PHASE-032/033 extend
  *     COLUMN_TO_TEMPLATE as their shells ship — the harness needs no
  *     rewrite (the durable artifact the PHASE-030 handoff names).
  */
@@ -86,10 +87,11 @@ const COLUMN_TO_TEMPLATE: Readonly<Record<string, string>> = Object.freeze({
   SVC: "industry.professional_services",
   WHL: "industry.wholesale",
   ELC: "industry.electronics",
+  HLT: "industry.healthcare",
 });
 
 /** The columns whose reconciliation is STRICT both directions (030+). */
-const STRICT_COLUMNS: readonly string[] = ["WHL", "ELC"];
+const STRICT_COLUMNS: readonly string[] = ["WHL", "ELC", "HLT"];
 
 /**
  * The frozen pre-existing planned-vs-shipped delta (part (b)): cells the
@@ -192,15 +194,15 @@ describe("capability-matrix reconciliation (register §L; CAPABILITY_MATRIX §1)
     expect(matrix.rows.size).toBeGreaterThanOrEqual(25);
   });
 
-  it("every shipped template has a matrix column mapping (the 9 shipped × 9 mapped)", () => {
+  it("every shipped template has a matrix column mapping (the 10 shipped × 10 mapped)", () => {
     const mapped = new Set(Object.values(COLUMN_TO_TEMPLATE));
     for (const manifest of SHIPPED_TEMPLATE_MANIFESTS) {
       expect(mapped.has(manifest.id), manifest.id).toBe(true);
     }
-    expect(SHIPPED_TEMPLATE_MANIFESTS).toHaveLength(9);
+    expect(SHIPPED_TEMPLATE_MANIFESTS).toHaveLength(10);
   });
 
-  it("WHL + ELC reconcile STRICTLY — zero mismatches, both directions (the 030 gate)", () => {
+  it("WHL + ELC + HLT reconcile STRICTLY — zero mismatches, both directions (the 030/031 gates)", () => {
     for (const column of STRICT_COLUMNS) {
       const manifest = byId.get(COLUMN_TO_TEMPLATE[column]!)!;
       const mismatches = reconcile(column, manifest);
@@ -208,48 +210,75 @@ describe("capability-matrix reconciliation (register §L; CAPABILITY_MATRIX §1)
     }
   });
 
-  it("the register §L explicit rows: pdc_notes (REQ/OPT), installment_terms (OPT/OPT), imei_tracking (OPT/REQ), job_cards (N/A/REQ), customer_price_tiers (REQ/OPT)", () => {
+  it("the register §L explicit rows: pdc_notes (REQ/OPT/REQ), installment_terms (OPT/OPT/OPT), imei_tracking (OPT/REQ/N/A), job_cards (N/A/REQ/REQ), customer_price_tiers (REQ/OPT/OPT), insurance_claim_billing (N/A/N/A/REQ)", () => {
     const cell = (capability: string, column: string) => matrix.rows.get(capability)!.get(column);
 
-    expect(`${cell("pdc_notes", "WHL")}/${cell("pdc_notes", "ELC")}`).toBe("REQ/OPT");
+    expect(`${cell("pdc_notes", "WHL")}/${cell("pdc_notes", "ELC")}/${cell("pdc_notes", "HLT")}`).toBe(
+      "REQ/OPT/REQ",
+    );
     expect(WHOLESALE_TEMPLATE_MANIFEST.capability_prerequisites.pdc_notes?.level).toBe("REQUIRED");
     expect(ELECTRONICS_TEMPLATE_MANIFEST.capability_prerequisites.pdc_notes?.level).toBe(
       "OPTIONAL",
     );
+    expect(HEALTHCARE_TEMPLATE_MANIFEST.capability_prerequisites.pdc_notes?.level).toBe("REQUIRED");
 
-    expect(`${cell("installment_terms", "WHL")}/${cell("installment_terms", "ELC")}`).toBe(
-      "OPT/OPT",
-    );
+    expect(
+      `${cell("installment_terms", "WHL")}/${cell("installment_terms", "ELC")}/${cell("installment_terms", "HLT")}`,
+    ).toBe("OPT/OPT/OPT");
     expect(WHOLESALE_TEMPLATE_MANIFEST.capability_prerequisites.installment_terms?.level).toBe(
       "OPTIONAL",
     );
     expect(ELECTRONICS_TEMPLATE_MANIFEST.capability_prerequisites.installment_terms?.level).toBe(
       "OPTIONAL",
     );
+    expect(HEALTHCARE_TEMPLATE_MANIFEST.capability_prerequisites.installment_terms?.level).toBe(
+      "OPTIONAL",
+    );
 
-    expect(`${cell("imei_tracking", "WHL")}/${cell("imei_tracking", "ELC")}`).toBe("OPT/REQ");
+    expect(
+      `${cell("imei_tracking", "WHL")}/${cell("imei_tracking", "ELC")}/${cell("imei_tracking", "HLT")}`,
+    ).toBe("OPT/REQ/N/A");
     expect(WHOLESALE_TEMPLATE_MANIFEST.capability_prerequisites.imei_tracking?.level).toBe(
       "OPTIONAL",
     );
     expect(ELECTRONICS_TEMPLATE_MANIFEST.capability_prerequisites.imei_tracking?.level).toBe(
       "REQUIRED",
     );
+    expect(HEALTHCARE_TEMPLATE_MANIFEST.capability_prerequisites.imei_tracking).toBeUndefined();
 
-    expect(`${cell("job_cards", "WHL")}/${cell("job_cards", "ELC")}`).toBe("N/A/REQ");
+    expect(`${cell("job_cards", "WHL")}/${cell("job_cards", "ELC")}/${cell("job_cards", "HLT")}`).toBe(
+      "N/A/REQ/REQ",
+    );
     expect(WHOLESALE_TEMPLATE_MANIFEST.capability_prerequisites.job_cards).toBeUndefined();
     expect(ELECTRONICS_TEMPLATE_MANIFEST.capability_prerequisites.job_cards?.level).toBe(
       "REQUIRED",
     );
+    expect(HEALTHCARE_TEMPLATE_MANIFEST.capability_prerequisites.job_cards?.level).toBe("REQUIRED");
 
-    expect(`${cell("customer_price_tiers", "WHL")}/${cell("customer_price_tiers", "ELC")}`).toBe(
-      "REQ/OPT",
-    );
+    expect(
+      `${cell("customer_price_tiers", "WHL")}/${cell("customer_price_tiers", "ELC")}/${cell("customer_price_tiers", "HLT")}`,
+    ).toBe("REQ/OPT/OPT");
     expect(WHOLESALE_TEMPLATE_MANIFEST.capability_prerequisites.customer_price_tiers?.level).toBe(
       "REQUIRED",
     );
     expect(ELECTRONICS_TEMPLATE_MANIFEST.capability_prerequisites.customer_price_tiers?.level).toBe(
       "OPTIONAL",
     );
+    expect(HEALTHCARE_TEMPLATE_MANIFEST.capability_prerequisites.customer_price_tiers?.level).toBe(
+      "OPTIONAL",
+    );
+
+    // The healthcare shell's OWN capability (ED-07): N/A everywhere else,
+    // REQ in HLT — the commercial-shell boundary (per-claim open items +
+    // settlement by cheque/PDC; no clinical anything, ED-11).
+    expect(
+      `${cell("insurance_claim_billing", "WHL")}/${cell("insurance_claim_billing", "ELC")}/${cell("insurance_claim_billing", "HLT")}`,
+    ).toBe("N/A/N/A/REQ");
+    expect(WHOLESALE_TEMPLATE_MANIFEST.capability_prerequisites.insurance_claim_billing).toBeUndefined();
+    expect(ELECTRONICS_TEMPLATE_MANIFEST.capability_prerequisites.insurance_claim_billing).toBeUndefined();
+    expect(
+      HEALTHCARE_TEMPLATE_MANIFEST.capability_prerequisites.insurance_claim_billing?.level,
+    ).toBe("REQUIRED");
   });
 
   it("the pre-existing templates: strict legs hold (no invented capabilities, no N/A declarations) and the planned-vs-shipped delta stays the frozen KNOWN_DELTA", () => {
@@ -285,15 +314,16 @@ describe("capability-matrix reconciliation (register §L; CAPABILITY_MATRIX §1)
     ).toEqual({ grew: [], shrank: [] });
   });
 
-  it("the v2.0-only columns (RNT/HLT/EDU/AGR) stay unmapped until their shells ship (no premature reconciliation)", () => {
-    // The rental/healthcare/education/agriculture templates are NOT in
+  it("the v2.0-only columns (RNT/EDU/AGR) stay unmapped until their shells ship (no premature reconciliation)", () => {
+    // The rental/education/agriculture templates are NOT in
     // SHIPPED_TEMPLATE_MANIFESTS — their columns exist in the matrix but
-    // map to nothing yet (PHASE-031/032/033 extend COLUMN_TO_TEMPLATE).
-    for (const column of ["RNT", "HLT", "EDU", "AGR"]) {
+    // map to nothing yet (PHASE-032/033 extend COLUMN_TO_TEMPLATE).
+    for (const column of ["RNT", "EDU", "AGR"]) {
       expect(COLUMN_TO_TEMPLATE[column]).toBeUndefined();
     }
     const shippedIds = new Set(SHIPPED_TEMPLATE_MANIFESTS.map((manifest) => manifest.id));
     expect(shippedIds.has("industry.rental_logistics")).toBe(false);
-    expect(shippedIds.has("industry.healthcare")).toBe(false);
+    expect(shippedIds.has("industry.education")).toBe(false);
+    expect(shippedIds.has("industry.agriculture")).toBe(false);
   });
 });

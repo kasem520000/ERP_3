@@ -31,7 +31,7 @@ and industry workflows in [../industries/workflows/](../industries/workflows/).
 | `industry.rental_logistics` | Rental / logistics · التأجير والخدمات اللوجستية | 019 → **deferred** (decision record in [PHASE-019-COMPLETION.md](../implementation/phases/reports/PHASE-019-COMPLETION.md)) | Contracts, deposits, item availability | `crm.service_contracts`, `items.item_master`, `inventory.stock_ledger` |
 | `industry.wholesale` | Wholesale & trade · الجملة والتجارة | 030 (**SHIPPED**) | Quantity-break tiers, credit limits, PDC receivables | `items.price_lists` (qty-break), `partners.credit_terms`, `sales.credit_limits`, `distribution.routes` OPT, `notes.received` |
 | `industry.electronics` | Mobile & electronics · الجوالات والإلكترونيات | 030 (**SHIPPED**) | IMEI register, repair cards, trade-ins | `inventory.serial_tracking` (IMEI), `crm.service_orders` (repairs), `pos.*`, trade-in via purchasing |
-| `industry.healthcare` | Healthcare (commercial shell) · الرعاية الصحية | 031 | Patient billing, insurance claims, pharmacy batches | insurance-claim billing (AR per claim), `inventory.batch_tracking` (pharmacy), `notes.received` (claims cheques), `crm.service_orders` (visits) |
+| `industry.healthcare` | Healthcare (commercial shell) · الرعاية الصحية | 031 (**SHIPPED**) | Patient billing, insurance claims, pharmacy batches | insurance-claim billing (AR per claim), `inventory.batch_tracking` (pharmacy), `notes.received` (claims cheques), `crm.service_orders` (visits) |
 | `industry.education` | Education (commercial shell) · التعليم | 032 | Tuition contracts, installments, sibling discounts | `installments.plans` (tuition), `crm.service_contracts` (enrollment years), sibling discounts via pricing, dunning |
 | `industry.agriculture` | Agriculture (commercial shell) · الزراعة | 033 | Crop-cycle costing, harvest batches, livestock serials | `manufacturing.bom` (crop cycles), `inventory.batch_tracking` (harvest), livestock as serial-tracked items, `accounting.projects` (per-field costing) |
 
@@ -49,9 +49,20 @@ and industry workflows in [../industries/workflows/](../industries/workflows/).
 > `0041_industry_wholesale_electronics.sql` (data-only, schema_version 41) seeded
 > **`industry.wholesale` + `industry.electronics` at v1.0.0** — both apply through the
 > unmodified PHASE-015 engine, every REQUIRED feature key already granted by earlier
-> migrations (zero new keys, routes, or web code — the configuration-only phase). The
-> pending v2.0 shells are now healthcare / education / agriculture (PHASE-031…033). See
-> [reports/PHASE-030-COMPLETION.md](../implementation/phases/reports/PHASE-030-COMPLETION.md).
+> migrations (zero new keys, routes, or web code — the configuration-only phase).
+>
+> **Shipped status update (2026-11-08, PHASE-031).** The Healthcare Commercial Shell
+> (ED-07) shipped as the register's "configuration + light extension" pattern: the
+> single additive `sales_invoices.claim_ref` column (migration 0042, schema_version 42)
+> + the `industry.healthcare` v1.0.0 seed (data-only migration 0043, schema_version 43).
+> The shell applies through the unmodified PHASE-015 engine on pre-granted keys — the
+> `insurance_claim_billing` capability resolves LIVE at its own release phase
+> (available_from_phase PHASE-031 ≤ CURRENT_SHIPPED_PHASE 031), the REQUIRED pdc_notes
+> chain on the 0038 grants (027 is a prerequisite, so claims cheques never phase-gate).
+> Claim dunning rides the group_by_claim parameter on the EXISTING notes.aging /
+> notes.maturity-calendar / partner.statement contracts (register §J stays closed).
+> The pending v2.0 shells are now education / agriculture (PHASE-032…033). See
+> [reports/PHASE-031-COMPLETION.md](../implementation/phases/reports/PHASE-031-COMPLETION.md).
 
 ## 1. `industry.retail` — Retail · قالب التجزئة
 

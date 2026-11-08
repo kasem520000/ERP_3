@@ -120,6 +120,18 @@ export const MIGRATIONS: readonly string[] = [
   // + the six §22 feature-key plan grants. §3.13 permissions pre-seeded in
   // 0004/0005 (docs-as-contract — nothing to add, drift stays 245=245).
   "0039_budgeting",
+  // PHASE-029: 0040_payroll.sql (the payroll module per DR-005/ED-05,
+  // financial scope only: employees (PII-restricted) + salary_structures
+  // + salary_components (BR-052 versioning) + payroll_runs/run_lines 🔒
+  // (INV-025 row-level totals law, one G-29 journal per run, BR-053
+  // engine-only payroll accounts) + employee_loans/lines (BR-054 cap) +
+  // the six CoA template purposes (2170/2180/2190/5270/5280/5295 — the
+  // loan control account deliberately NOT a purpose) + the cash_movements
+  // source widening ('payroll_payout', 'employee_loan' — additive) + the
+  // notifications category widening ('payroll') + the eight §22
+  // feature-key plan grants. §3.14 permissions pre-seeded in 0004/0005
+  // with the payroll_officer role template (drift stays 245=245).
+  "0040_payroll",
 ];
 
 /**

@@ -431,6 +431,40 @@ export const SETTINGS_REGISTRY: Readonly<Record<string, SettingDefinition>> = Ob
     description:
       "PHASE-028 BR-051: the at/over-budget warning threshold in percent of the period line (100 = warn at parity; PLACEHOLDER default pending the OQ-002 pricing pass) — evaluation only, the ledger is never blocked by budgets.",
   }),
+  // PHASE-029 payroll policy keys (BR-054/BR-055 — the tenant-policy
+  // surface; DR-005/ED-05). The loan cap default is 25% PLACEHOLDER (the
+  // OQ-002 family — documented, never silent); the loan control account
+  // and the EOS accrual basis ship NULL on purpose: an EXPLICIT tenant
+  // value is required (LOAN_ACCOUNT_UNMAPPED / the accrual stays off) —
+  // the platform fabricates no jurisdiction rates (BR-055).
+  "payroll.loans.max_deduction_percent": Object.freeze({
+    key: "payroll.loans.max_deduction_percent",
+    schema: z.number().int().min(1).max(90),
+    default: 25,
+    description:
+      "PHASE-029 BR-054: the per-period loan-deduction cap as a percent of the employee's net (run lines clamp above-cap schedules with an explicit warning; net-floor never negative). PLACEHOLDER default 25 pending the OQ-002 pricing pass.",
+  }),
+  "payroll.loans.control_account_id": Object.freeze({
+    key: "payroll.loans.control_account_id",
+    schema: z.string().uuid().nullable(),
+    default: null,
+    description:
+      "PHASE-029 item 5: the tenant-mapped employee-loan control account (سلف الموظفين). NULL = unmapped (loan disbursement/deduction flows die typed LOAN_ACCOUNT_UNMAPPED) — deliberately NOT a canonical CoA purpose (the §E list stays closed); the tenant maps their own account.",
+  }),
+  "payroll.eos.enabled": Object.freeze({
+    key: "payroll.eos.enabled",
+    schema: z.boolean(),
+    default: false,
+    description:
+      "PHASE-029 BR-055: the end-of-service provision toggle — disabled by default; enabling WITHOUT an explicit accrual basis is rejected (EOS_BASIS_REQUIRED).",
+  }),
+  "payroll.eos.accrual_days_per_service_year": Object.freeze({
+    key: "payroll.eos.accrual_days_per_service_year",
+    schema: z.number().int().min(0).max(365).nullable(),
+    default: null,
+    description:
+      "PHASE-029 BR-055: the tenant's EOS accrual basis in days per service year. NO default ships — an explicit tenant value is required to enable accrual (the platform fabricates no jurisdiction rates; onboarding templates may pre-create empty component shells with documentation pointers, never rates).",
+  }),
 });
 
 export const SETTING_KEYS: readonly string[] = Object.keys(SETTINGS_REGISTRY);

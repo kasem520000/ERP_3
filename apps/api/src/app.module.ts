@@ -30,6 +30,7 @@ import { FixedAssetsModule } from "./modules/fixed_assets/fixed_assets.module";
 import { NotesModule } from "./modules/notes/notes.module";
 import { InstallmentsModule } from "./modules/installments/installments.module";
 import { BudgetingModule } from "./modules/budgeting/budgeting.module";
+import { PayrollModule } from "./modules/payroll/payroll.module";
 import { SalesModule } from "./modules/sales/sales.module";
 import { DistributionModule } from "./modules/distribution/distribution.module";
 import { ManufacturingModule } from "./modules/manufacturing/manufacturing.module";
@@ -70,6 +71,7 @@ import { UsageLimitGuard } from "./infra/auth/usage-limit.guard";
     NotesModule,
     InstallmentsModule,
     BudgetingModule,
+    PayrollModule,
     SalesModule,
     DistributionModule,
     ManufacturingModule,

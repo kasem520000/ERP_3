@@ -106,6 +106,8 @@ const KNOWN_PERMISSION_KEYS: ReadonlySet<string> = new Set([
   "installments.plans.view",
   // PHASE-028 (0004 pre-seeded §3.13): the budgeting report key
   "budgeting.reports.view",
+  // PHASE-029 (0004 pre-seeded §3.14): the payroll report key
+  "payroll.reports.view",
 ]);
 
 @Module({

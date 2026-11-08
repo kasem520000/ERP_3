@@ -15,6 +15,7 @@ import {
   invalidAmount,
   missingFxRate,
   missingPartnerOnControl,
+  payrollAccountEngineOnly,
   periodLocked,
   periodNotFound,
   projectClosed,
@@ -77,6 +78,10 @@ export interface PostingReadModel {
   findArApControlAccounts(): Promise<{ arControlAccountId: string; apControlAccountId: string }>;
   /** Tenant base currency (ISO-4217) for FX validation. */
   baseCurrency(): Promise<string>;
+  /** PHASE-029 (BR-053): the account ids actively mapped to the six
+   * payroll purposes — the manual-journal source guard's set. Lazy: the
+   * model implementation fetches once per post when asked. */
+  findPayrollPurposeAccounts(): Promise<ReadonlySet<string>>;
 }
 
 const MONEY_4DP = { precision: 19, scale: 4 } as const;
@@ -188,6 +193,15 @@ export class PostingEngine {
     // (5) Account resolution: purposes → active mappings; postable active
     //     leaves (INV-004); currency-compatible (INV-005).
     const { arControlAccountId, apControlAccountId } = await model.findArApControlAccounts();
+    // PHASE-029 (BR-053): manual journals (source `journal_entry`) may
+    // never touch the payroll-purpose accounts — payroll posts ONLY via
+    // runs (G-29/G-30/G-31 module sources). The set is fetched lazily,
+    // ONLY for the manual source (zero overhead for every other docType —
+    // opening_balances/year_end_close keep their special-window rights).
+    let payrollGuardAccounts: ReadonlySet<string> | undefined;
+    if (spec.source.docType === "journal_entry") {
+      payrollGuardAccounts = await model.findPayrollPurposeAccounts();
+    }
     const resolved: PostingPlan["lines"] = [];
     const accountCache = new Map<string, Awaited<ReturnType<PostingReadModel["findAccount"]>>>();
     const projectCache = new Map<string, { id: string; status: "OPEN" | "CLOSED" }>();
@@ -230,6 +244,20 @@ export class PostingEngine {
       }
       const isArApControl =
         accountId === arControlAccountId || accountId === apControlAccountId;
+      // PHASE-029 (BR-053) — the manual-journal source guard: a
+      // journal_entry-sourced line whose resolved account is mapped to a
+      // payroll purpose dies typed (PAYROLL_ACCOUNT_ENGINE_ONLY). Covers
+      // both the purpose-keyed line AND the explicit-accountId smuggle.
+      if (
+        payrollGuardAccounts !== undefined &&
+        payrollGuardAccounts.has(accountId)
+      ) {
+        throw payrollAccountEngineOnly({
+          accountId,
+          purposeKey: purposeKey,
+          sourceType: spec.source.docType,
+        });
+      }
       // (6) Subledger consistency: AR/AP control lines carry partnerId
       //     (INV-009). Tax lines carry taxCodeId — enforced at PHASE-009
       //     when tax codes exist; the column travels now.

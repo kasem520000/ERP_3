@@ -15,6 +15,7 @@ import { FixedAssetsQueriesService } from "./fixed-assets/fixed-assets-queries";
 import { NotesQueriesService } from "./notes/notes-queries";
 import { InstallmentsQueriesService } from "./installments/installments-queries";
 import { BudgetingQueriesService } from "./budgeting/budgeting-queries";
+import { PayrollQueriesService } from "./payroll/payroll-queries";
 import { TreasuryQueriesService } from "../../treasury/application/treasury-queries";
 import { PartnerQueriesService } from "../../partners/application/partner-queries";
 import { TaxQueriesService } from "../../tax/application/tax-queries";
@@ -58,6 +59,8 @@ export interface ReportingServices {
   installments: InstallmentsQueriesService;
   /** PHASE-028 · the budgeting query surface (budget vs actual + the budget-ledger-tie fold, the variance analysis with top over/under lines). */
   budgeting: BudgetingQueriesService;
+  /** PHASE-029 · the payroll query surface (the register with the INV-025/journal tie, the cost summary with the per-period ledger tie, the EOS provision with the GL balance fold). */
+  payroll: PayrollQueriesService;
   treasury: TreasuryQueriesService;
   partners: PartnerQueriesService;
   tax: TaxQueriesService;
@@ -87,6 +90,7 @@ export function reportingServices(): ReportingServices {
       notes: new NotesQueriesService(),
       installments: new InstallmentsQueriesService(),
       budgeting: new BudgetingQueriesService(),
+      payroll: new PayrollQueriesService(),
       treasury: new TreasuryQueriesService(),
       partners: new PartnerQueriesService(),
       tax: new TaxQueriesService(),

@@ -306,6 +306,21 @@ export const TENANT_TABLES_REGISTRY: readonly RegisteredTenantTable[] = [
   // lines). Two tables — the auto-generated A-suite extends by +12.
   { table: "budgets" },
   { table: "budget_lines", deleteGranted: true },
+  // PHASE-029 payroll cluster (migration 0040): the PII-restricted
+  // employee file + the versioned salary structures with their components +
+  // the monthly runs with their append-only 🔒 run lines (UPDATE
+  // grant-denied outright; DELETE grant-capable but POLICY-OWNED by the
+  // erp.payroll_run_lines_guard trigger — DRAFT recalc resets + purge
+  // only) + the employee loans with their schedule lines (no deletes:
+  // lines transition, never leave). Seven tables — the auto-generated
+  // A-suite extends by +42.
+  { table: "employees" },
+  { table: "salary_structures" },
+  { table: "salary_components", deleteGranted: true },
+  { table: "payroll_runs" },
+  { table: "payroll_run_lines", deleteGranted: true },
+  { table: "employee_loans" },
+  { table: "employee_loan_lines" },
 ];
 
 export const TENANT_TABLE_NAMES: readonly string[] = TENANT_TABLES_REGISTRY.map(

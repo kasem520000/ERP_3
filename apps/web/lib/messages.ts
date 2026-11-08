@@ -2189,3 +2189,109 @@ export function localizedBudgetsError(
       return localizedApiError(d, error, retryAfterSeconds);
   }
 }
+
+/** PHASE-029: the payroll employee/loan status label map (AR/EN). */
+export function localizedPayrollEmployeeStatus(
+  d: Dictionary,
+  status: "ACTIVE" | "SUSPENDED" | "TERMINATED",
+): string {
+  if (status === "SUSPENDED") return d.payStatusSuspended;
+  if (status === "TERMINATED") return d.payStatusTerminated;
+  return d.payStatusActive;
+}
+
+/** PHASE-029: the payroll run status label map (AR/EN). */
+export function localizedPayrollRunStatus(
+  d: Dictionary,
+  status: "DRAFT" | "PENDING_APPROVAL" | "POSTED",
+): string {
+  if (status === "PENDING_APPROVAL") return d.payRunPending;
+  if (status === "POSTED") return d.payRunPosted;
+  return d.payRunDraft;
+}
+
+/** PHASE-029: the payroll loan status label map (AR/EN). */
+export function localizedPayrollLoanStatus(
+  d: Dictionary,
+  status: "ACTIVE" | "CLOSED" | "WRITE_OFF",
+): string {
+  if (status === "CLOSED") return d.payLoanClosed;
+  if (status === "WRITE_OFF") return d.payLoanWriteOffStatus;
+  return d.payLoanActive;
+}
+
+/** PHASE-029: the payroll loan-line status label map (AR/EN). */
+export function localizedPayrollLoanLineStatus(
+  d: Dictionary,
+  status: "PENDING" | "DEDUCTED" | "WAIVED",
+): string {
+  if (status === "DEDUCTED") return d.payLoanDeducted;
+  if (status === "WAIVED") return d.payLoanWaived;
+  return d.payLoanPending;
+}
+
+/** PHASE-029: the payroll contract-type label map (AR/EN). */
+export function localizedPayrollContract(
+  d: Dictionary,
+  contract: "FULL_TIME" | "PART_TIME" | "CONTRACTOR",
+): string {
+  if (contract === "PART_TIME") return d.payContractPartTime;
+  if (contract === "CONTRACTOR") return d.payContractContractor;
+  return d.payContractFullTime;
+}
+
+/** PHASE-029: the payroll typed-error map (the budgeting precedent). */
+export function localizedPayrollError(
+  d: Dictionary,
+  error: ApiErrorBody,
+  retryAfterSeconds?: number,
+): string {
+  switch (error.code) {
+    case "EMPLOYEE_NOT_FOUND":
+    case "SALARY_STRUCTURE_NOT_FOUND":
+    case "SALARY_COMPONENT_NOT_FOUND":
+    case "PAYROLL_RUN_NOT_FOUND":
+    case "EMPLOYEE_LOAN_NOT_FOUND":
+    case "EMPLOYEE_LOAN_LINE_NOT_FOUND":
+    case "ACCOUNT_NOT_FOUND":
+      return d.payErrNotFound;
+    case "PAYROLL_STATE_INVALID":
+    case "EMPLOYEE_STATE_INVALID":
+      return d.payErrStateInvalid;
+    case "PAYROLL_RUN_SELF_APPROVAL":
+      return d.payErrSelfApproval;
+    case "IMMUTABLE_DOCUMENT":
+      return d.payErrImmutable;
+    case "PAYROLL_RUN_PERIOD_EXISTS":
+      return d.payErrRunPeriodExists;
+    case "SALARY_STRUCTURE_IN_USE":
+      return d.payErrStructureInUse;
+    case "SALARY_STRUCTURE_NOT_ACTIVE":
+      return d.payErrStructureNotActive;
+    case "SALARY_STRUCTURE_CURRENCY":
+      return d.payErrStructureCurrency;
+    case "EMPLOYEE_STRUCTURE_MISSING":
+      return d.payErrEmployeeStructureMissing;
+    case "LOAN_DEDUCTION_CAP_EXCEEDED":
+      return d.payErrLoanCap;
+    case "LOAN_ACCOUNT_UNMAPPED":
+      return d.payErrLoanUnmapped;
+    case "EOS_BASIS_REQUIRED":
+      return d.payErrEosBasis;
+    case "EOS_SETTLEMENT_EXCEEDS_BALANCE":
+      return d.payErrEosExceeds;
+    case "PAYROLL_PAYOUT_EXCEEDS_RUN":
+      return d.payErrPayoutExceeds;
+    case "PAYROLL_CODE_CONFLICT":
+    case "SALARY_COMPONENT_SHAPE":
+      return d.payErrCodeConflict;
+    case "PAYROLL_ACCOUNT_ENGINE_ONLY":
+      return d.payErrEngineOnly;
+    case "PURPOSE_NOT_MAPPED":
+      return d.payErrPurposeNotMapped;
+    case "PERIOD_LOCKED":
+      return d.payErrPeriodLocked;
+    default:
+      return localizedApiError(d, error, retryAfterSeconds);
+  }
+}

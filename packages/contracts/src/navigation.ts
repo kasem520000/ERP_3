@@ -981,6 +981,61 @@ export const NAV_ITEMS: readonly NavItem[] = [
     archetype: "report",
     order: 98,
   },
+  // PHASE-029 (T11): the payroll module fills the pre-registered `hr` group
+  // (NAVIGATION_MODEL §1 group 10 — الموظفون والرواتب / HR & Payroll; the
+  // group row shipped at PHASE-013 with zero items, waiting for this
+  // phase). Four items — employees (PII-restricted reads), salary
+  // structures, payroll runs, employee loans — featureKeys the exact
+  // FEATURE_CATALOG §22 strings; permissions the exact seeded §3.14 keys
+  // (payroll.employees.view is the sensitivity-critical restricted read).
+  {
+    id: "hr.employees",
+    parentGroup: "hr",
+    label: { ar: "الموظفون", en: "Employees" },
+    icon: "users",
+    route: "/payroll",
+    featureKey: "payroll.employees",
+    permission: "payroll.employees.view",
+    branchScoped: true,
+    archetype: "list-search",
+    order: 10,
+  },
+  {
+    id: "hr.salary_structures",
+    parentGroup: "hr",
+    label: { ar: "هياكل الرواتب", en: "Salary structures" },
+    icon: "layers",
+    route: "/payroll/structures",
+    featureKey: "payroll.salary_structures",
+    permission: "payroll.employees.view",
+    branchScoped: false,
+    archetype: "settings",
+    order: 20,
+  },
+  {
+    id: "hr.runs",
+    parentGroup: "hr",
+    label: { ar: "مسيرات الرواتب", en: "Payroll runs" },
+    icon: "file-text",
+    route: "/payroll/runs",
+    featureKey: "payroll.runs",
+    permission: "payroll.runs.view",
+    branchScoped: false,
+    archetype: "transaction-entry",
+    order: 30,
+  },
+  {
+    id: "hr.loans",
+    parentGroup: "hr",
+    label: { ar: "سلف الموظفين", en: "Employee loans" },
+    icon: "wallet-cards",
+    route: "/payroll/loans",
+    featureKey: "payroll.loans",
+    permission: "payroll.employees.view",
+    branchScoped: false,
+    archetype: "list-search",
+    order: 40,
+  },
 ];
 
 /**

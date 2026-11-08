@@ -4269,3 +4269,232 @@ export interface ControlEvaluationResult {
     percentUsed: string;
   }[];
 }
+
+// ---------------------------------------------------------------------------
+// PHASE-029 wire types (GET/POST/PUT /payroll/…). Field names mirror the
+// module's store rows EXACTLY (camelCase as the API returns); money values
+// are canonical decimal strings (ADR-0009). The employee surface is the
+// PII-restricted shape: national_id + bank fields leave ONLY as masked
+// forms (toEmployeeView — the restricted permission gates the route; the
+// unmasked shape never crosses the wire).
+
+/** GET /payroll/employees → rows (the masked register; C-PII law). */
+export interface EmployeeListRow {
+  id: string;
+  code: string;
+  name: string;
+  nameAr: string | null;
+  nationalIdMasked: string | null;
+  hireDate: string;
+  terminationDate: string | null;
+  terminationReason: string | null;
+  contractType: "FULL_TIME" | "PART_TIME" | "CONTRACTOR";
+  basicSalary: string;
+  salaryStructureId: string | null;
+  branchId: string | null;
+  costCenterId: string | null;
+  projectId: string | null;
+  bankMasked: {
+    name: string | null;
+    ibanTail: string | null;
+    accountTail: string | null;
+  };
+  eosSettledAmount?: string | null;
+  status: "ACTIVE" | "SUSPENDED" | "TERMINATED";
+  note: string | null;
+  noteAr: string | null;
+  createdAt: string;
+}
+
+/** POST /payroll/employees body + PUT /payroll/employees/:id (partial). */
+export interface EmployeeInput {
+  code: string;
+  name: string;
+  nameAr?: string | null;
+  nationalId?: string | null;
+  hireDate: string;
+  contractType: "FULL_TIME" | "PART_TIME" | "CONTRACTOR";
+  basicSalary: string;
+  salaryStructureId?: string | null;
+  branchId?: string | null;
+  costCenterId?: string | null;
+  projectId?: string | null;
+  bankName?: string | null;
+  bankIban?: string | null;
+  bankAccount?: string | null;
+  note?: string | null;
+  noteAr?: string | null;
+}
+
+/** GET /payroll/salary-structures → rows (BR-052 version register). */
+export interface SalaryStructureRow {
+  id: string;
+  code: string;
+  name: string;
+  nameAr: string | null;
+  currency: string;
+  status: "ACTIVE" | "ARCHIVED";
+  supersededById: string | null;
+  note: string | null;
+  createdAt: string;
+}
+
+/** One builder row: kind/calc/account + the eos-base flag (BR-055). */
+export interface SalaryComponentInput {
+  key: string;
+  name: string;
+  nameAr?: string | null;
+  kind: "ALLOWANCE" | "DEDUCTION" | "EMPLOYER_CONTRIBUTION";
+  calc: "FIXED" | "PERCENT_OF_BASIC" | "PERCENT_OF_GROSS";
+  amount?: string | null;
+  rate?: string | null;
+  glAccountId: string;
+  isEosBase?: boolean;
+  seq?: number;
+}
+
+/** GET /payroll/salary-structures/:id → data (the version + components). */
+export interface SalaryComponentRow extends SalaryComponentInput {
+  id: string;
+  structureId: string;
+  amount: string | null;
+  rate: string | null;
+  isEosBase: boolean;
+  seq: number;
+}
+
+/** GET /payroll/runs → rows (the monthly register; INV-025 totals). */
+export interface PayrollRunListRow {
+  id: string;
+  runNo: string | null;
+  fiscalPeriodId: string;
+  status: "DRAFT" | "PENDING_APPROVAL" | "POSTED";
+  grossTotal: string;
+  deductionsTotal: string;
+  netTotal: string;
+  paidNetTotal: string;
+  employerContributionsTotal: string;
+  eosAccrualTotal: string;
+  journalEntryId: string | null;
+  entryNo: string | null;
+  approvedAt: string | null;
+  postedAt: string | null;
+  reversalJournalEntryId: string | null;
+  createdAt: string;
+}
+
+/** The frozen calculation basis (BR-052 — jsonb shape, DATA_DICTIONARY). */
+export interface ComponentSnapshot {
+  structure: { id: string; code: string; name: string };
+  components: readonly {
+    key: string;
+    kind: "ALLOWANCE" | "DEDUCTION" | "EMPLOYER_CONTRIBUTION";
+    calc: "FIXED" | "PERCENT_OF_BASIC" | "PERCENT_OF_GROSS";
+    amount: string | null;
+    rate: string | null;
+    glAccountId: string;
+    isEosBase: boolean;
+    computed: string;
+  }[];
+  loanDeductions: readonly { loanId: string; lineId: string; amount: string }[];
+  eos: { enabled: boolean; accrual: string };
+  basicSalary: string;
+}
+
+/** GET /payroll/runs/:id → lines (the per-employee frozen rows). */
+export interface PayrollRunLineRow {
+  id: string;
+  runId: string;
+  employeeId: string;
+  componentSnapshot: ComponentSnapshot;
+  grossAmount: string;
+  deductionsAmount: string;
+  netAmount: string;
+  employerContributions: string;
+  eosAccrual: string;
+  costCenterId: string | null;
+  projectId: string | null;
+  branchId: string | null;
+  createdAt: string;
+}
+
+/** POST /payroll/runs/:id/calculate → data (BR-054 clamps are explicit). */
+export interface RunCalculationResult {
+  run: PayrollRunListRow;
+  lineCount: number;
+  warnings: {
+    loanClamps: { employeeCode: string; loanId: string; scheduled: string; clampedTo: string }[];
+    skippedEmployees: { code: string; reason: string }[];
+  };
+}
+
+/** POST /payroll/runs/:id/payout → data (G-30; exact remainder tracking). */
+export interface RunPayoutResult {
+  run: PayrollRunListRow;
+  payoutId: string;
+  journalEntryId: string;
+  amount: string;
+}
+
+/** GET /payroll/runs/:id/payslips → data (masked C-PII; batch). */
+export interface PayslipsResult {
+  run: {
+    id: string;
+    runNo: string | null;
+    periodName: string;
+    gross: string;
+    deductions: string;
+    net: string;
+    employerContributions: string;
+    eosAccrual: string;
+    paid: string;
+  };
+  slips: {
+    employee: EmployeeListRow;
+    gross: string;
+    deductions: string;
+    net: string;
+    components: { key: string; name: string; nameAr: string | null; kind: string; computed: string }[];
+    loanDeductions: { amount: string }[];
+  }[];
+}
+
+/** GET /payroll/loans → rows (the BR-054-capped register). */
+export interface EmployeeLoanRow {
+  id: string;
+  code: string;
+  employeeId: string;
+  amount: string;
+  installmentsCount: number;
+  startPeriodId: string;
+  status: "ACTIVE" | "CLOSED" | "WRITE_OFF";
+  cashAccountId: string | null;
+  disbursementJournalEntryId: string | null;
+  writeOffReason: string | null;
+  note: string | null;
+  createdAt: string;
+}
+
+/** GET /payroll/loans/:id → lines (the per-period schedule). */
+export interface EmployeeLoanLineRow {
+  id: string;
+  loanId: string;
+  fiscalPeriodId: string;
+  amount: string;
+  status: "PENDING" | "DEDUCTED" | "WAIVED";
+  payrollRunId: string | null;
+  waivedReason: string | null;
+}
+
+/** GET /payroll/eos/employees/:id/balance → data (BR-055 per employee). */
+export interface EosBalanceRow {
+  accrued: string;
+  settled: string | null;
+  balance: string;
+}
+
+/** GET /payroll/eos/policy → data (the tenant policy surface). */
+export interface EosPolicyRow {
+  enabled: boolean;
+  basisDays: number | null;
+}

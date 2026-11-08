@@ -171,6 +171,18 @@ const FALLBACK_CRUMBS: Record<string, { group?: keyof Dictionary; label: keyof D
   "budgeting/new": { group: "navAccounting", label: "budgetsNewTitle" },
   "budgeting/import": { group: "navAccounting", label: "budgetsImportTitle" },
   "budgeting/reports": { group: "navAccounting", label: "budgetReportsTitle" },
+  // -- PHASE-029 (T11): the payroll module surfaces (the hr group 10). The
+  // registry rows `hr.*` (contracts NAV_ITEMS) drive the sidebar; these
+  // fallbacks cover nav-fetch failure for the module's sub-surfaces (the
+  // same support-sessions rule — crumbs only).
+  "payroll": { group: "navHr", label: "navPayrollEmployees" },
+  "payroll/employees/new": { group: "navHr", label: "payEmployeeCreateTitle" },
+  "payroll/structures": { group: "navHr", label: "navPayrollStructures" },
+  "payroll/runs": { group: "navHr", label: "navPayrollRuns" },
+  "payroll/runs/new": { group: "navHr", label: "payRunNew" },
+  "payroll/loans": { group: "navHr", label: "navPayrollLoans" },
+  "payroll/loans/new": { group: "navHr", label: "payLoanNew" },
+  "payroll/reports": { group: "navHr", label: "payReportsTitle" },
 };
 
 /**
@@ -233,6 +245,18 @@ function fallbackCrumbsFor(
     pagePath !== "budgeting/reports"
   ) {
     return { groupLabel: d.navAccounting, label: d.navBudgets };
+  }
+  // PHASE-029 (T11) — payroll detail routes (payroll/employees/:id,
+  // payroll/structures/:id, payroll/runs/:id, payroll/loans/:id): the
+  // module surface label is the honest leaf crumb (the budgeting/:id
+  // rule; static module routes resolve via the exact map above).
+  if (
+    (pagePath.startsWith("payroll/employees/") && pagePath !== "payroll/employees/new") ||
+    (pagePath.startsWith("payroll/structures/") && pagePath !== "payroll/structures") ||
+    (pagePath.startsWith("payroll/runs/") && pagePath !== "payroll/runs/new") ||
+    (pagePath.startsWith("payroll/loans/") && pagePath !== "payroll/loans/new")
+  ) {
+    return { groupLabel: d.navHr, label: d.navPayrollEmployees };
   }
   return undefined;
 }

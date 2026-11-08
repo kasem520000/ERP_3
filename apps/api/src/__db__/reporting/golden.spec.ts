@@ -134,11 +134,11 @@ describe("cash flow golden (§5 + INV-019)", () => {
 });
 
 describe("registry snapshot", () => {
-  it("exposes exactly the 78 frozen contracts (50 core + 18 industry + 3 fixed assets + 5 notes/installments + 2 budgeting)", () => {
+  it("exposes exactly the 81 frozen contracts (50 core + 18 industry + 3 fixed assets + 5 notes/installments + 2 budgeting + 3 payroll)", () => {
     const snapshot = registrySnapshot(newRunService().contracts());
-    expect(snapshot).toHaveLength(78);
+    expect(snapshot).toHaveLength(81);
     const ids = new Set(snapshot.map((row) => row.id));
-    expect(ids.size).toBe(78);
+    expect(ids.size).toBe(81);
   });
 });
 

@@ -46,7 +46,14 @@ describe("migration manifest (MIGRATION_STRATEGY §1)", () => {
     // budgets + budget_lines with the BR-050 partial unique + the
     // notifications 'budgeting' category + the six feature-key plan grants;
     // NOT ledger documents — zero journal rules by construction).
-    expect(files.at(-1)?.tag).toBe("0039_budgeting");
+    // PHASE-029: 0040_payroll (the payroll module per DR-005/ED-05 —
+    // employees/salary_structures/salary_components/payroll_runs/run_lines 🔒/
+    // employee_loans/loan_lines with the INV-025 row-level totals law + the
+    // six CoA purposes (2170/2180/2190/5270/5280/5295) + the cash_movements
+    // source widening (additive) + the notifications 'payroll' category +
+    // the eight feature-key plan grants; §3.14 permissions pre-seeded in
+    // 0004/0005).
+    expect(files.at(-1)?.tag).toBe("0040_payroll");
   });
 
   it("journal entries mirror the manifest order (drizzle-kit manifest)", () => {

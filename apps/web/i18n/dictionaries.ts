@@ -4233,6 +4233,169 @@ export interface Dictionary {
   budgetErrImportFormat: string;
   budgetErrImportRowLimit: string;
   budgetErrImportRow: string;
+
+  // -- PHASE-029 (payroll): salaries, loans & end-of-service ---------
+  // (the employee register + the structure builder + the run workspace +
+  // loans + EOS + the module report page + the typed error map; every
+  // string in BOTH locales. Nav labels ride the registry (contracts
+  // NAV_ITEMS `hr.*`); the navHr/navPayroll* keys below are the app-shell
+  // breadcrumb fallbacks, the navBudgets precedent.)
+
+  navHr: string;
+  navPayrollEmployees: string;
+  navPayrollStructures: string;
+  navPayrollRuns: string;
+  navPayrollLoans: string;
+  payTitle: string;
+  payEmployeesTitle: string;
+  payEmployeesNew: string;
+  payEmployeesSearch: string;
+  payEmployeesEmpty: string;
+  payEmployeeCode: string;
+  payEmployeeName: string;
+  payEmployeeHireDate: string;
+  payEmployeeContract: string;
+  payEmployeeBasicSalary: string;
+  payEmployeeStructure: string;
+  payEmployeeBranch: string;
+  payEmployeeCostCenter: string;
+  payEmployeeProject: string;
+  payEmployeeNationalId: string;
+  payEmployeeBank: string;
+  payEmployeeStatus: string;
+  payEmployeeEosBalance: string;
+  payStatusActive: string;
+  payStatusSuspended: string;
+  payStatusTerminated: string;
+  payContractFullTime: string;
+  payContractPartTime: string;
+  payContractContractor: string;
+  payEmployeeCreateTitle: string;
+  payEmployeeEditTitle: string;
+  payEmployeeTerminate: string;
+  payEmployeeTerminateDate: string;
+  payEmployeeTerminateReason: string;
+  payEmployeeSuspend: string;
+  payEmployeeReactivate: string;
+  payEmployeeSave: string;
+  payEmployeeCreatedToast: string;
+  payEmployeeUpdatedToast: string;
+  payEmployeeTerminatedToast: string;
+  payPiiNote: string;
+  payEmployeeTerminatedNote: string;
+  payStructuresTitle: string;
+  payStructureNew: string;
+  payStructureCode: string;
+  payStructureName: string;
+  payStructureCurrency: string;
+  payStructureStatus: string;
+  payStructureComponents: string;
+  payComponentKey: string;
+  payComponentKind: string;
+  payComponentCalc: string;
+  payComponentAmount: string;
+  payComponentRate: string;
+  payComponentAccount: string;
+  payComponentEosBase: string;
+  payKindAllowance: string;
+  payKindDeduction: string;
+  payKindEmployer: string;
+  payCalcFixed: string;
+  payCalcPercentBasic: string;
+  payCalcPercentGross: string;
+  payStructureAddComponent: string;
+  payStructureRemoveComponent: string;
+  payStructureSave: string;
+  payStructureArchived: string;
+  payStructureVersion: string;
+  payStructureVersionedToast: string;
+  payStructureSavedToast: string;
+  payStructureInUseNote: string;
+  payRunsTitle: string;
+  payRunNew: string;
+  payRunPeriod: string;
+  payRunStatus: string;
+  payRunGross: string;
+  payRunDeductions: string;
+  payRunNet: string;
+  payRunEmployer: string;
+  payRunEos: string;
+  payRunPaid: string;
+  payRunNumber: string;
+  payRunLines: string;
+  payRunCalculate: string;
+  payRunSubmit: string;
+  payRunApprove: string;
+  payRunPost: string;
+  payRunPayout: string;
+  payRunReverse: string;
+  payRunPayslips: string;
+  payRunDraft: string;
+  payRunPending: string;
+  payRunPosted: string;
+  payRunCalculatedToast: string;
+  payRunSubmittedToast: string;
+  payRunApprovedToast: string;
+  payRunPostedToast: string;
+  payRunPayoutToast: string;
+  payRunEmptyLines: string;
+  payRunLoanClampWarning: string;
+  payRunSkippedWarning: string;
+  payRunOutstanding: string;
+  payLoansTitle: string;
+  payLoanNew: string;
+  payLoanCode: string;
+  payLoanEmployee: string;
+  payLoanAmount: string;
+  payLoanInstallments: string;
+  payLoanStartPeriod: string;
+  payLoanCashAccount: string;
+  payLoanSchedule: string;
+  payLoanLineAmount: string;
+  payLoanLineStatus: string;
+  payLoanPending: string;
+  payLoanDeducted: string;
+  payLoanWaived: string;
+  payLoanWaive: string;
+  payLoanWaiveReason: string;
+  payLoanWriteOff: string;
+  payLoanWriteOffReason: string;
+  payLoanActive: string;
+  payLoanClosed: string;
+  payLoanWriteOffStatus: string;
+  payLoanDisbursedToast: string;
+  payLoanWaivedToast: string;
+  payLoanWrittenOffToast: string;
+  payEosTitle: string;
+  payEosAccrued: string;
+  payEosSettled: string;
+  payEosBalance: string;
+  payEosSettle: string;
+  payEosSettleAmount: string;
+  payEosPolicy: string;
+  payEosDisabled: string;
+  payEosSettledToast: string;
+  payReportsTitle: string;
+  payReportsEmpty: string;
+  payErrNotFound: string;
+  payErrStateInvalid: string;
+  payErrSelfApproval: string;
+  payErrImmutable: string;
+  payErrRunPeriodExists: string;
+  payErrStructureInUse: string;
+  payErrStructureNotActive: string;
+  payErrStructureCurrency: string;
+  payErrEmployeeStructureMissing: string;
+  payErrLoanCap: string;
+  payErrLoanUnmapped: string;
+  payErrEosBasis: string;
+  payErrEosExceeds: string;
+  payErrPayoutExceeds: string;
+  payErrEmployeeState: string;
+  payErrCodeConflict: string;
+  payErrEngineOnly: string;
+  payErrPurposeNotMapped: string;
+  payErrPeriodLocked: string;
 }
 
 const ar: Dictionary = {
@@ -8470,6 +8633,163 @@ const ar: Dictionary = {
   budgetErrImportFormat: "الملف ليس شبكة موازنة — راجع أعمدة التعريف الثلاثة وأعمدة الفترات (تُقبل ترويسات عربية أو إنجليزية).",
   budgetErrImportRowLimit: "الاستيراد يتجاوز سقف 5,000 صف بيانات — قسِّم الملف.",
   budgetErrImportRow: "الملف يحمل صفوفًا غير صالحة — صحّحها وأعد الفحص المسبق.",
+  // -- PHASE-029 (payroll): salaries, loans & end-of-service ---------
+  navHr: "الموظفون والرواتب",
+  navPayrollEmployees: "الموظفون",
+  navPayrollStructures: "هياكل الرواتب",
+  navPayrollRuns: "مسيرات الرواتب",
+  navPayrollLoans: "سلف الموظفين",
+  payTitle: "الرواتب",
+  payEmployeesTitle: "الموظفون",
+  payEmployeesNew: "موظف جديد",
+  payEmployeesSearch: "ابحث بالرمز أو الاسم…",
+  payEmployeesEmpty: "لا موظفين بعد — أضف أول موظف.",
+  payEmployeeCode: "الرمز",
+  payEmployeeName: "الاسم",
+  payEmployeeHireDate: "تاريخ التعيين",
+  payEmployeeContract: "نوع العقد",
+  payEmployeeBasicSalary: "الراتب الأساسي",
+  payEmployeeStructure: "هيكل الرواتب",
+  payEmployeeBranch: "الفرع",
+  payEmployeeCostCenter: "مركز التكلفة",
+  payEmployeeProject: "المشروع",
+  payEmployeeNationalId: "الهوية الوطنية (مقنّعة)",
+  payEmployeeBank: "البنك (مقنّع)",
+  payEmployeeStatus: "الحالة",
+  payEmployeeEosBalance: "رصيد مخصص نهاية الخدمة",
+  payStatusActive: "نشط",
+  payStatusSuspended: "موقوف",
+  payStatusTerminated: "منتهي الخدمة",
+  payContractFullTime: "دوام كامل",
+  payContractPartTime: "دوام جزئي",
+  payContractContractor: "متعاقد",
+  payEmployeeCreateTitle: "موظف جديد",
+  payEmployeeEditTitle: "بيانات الموظف",
+  payEmployeeTerminate: "إنهاء الخدمة",
+  payEmployeeTerminateDate: "تاريخ الإنهاء",
+  payEmployeeTerminateReason: "سبب الإنهاء",
+  payEmployeeSuspend: "إيقاف",
+  payEmployeeReactivate: "إعادة تنشيط",
+  payEmployeeSave: "حفظ",
+  payEmployeeCreatedToast: "أُنشئ الموظف {code}.",
+  payEmployeeUpdatedToast: "حُفظت بيانات الموظف {code}.",
+  payEmployeeTerminatedToast: "أُنهيت خدمة {code} بتاريخ {date} — تسوية نهاية الخدمة خطوة منفصلة.",
+  payPiiNote: "بيانات الموظف من فئة C-PII: الهوية والحقول البنكية مقنّعة بالبنية، وكل قراءة مسجلة في سجل التدقيق.",
+  payEmployeeTerminatedNote: "الصف المنتهي مجمد — ملاحظات فقط (سجل نهاية الخدمة يبقى).",
+  payStructuresTitle: "هياكل الرواتب",
+  payStructureNew: "هيكل جديد",
+  payStructureCode: "الرمز",
+  payStructureName: "الاسم",
+  payStructureCurrency: "العملة",
+  payStructureStatus: "الحالة",
+  payStructureComponents: "المكونات",
+  payComponentKey: "المفتاح",
+  payComponentKind: "النوع",
+  payComponentCalc: "طريقة الحساب",
+  payComponentAmount: "المبلغ",
+  payComponentRate: "النسبة %",
+  payComponentAccount: "الحساب",
+  payComponentEosBase: "أساس مخصص نهاية الخدمة",
+  payKindAllowance: "بدل",
+  payKindDeduction: "استقطاع",
+  payKindEmployer: "مساهمة صاحب العمل",
+  payCalcFixed: "مبلغ ثابت",
+  payCalcPercentBasic: "نسبة من الأساسي",
+  payCalcPercentGross: "نسبة من الإجمالي",
+  payStructureAddComponent: "أضف مكوّناً",
+  payStructureRemoveComponent: "أزل المكوّن",
+  payStructureSave: "حفظ المكونات",
+  payStructureArchived: "مؤرشف",
+  payStructureVersion: "أنشئ نسخة جديدة",
+  payStructureVersionedToast: "أُنشئت النسخة {code} وأُرشف السابق (BR-052).",
+  payStructureSavedToast: "حُفظت مكونات الهيكل.",
+  payStructureInUseNote: "الهياكل المستخدمة في مسيرات مرحّلة تُنسخ ولا تُعدّل — أنشئ نسخة جديدة (BR-052).",
+  payRunsTitle: "مسيرات الرواتب",
+  payRunNew: "مسير جديد",
+  payRunPeriod: "الفترة المالية",
+  payRunStatus: "الحالة",
+  payRunGross: "الإجمالي",
+  payRunDeductions: "الاستقطاعات",
+  payRunNet: "الصافي",
+  payRunEmployer: "مساهمات صاحب العمل",
+  payRunEos: "مخصص نهاية الخدمة",
+  payRunPaid: "المدفوع",
+  payRunNumber: "رقم المسير",
+  payRunLines: "سطور المسير",
+  payRunCalculate: "احسب",
+  payRunSubmit: "أرسل للاعتماد",
+  payRunApprove: "اعتمد",
+  payRunPost: "رحّل (G-29)",
+  payRunPayout: "اصرف (G-30)",
+  payRunReverse: "اعكس",
+  payRunPayslips: "قسائم الرواتب",
+  payRunDraft: "مسودة",
+  payRunPending: "بانتظار الاعتماد",
+  payRunPosted: "مرحّل",
+  payRunCalculatedToast: "حُسب المسير: {count} سطراً (إجمالي {gross} / صافي {net}).",
+  payRunSubmittedToast: "أُرسل المسير للاعتماد.",
+  payRunApprovedToast: "اعُتمد المسير — الترحيل متاح الآن.",
+  payRunPostedToast: "رُحّل المسير {runNo} — القيد {entryNo} (G-29).",
+  payRunPayoutToast: "صُرف {amount} عبر الحساب البنكي (G-30) — المتبقي {outstanding}.",
+  payRunEmptyLines: "لا سطور محسوبة — احسب المسير أولاً.",
+  payRunLoanClampWarning: "تخفيض استقطاع السلف إلى الحد ({clampedTo} من {scheduled}) — BR-054.",
+  payRunSkippedWarning: "موظفون متجاوزون: {list}.",
+  payRunOutstanding: "المتبقي",
+  payLoansTitle: "سلف الموظفين",
+  payLoanNew: "سلفة جديدة",
+  payLoanCode: "الرمز",
+  payLoanEmployee: "الموظف",
+  payLoanAmount: "المبلغ",
+  payLoanInstallments: "عدد الأقساط",
+  payLoanStartPeriod: "فترة البدء",
+  payLoanCashAccount: "حساب الصرف",
+  payLoanSchedule: "الجدول",
+  payLoanLineAmount: "مبلغ القسط",
+  payLoanLineStatus: "الحالة",
+  payLoanPending: "معلق",
+  payLoanDeducted: "مستقطع",
+  payLoanWaived: "معفى",
+  payLoanWaive: "أعفِ القسط",
+  payLoanWaiveReason: "سبب الإعفاء",
+  payLoanWriteOff: "شطب السلفة",
+  payLoanWriteOffReason: "سبب الشطب",
+  payLoanActive: "نشطة",
+  payLoanClosed: "مسددة",
+  payLoanWriteOffStatus: "مشطوبة",
+  payLoanDisbursedToast: "صُرفت السلفة {code} — {amount} عبر الحساب المحدد.",
+  payLoanWaivedToast: "أُعفي القسط ({reason}).",
+  payLoanWrittenOffToast: "شُطبت السلفة {code} ({reason}).",
+  payEosTitle: "مخصص نهاية الخدمة",
+  payEosAccrued: "المستحق",
+  payEosSettled: "المسدّد نقداً",
+  payEosBalance: "الرصيد",
+  payEosSettle: "سوِّ نهاية الخدمة (G-31)",
+  payEosSettleAmount: "المبلغ المسدد نقداً",
+  payEosPolicy: "سياسة المخصص: مفعّلة بأساس {days} يوماً لكل سنة خدمة (قيمة المستأجر — لا نسب نظامية).",
+  payEosDisabled: "المخصص معطّل (الافتراضي) — سياسة المستأجر تفعّله بقيمة صريحة.",
+  payEosSettledToast: "سُوّي المخصص: نقداً {settled} والفروق المحررة {residual} (G-31).",
+  payReportsTitle: "تقارير الرواتب",
+  payReportsEmpty: "لا عقود تقارير رواتب في السجل.",
+  payErrNotFound: "السجل غير موجود (أو تابع لمستأجر آخر).",
+  payErrStateInvalid: "حالة السجل لا تسمح بهذه الخطوة.",
+  payErrSelfApproval: "فصل المهام: منشئ المسير لا يعتمده — يتطلب معتمداً مختلفاً.",
+  payErrImmutable: "المستند مرحّل وغير قابل للتعديل — العكس هو طريق التصحيح الوحيد.",
+  payErrRunPeriodExists: "توجد مسيرات حية لهذه الفترة بالفعل — مسير واحد لكل فترة.",
+  payErrStructureInUse: "الهيكل مستخدم في مسير مرحّل — أنشئ نسخة جديدة (BR-052).",
+  payErrStructureNotActive: "الهيكل مؤرشف — المسيرات تتطلب هيكلاً نشطاً (BR-052).",
+  payErrStructureCurrency: "عملة الهيكل تخالف العملة الأساسية للمستأجر.",
+  payErrEmployeeStructureMissing: "الموظف بلا هيكل رواتب نشط — عيّن هيكلاً قبل الحساب.",
+  payErrLoanCap: "استقطاع السلفة فوق الحد المسموح من الصافي (BR-054).",
+  payErrLoanUnmapped: "حساب سلف الموظفين غير معيّن — اضبط payroll.loans.control_account_id.",
+  payErrEosBasis: "المخصص مفعّل بلا أساس صريح — BR-055 يرفض الصمت.",
+  payErrEosExceeds: "مبلغ التسوية يفوق رصيد المخصص للموظف.",
+  payErrPayoutExceeds: "المبلغ يفوق المتبقي من صافي المسير.",
+  payErrEmployeeState: "حالة الموظف لا تسمح بهذه الخطوة.",
+  payErrCodeConflict: "الرمز مستخدم بالفعل في هذا المستأجر.",
+  payErrEngineOnly: "حسابات الرواتب تُرحّل عبر المسيرات فقط — القيود اليدوية مرفوضة (BR-053).",
+  payErrPurposeNotMapped: "غرض محاسبي غير معيّن — عيّن الحساب قبل الترحيل.",
+  payErrPeriodLocked: "الفترة المالية مقفلة — الترحيل مرفوض.",
+
 };
 
 const en: Dictionary = {
@@ -12716,6 +13036,163 @@ const en: Dictionary = {
   budgetErrImportFormat: "The file is not a budget grid — check the three identity columns + the period columns (AR or EN header sets accepted).",
   budgetErrImportRowLimit: "The import exceeds the 5,000-data-row cap — split the file.",
   budgetErrImportRow: "The file carries invalid rows — fix them and re-run the dry run.",
+  // -- PHASE-029 (payroll): salaries, loans & end-of-service ---------
+  navHr: "HR & Payroll",
+  navPayrollEmployees: "Employees",
+  navPayrollStructures: "Salary structures",
+  navPayrollRuns: "Payroll runs",
+  navPayrollLoans: "Employee loans",
+  payTitle: "Payroll",
+  payEmployeesTitle: "Employees",
+  payEmployeesNew: "New employee",
+  payEmployeesSearch: "Search by code or name…",
+  payEmployeesEmpty: "No employees yet — add the first one.",
+  payEmployeeCode: "Code",
+  payEmployeeName: "Name",
+  payEmployeeHireDate: "Hire date",
+  payEmployeeContract: "Contract type",
+  payEmployeeBasicSalary: "Basic salary",
+  payEmployeeStructure: "Salary structure",
+  payEmployeeBranch: "Branch",
+  payEmployeeCostCenter: "Cost center",
+  payEmployeeProject: "Project",
+  payEmployeeNationalId: "National ID (masked)",
+  payEmployeeBank: "Bank (masked)",
+  payEmployeeStatus: "Status",
+  payEmployeeEosBalance: "EOS provision balance",
+  payStatusActive: "Active",
+  payStatusSuspended: "Suspended",
+  payStatusTerminated: "Terminated",
+  payContractFullTime: "Full-time",
+  payContractPartTime: "Part-time",
+  payContractContractor: "Contractor",
+  payEmployeeCreateTitle: "New employee",
+  payEmployeeEditTitle: "Employee file",
+  payEmployeeTerminate: "Terminate",
+  payEmployeeTerminateDate: "Termination date",
+  payEmployeeTerminateReason: "Termination reason",
+  payEmployeeSuspend: "Suspend",
+  payEmployeeReactivate: "Reactivate",
+  payEmployeeSave: "Save",
+  payEmployeeCreatedToast: "Employee {code} created.",
+  payEmployeeUpdatedToast: "Employee {code} saved.",
+  payEmployeeTerminatedToast: "{code} terminated on {date} — the EOS settlement is a separate step.",
+  payPiiNote: "Employee data is C-PII: national ID and bank fields are masked by construction, and every read is audit-logged.",
+  payEmployeeTerminatedNote: "TERMINATED rows are frozen — note edits only (the EOS/audit history stays).",
+  payStructuresTitle: "Salary structures",
+  payStructureNew: "New structure",
+  payStructureCode: "Code",
+  payStructureName: "Name",
+  payStructureCurrency: "Currency",
+  payStructureStatus: "Status",
+  payStructureComponents: "Components",
+  payComponentKey: "Key",
+  payComponentKind: "Kind",
+  payComponentCalc: "Calculation",
+  payComponentAmount: "Amount",
+  payComponentRate: "Rate %",
+  payComponentAccount: "GL account",
+  payComponentEosBase: "EOS base",
+  payKindAllowance: "Allowance",
+  payKindDeduction: "Deduction",
+  payKindEmployer: "Employer contribution",
+  payCalcFixed: "Fixed",
+  payCalcPercentBasic: "Percent of basic",
+  payCalcPercentGross: "Percent of gross",
+  payStructureAddComponent: "Add component",
+  payStructureRemoveComponent: "Remove component",
+  payStructureSave: "Save components",
+  payStructureArchived: "Archived",
+  payStructureVersion: "Create new version",
+  payStructureVersionedToast: "Version {code} created; the predecessor archived (BR-052).",
+  payStructureSavedToast: "Structure components saved.",
+  payStructureInUseNote: "Structures snapshotted by posted runs version, never edit — create a new version (BR-052).",
+  payRunsTitle: "Payroll runs",
+  payRunNew: "New run",
+  payRunPeriod: "Fiscal period",
+  payRunStatus: "Status",
+  payRunGross: "Gross",
+  payRunDeductions: "Deductions",
+  payRunNet: "Net",
+  payRunEmployer: "Employer",
+  payRunEos: "EOS accrual",
+  payRunPaid: "Paid",
+  payRunNumber: "Run no",
+  payRunLines: "Run lines",
+  payRunCalculate: "Calculate",
+  payRunSubmit: "Submit",
+  payRunApprove: "Approve",
+  payRunPost: "Post (G-29)",
+  payRunPayout: "Payout (G-30)",
+  payRunReverse: "Reverse",
+  payRunPayslips: "Payslips",
+  payRunDraft: "Draft",
+  payRunPending: "Pending approval",
+  payRunPosted: "Posted",
+  payRunCalculatedToast: "Run calculated: {count} line(s) (gross {gross} / net {net}).",
+  payRunSubmittedToast: "Run submitted for approval.",
+  payRunApprovedToast: "Run approved — posting is now available.",
+  payRunPostedToast: "Run {runNo} posted — journal {entryNo} (G-29).",
+  payRunPayoutToast: "Paid out {amount} via the bank account (G-30) — outstanding {outstanding}.",
+  payRunEmptyLines: "No calculated lines — calculate the run first.",
+  payRunLoanClampWarning: "Loan deduction clamped to the cap ({clampedTo} of {scheduled}) — BR-054.",
+  payRunSkippedWarning: "Skipped employees: {list}.",
+  payRunOutstanding: "Outstanding",
+  payLoansTitle: "Employee loans",
+  payLoanNew: "New loan",
+  payLoanCode: "Code",
+  payLoanEmployee: "Employee",
+  payLoanAmount: "Amount",
+  payLoanInstallments: "Installments",
+  payLoanStartPeriod: "Start period",
+  payLoanCashAccount: "Paying account",
+  payLoanSchedule: "Schedule",
+  payLoanLineAmount: "Installment amount",
+  payLoanLineStatus: "Status",
+  payLoanPending: "Pending",
+  payLoanDeducted: "Deducted",
+  payLoanWaived: "Waived",
+  payLoanWaive: "Waive installment",
+  payLoanWaiveReason: "Waive reason",
+  payLoanWriteOff: "Write off loan",
+  payLoanWriteOffReason: "Write-off reason",
+  payLoanActive: "Active",
+  payLoanClosed: "Closed",
+  payLoanWriteOffStatus: "Written off",
+  payLoanDisbursedToast: "Loan {code} disbursed — {amount} via the selected account.",
+  payLoanWaivedToast: "Installment waived ({reason}).",
+  payLoanWrittenOffToast: "Loan {code} written off ({reason}).",
+  payEosTitle: "End-of-service provision",
+  payEosAccrued: "Accrued",
+  payEosSettled: "Cash settled",
+  payEosBalance: "Balance",
+  payEosSettle: "Settle EOS (G-31)",
+  payEosSettleAmount: "Cash settled amount",
+  payEosPolicy: "Provision policy: enabled with basis {days} days per service year (tenant value — no jurisdiction rates).",
+  payEosDisabled: "Provision disabled (default) — the tenant policy enables it with an explicit value.",
+  payEosSettledToast: "Provision settled: {settled} cash, {residual} released (G-31).",
+  payReportsTitle: "Payroll reports",
+  payReportsEmpty: "No payroll report contracts registered.",
+  payErrNotFound: "Record not found (or belongs to another tenant).",
+  payErrStateInvalid: "The record's state does not allow this step.",
+  payErrSelfApproval: "Separation of duties: the run's creator cannot approve it.",
+  payErrImmutable: "The document is posted and immutable — reversal is the only correction path.",
+  payErrRunPeriodExists: "A live run already exists for this period — one run per period.",
+  payErrStructureInUse: "The structure is frozen by a posted run — create a new version (BR-052).",
+  payErrStructureNotActive: "The structure is archived — runs require an ACTIVE structure (BR-052).",
+  payErrStructureCurrency: "The structure's currency differs from the tenant base.",
+  payErrEmployeeStructureMissing: "The employee carries no ACTIVE salary structure — assign one before calculating.",
+  payErrLoanCap: "The loan deduction exceeds the cap percent of net (BR-054).",
+  payErrLoanUnmapped: "The employee-loan control account is unmapped — set payroll.loans.control_account_id.",
+  payErrEosBasis: "The provision is enabled without an explicit basis — BR-055 refuses the silent path.",
+  payErrEosExceeds: "The settlement exceeds the employee's provision balance.",
+  payErrPayoutExceeds: "The amount exceeds the run's outstanding net.",
+  payErrEmployeeState: "The employee's state does not allow this step.",
+  payErrCodeConflict: "The code is already used in this tenant.",
+  payErrEngineOnly: "Payroll accounts post only via runs — manual journals are rejected (BR-053).",
+  payErrPurposeNotMapped: "An accounting purpose is unmapped — map the account before posting.",
+  payErrPeriodLocked: "The fiscal period is locked — posting is rejected.",
+
 };
 
 const dictionaries: Record<Locale, Dictionary> = { ar, en };

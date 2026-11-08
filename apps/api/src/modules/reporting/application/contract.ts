@@ -41,7 +41,8 @@ export type DataSourceModule =
   | "fixed_assets" // PHASE-026: the fixed_assets query surface (asset register/schedule/movements)
   | "notes" // PHASE-027: the notes query surface (maturity calendar / aging / dishonored register)
   | "installments" // PHASE-027: the installments query surface (schedule / aging)
-  | "budgeting"; // PHASE-028: the budgeting query surface (budget vs actual / variance analysis)
+  | "budgeting" // PHASE-028: the budgeting query surface (budget vs actual / variance analysis)
+  | "payroll"; // PHASE-029: the payroll query surface (register / cost summary / EOS provision)
 
 export interface DataSourceDecl {
   readonly module: DataSourceModule;
@@ -176,6 +177,8 @@ export interface ReportParams {
   readonly movementKind?: string;
   /** PHASE-026 (fixed assets): the projection fiscal period (schedule). */
   readonly fiscalPeriodId?: string;
+  /** PHASE-029 (payroll): the run of `payroll.register`. */
+  readonly runId?: string;
   /** PHASE-027 (notes): the issuing-bank filter of the maturity calendar. */
   readonly bank?: string;
   /** PHASE-027 (notes): the free-text reason filter of the dishonored register. */

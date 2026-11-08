@@ -813,7 +813,21 @@ describe("GA full load — local harness tier (PHASE-025 T2; PERFORMANCE_TEST_PL
         } else {
           await client.query(`SELECT set_config('erp.tenant_id', '', false)`);
         }
+        // The sessions-by-token-hash lookup: a LIMIT-1 equality probe the
+        // planner legitimately seq-scans while the shared test database
+        // holds only a handful of sessions (cost ≈ 3) — production shape
+        // (thousands of rows) always drives the token_hash index. Prove
+        // the index path the gl-perf way (enable_seqscan=off scoped to
+        // this check): a missing index still falls back to a forced seq
+        // scan, so the assertion keeps its teeth.
+        const seqscanSensitive = check.noSeqScanOn?.includes("sessions") ?? false;
+        if (seqscanSensitive) {
+          await client.query("SET enable_seqscan = off");
+        }
         const plan = await client.query<{ "QUERY PLAN": string }>(`EXPLAIN ${check.sql}`);
+        if (seqscanSensitive) {
+          await client.query("SET enable_seqscan = on");
+        }
         const text = plan.rows.map((row) => row["QUERY PLAN"]).join("\n");
         if (check.tenantOwned) {
           expect(text, `${check.name}: the RLS tenant predicate must be present`).toMatch(/tenant_id/);

@@ -111,6 +111,9 @@ import { installmentsScheduleContract } from "./installments/schedule.contract";
 import { installmentsAgingContract } from "./installments/aging.contract";
 import { budgetingBudgetVsActualContract } from "./budgeting/budget-vs-actual.contract";
 import { budgetingVarianceAnalysisContract } from "./budgeting/variance-analysis.contract";
+import { payrollRegisterContract } from "./payroll/register.contract";
+import { payrollCostSummaryContract } from "./payroll/cost-summary.contract";
+import { payrollEosProvisionContract } from "./payroll/eos-provision.contract";
 
 export const REPORT_CONTRACTS: readonly ReportContract[] = Object.freeze([
   // §1 financial statements
@@ -226,6 +229,14 @@ export const REPORT_CONTRACTS: readonly ReportContract[] = Object.freeze([
   // highlighting, the same ledger tie)
   budgetingBudgetVsActualContract,
   budgetingVarianceAnalysisContract,
+  // §payroll — PHASE-029 rows (REPORT_CATALOG §payroll): the payroll set —
+  // the register (per-employee gross/deductions/net with the INV-025 +
+  // G-29 journal tie), the cost summary (cost center × project × period
+  // with the per-period ledger tie), and the EOS provision (accruals,
+  // settlements, balances with the GL fold)
+  payrollRegisterContract,
+  payrollCostSummaryContract,
+  payrollEosProvisionContract,
 ]);
 
 export { validateRegistry, registrySnapshot } from "./runtime";

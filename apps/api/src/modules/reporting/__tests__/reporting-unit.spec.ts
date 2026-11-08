@@ -102,6 +102,7 @@ const KNOWN_PERMISSIONS: ReadonlySet<string> = new Set([
   "installments.plans.view",
   // PHASE-028 (0004 pre-seeded §3.13): the budgeting report key
   "budgeting.reports.view",
+  "payroll.reports.view",
 ]);
 
 /** A minimal but type-complete stored envelope for cache/CSV/XLSX tests. */
@@ -149,16 +150,16 @@ function fakeResult(overrides: Partial<ReportResult> = {}): ReportResult {
 }
 
 describe("registry meta-tests (boot validation, §2)", () => {
-  it("the 78 frozen contracts validate against the known-permission catalog", () => {
+  it("the 81 frozen contracts validate against the known-permission catalog", () => {
     const result = validateRegistry([...REPORT_CONTRACTS], { knownPermissions: KNOWN_PERMISSIONS });
     expect(result.ok).toBe(true);
     expect(result.errors).toEqual([]);
-    expect(result.count).toBe(78);
+    expect(result.count).toBe(81);
   });
 
   it("snapshot exposes id + permission for navigation and includes the trial balance", () => {
     const snapshot = registrySnapshot(REPORT_CONTRACTS);
-    expect(snapshot).toHaveLength(78);
+    expect(snapshot).toHaveLength(81);
     const tb = snapshot.find((row) => row.id === "financial.trial-balance");
     expect(tb).toBeDefined();
     expect(tb!.requiredPermission).toBe("reports.financial.tb.read");

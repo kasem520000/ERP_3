@@ -1,6 +1,10 @@
 # Current State
 
+<<<<<<< HEAD
 > **Status:** LIVING DOCUMENT — updated at every phase completion · **Updated:** 2026-11-09
+=======
+> **Status:** LIVING DOCUMENT — updated at every phase completion · **Updated:** 2026-11-08
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
 
 What actually exists in this repository right now. Paired with
 [../planning/IMPLEMENTATION_STATUS.md](../planning/IMPLEMENTATION_STATUS.md) (phase
@@ -672,7 +676,36 @@ table) and [NEXT_ACTION.md](NEXT_ACTION.md).
   purge, rate limiting, the findings log) + PHASE-025 Performance, Reliability
   & GA Readiness (the GA release — 10× local load evidence T-01…T-08 ALL PASS,
   DR drills executed, SLOs/error budgets live, the GA checklist closed)
-  (migrations 0001–0036; the centralized posting engine with the full
+  + PHASE-026 Fixed Assets & Depreciation + PHASE-027 Cheques, Promissory
+  Notes & Installments + PHASE-028 Budgeting & Variance Control (the
+  planning layer over the ledger — versioned budgets with BR-050/BR-051,
+  the read-only variance engine, and the negative ledger proof that budgets
+  never write a journal) + PHASE-029 Payroll: Salaries, Loans &
+  End-of-Service (financial scope per DR-005 — the PII-restricted employee
+  financial file with audit-on-read, BR-052 structure versioning, G-29/G-30/
+  G-31 through the engine, INV-025 self-proving run totals, employee loans
+  under the BR-054 cap, tenant-policy EOS per BR-055 with no fabricated
+  jurisdiction rates, and the report registry 78→81) + PHASE-030 Wholesale
+  & Electronics Templates (the first two Blueprint v2.0 industry templates
+  as configuration over existing modules — data-only migration 0041: zero
+  new tables, columns, journals, permission keys, or web code; the nine
+  typed policy keys; the negative ledger proof that template apply/switch
+  writes zero journal rows) + PHASE-031 Healthcare Commercial Shell (ED-07,
+  the register's "configuration + light extension" pattern: the single
+  additive `sales_invoices.claim_ref` column by migration 0042 + the
+  `industry.healthcare` v1.0.0 seed by the data-only migration 0043; the
+  policy-gated claim-ref capture with the typed CLAIM_REF_REQUIRED
+  rejection; the `(partner, claim_ref)` claim-slice read model
+  partitioning the AR open items (INV-009); the group_by_claim parameter
+  on the existing notes.aging / notes.maturity-calendar /
+  partner.statement contracts (register §J stays closed); the
+  claim-lifecycle end-to-end suite line-asserting G-01/G-03/G-24/G-25/G-26
+  incl. the FEFO dispensing pick and the G-26 dishonor restoring the claim
+  exactly; the zero-clinical-surface CI gate — no clinical field, key, or
+  screen exists anywhere in the shell)
+  (migrations 0001–0043 — schema_version 43; CURRENT_SHIPPED_PHASE
+  PHASE-031; 10 shipped industry templates; report registry 81 contracts;
+  permissions 245=245; web i18n 4,069=4,069; the centralized posting engine with the full
   invariant suite is live and proven by its consumers — treasury posts every
   money movement through it, tax stamps every tax-carrying line with frozen
   rate snapshots BR-033, inventory posts every stock movement through it

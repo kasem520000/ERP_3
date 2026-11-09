@@ -29,9 +29,14 @@ import { PurchasingModule } from "./modules/purchasing/purchasing.module";
 import { FixedAssetsModule } from "./modules/fixed_assets/fixed_assets.module";
 import { NotesModule } from "./modules/notes/notes.module";
 import { InstallmentsModule } from "./modules/installments/installments.module";
+<<<<<<< HEAD
 // PHASE-034: the consolidation module (ADR-0018 / DR-006 option A — the
 // final roadmap phase, stage 11 / the Enterprise Depth gate).
 import { ConsolidationModule } from "./modules/consolidation/consolidation.module";
+=======
+import { BudgetingModule } from "./modules/budgeting/budgeting.module";
+import { PayrollModule } from "./modules/payroll/payroll.module";
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
 import { SalesModule } from "./modules/sales/sales.module";
 import { DistributionModule } from "./modules/distribution/distribution.module";
 import { ManufacturingModule } from "./modules/manufacturing/manufacturing.module";
@@ -71,7 +76,12 @@ import { UsageLimitGuard } from "./infra/auth/usage-limit.guard";
     FixedAssetsModule,
     NotesModule,
     InstallmentsModule,
+<<<<<<< HEAD
     ConsolidationModule,
+=======
+    BudgetingModule,
+    PayrollModule,
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
     SalesModule,
     DistributionModule,
     ManufacturingModule,

@@ -100,9 +100,15 @@ const KNOWN_PERMISSIONS: ReadonlySet<string> = new Set([
   // PHASE-027 (0038 seed): the notes/installments report keys
   "notes.notes.view",
   "installments.plans.view",
+<<<<<<< HEAD
   // PHASE-034 (0041 seed): the consolidation report key (§3.15)
   "consolidation.reports.view",
   "consolidation.eliminations.create",
+=======
+  // PHASE-028 (0004 pre-seeded §3.13): the budgeting report key
+  "budgeting.reports.view",
+  "payroll.reports.view",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
 ]);
 
 /** A minimal but type-complete stored envelope for cache/CSV/XLSX tests. */
@@ -150,16 +156,28 @@ function fakeResult(overrides: Partial<ReportResult> = {}): ReportResult {
 }
 
 describe("registry meta-tests (boot validation, §2)", () => {
+<<<<<<< HEAD
   it("the 80 frozen contracts validate against the known-permission catalog", () => {
     const result = validateRegistry([...REPORT_CONTRACTS], { knownPermissions: KNOWN_PERMISSIONS });
     expect(result.ok).toBe(true);
     expect(result.errors).toEqual([]);
     expect(result.count).toBe(80);
+=======
+  it("the 81 frozen contracts validate against the known-permission catalog", () => {
+    const result = validateRegistry([...REPORT_CONTRACTS], { knownPermissions: KNOWN_PERMISSIONS });
+    expect(result.ok).toBe(true);
+    expect(result.errors).toEqual([]);
+    expect(result.count).toBe(81);
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
   });
 
   it("snapshot exposes id + permission for navigation and includes the trial balance", () => {
     const snapshot = registrySnapshot(REPORT_CONTRACTS);
+<<<<<<< HEAD
     expect(snapshot).toHaveLength(80);
+=======
+    expect(snapshot).toHaveLength(81);
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
     const tb = snapshot.find((row) => row.id === "financial.trial-balance");
     expect(tb).toBeDefined();
     expect(tb!.requiredPermission).toBe("reports.financial.tb.read");

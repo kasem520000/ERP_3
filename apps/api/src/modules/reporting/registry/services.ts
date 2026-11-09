@@ -14,7 +14,12 @@ import { CrmQueriesService } from "./industry/crm-queries";
 import { FixedAssetsQueriesService } from "./fixed-assets/fixed-assets-queries";
 import { NotesQueriesService } from "./notes/notes-queries";
 import { InstallmentsQueriesService } from "./installments/installments-queries";
+<<<<<<< HEAD
 import { ConsolidationQueriesService } from "./consolidation/consolidation-queries";
+=======
+import { BudgetingQueriesService } from "./budgeting/budgeting-queries";
+import { PayrollQueriesService } from "./payroll/payroll-queries";
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
 import { TreasuryQueriesService } from "../../treasury/application/treasury-queries";
 import { PartnerQueriesService } from "../../partners/application/partner-queries";
 import { TaxQueriesService } from "../../tax/application/tax-queries";
@@ -56,8 +61,15 @@ export interface ReportingServices {
   notes: NotesQueriesService;
   /** PHASE-027 · the installments query surface (one plan's schedule + schedule-sum-tie/lines-count-tie, the aging with the installments-inv016-tie sanity). */
   installments: InstallmentsQueriesService;
+<<<<<<< HEAD
   /** PHASE-034 · the consolidation query surface (the completed run's immutable snapshot → consolidated TB/IS/BS with the render-time INV-026 line-by-line re-check, the eliminations log with its journal-chain tie). Statements read snapshots — never live member books. */
   consolidation: ConsolidationQueriesService;
+=======
+  /** PHASE-028 · the budgeting query surface (budget vs actual + the budget-ledger-tie fold, the variance analysis with top over/under lines). */
+  budgeting: BudgetingQueriesService;
+  /** PHASE-029 · the payroll query surface (the register with the INV-025/journal tie, the cost summary with the per-period ledger tie, the EOS provision with the GL balance fold). */
+  payroll: PayrollQueriesService;
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
   treasury: TreasuryQueriesService;
   partners: PartnerQueriesService;
   tax: TaxQueriesService;
@@ -86,7 +98,12 @@ export function reportingServices(): ReportingServices {
       fixedAssets: new FixedAssetsQueriesService(),
       notes: new NotesQueriesService(),
       installments: new InstallmentsQueriesService(),
+<<<<<<< HEAD
       consolidation: new ConsolidationQueriesService(),
+=======
+      budgeting: new BudgetingQueriesService(),
+      payroll: new PayrollQueriesService(),
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
       treasury: new TreasuryQueriesService(),
       partners: new PartnerQueriesService(),
       tax: new TaxQueriesService(),

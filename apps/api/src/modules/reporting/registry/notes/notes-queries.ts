@@ -139,6 +139,41 @@ async function partnerNames(
   return names;
 }
 
+/**
+ * PHASE-031 (0042 — the group-by-claim report parameter): source invoice
+ * id → its external insurer claim reference, batch-read over the register's
+ * notes whose source_type is 'sales_invoice' (claim notes settle claim
+ * invoices; the claim ref rides through the note's source reference).
+ * Invoices without a claim ref (self-pay / non-claim) never map — their
+ * rows render the null group. Read-only over the sales module's PUBLISHED
+ * sales_invoices table (ADR-0011 — the partnerNames precedent).
+ */
+async function sourceClaimRefs(
+  register: readonly NotesAsOfRow[],
+): Promise<Map<string, string>> {
+  const sourceIds = [
+    ...new Set(
+      register
+        .filter((note) => note.sourceType === "sales_invoice" && note.sourceId !== null)
+        .map((note) => note.sourceId!),
+    ),
+  ];
+  const refs = new Map<string, string>();
+  if (sourceIds.length === 0) return refs;
+  const rows = await tenantTx().execute(sql`
+    SELECT id::text AS id, claim_ref AS "claimRef" FROM sales_invoices
+    WHERE claim_ref IS NOT NULL
+      AND id IN (${sql.join(
+        sourceIds.map((id) => sql`${id}::uuid`),
+        sql`, `,
+      )})
+  `);
+  for (const row of rows.rows as unknown as { id: string; claimRef: string }[]) {
+    refs.set(row.id, row.claimRef);
+  }
+  return refs;
+}
+
 /** The live-as-of register (the shared population of the calendar/aging/ties). */
 async function liveNotesAsOf(asOf: string): Promise<NotesAsOfRow[]> {
   const register = await notesAsOf({ asOf, limit: REGISTER_ROW_LIMIT });
@@ -164,6 +199,9 @@ export interface MaturityCalendarRow {
   maturityDate: string;
   statusAsOf: NoteStatus;
   bucket: MaturityBucket;
+  /** PHASE-031 (0042): the SOURCE invoice's claim ref (null when the note
+   *  settles no claim invoice) — the group-by-claim grouping key. */
+  claimRef: string | null;
 }
 
 /** One notes-aging row (a live-as-of note with its bucket + both currencies). */
@@ -180,6 +218,9 @@ export interface NotesAgingRow {
   maturityDate: string;
   statusAsOf: NoteStatus;
   bucket: NoteAgingBucket;
+  /** PHASE-031 (0042): the SOURCE invoice's claim ref (null when the note
+   *  settles no claim invoice) — the group-by-claim grouping key. */
+  claimRef: string | null;
 }
 
 /** One tie side: the register fold vs the GL balance of the mapped accounts. */
@@ -219,6 +260,9 @@ export class NotesQueriesService {
     const base = await ownTenantBaseCurrency();
     const register = await liveNotesAsOf(input.asOf);
     const names = await partnerNames([...new Set(register.map((note) => note.partnerId))]);
+    // PHASE-031 (0042): the source-invoice claim refs — the group-by-claim
+    // grouping key rides the note→invoice source reference.
+    const claimRefs = await sourceClaimRefs(register);
     const rows: MaturityCalendarRow[] = [];
     for (const note of register) {
       if (input.direction !== null && note.direction !== input.direction) continue;
@@ -245,6 +289,10 @@ export class NotesQueriesService {
         maturityDate: note.maturityDate,
         statusAsOf: note.statusAsOf,
         bucket: maturityBucketOf(note.maturityDate, input.asOf),
+        claimRef:
+          note.sourceType === "sales_invoice" && note.sourceId !== null
+            ? (claimRefs.get(note.sourceId) ?? null)
+            : null,
       });
     }
     return rows;
@@ -319,6 +367,9 @@ export class NotesQueriesService {
     const base = await ownTenantBaseCurrency();
     const register = await liveNotesAsOf(input.asOf);
     const names = await partnerNames([...new Set(register.map((note) => note.partnerId))]);
+    // PHASE-031 (0042): the source-invoice claim refs — the group-by-claim
+    // grouping key rides the note→invoice source reference.
+    const claimRefs = await sourceClaimRefs(register);
     const rows: NotesAgingRow[] = [];
     for (const note of register) {
       if (input.direction !== null && note.direction !== input.direction) continue;
@@ -336,6 +387,10 @@ export class NotesQueriesService {
         maturityDate: note.maturityDate,
         statusAsOf: note.statusAsOf,
         bucket: agingBucketOf(note.maturityDate, input.asOf),
+        claimRef:
+          note.sourceType === "sales_invoice" && note.sourceId !== null
+            ? (claimRefs.get(note.sourceId) ?? null)
+            : null,
       });
     }
     return rows;

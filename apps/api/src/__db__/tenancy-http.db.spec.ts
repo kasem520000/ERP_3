@@ -212,9 +212,12 @@ describe("owner journey: login → onboarding → branches → settings", () => 
     // REVALUATION_RESERVE / 4910 ASSET_DISPOSAL_GAIN / 5910
     // ASSET_DISPOSAL_LOSS rows + the 1210 FIXED_ASSET / 5300
     // DEPRECIATION_EXPENSE in-place markers + the 027 notes rows (58 accounts /
-    // 35 purposes after 0038: 1170/2160/4920/5260).
-    expect(diff.accounts.created).toBe(58);
-    expect(diff.purposes.created).toBe(35);
+    // 35 purposes after 0038: 1170/2160/4920/5260); 0040 adds the payroll
+    // set (64 accounts / 41 purposes: 2170/2180/2190 SALARIES_PAYABLE /
+    // DEDUCTIONS_PAYABLE / EOS_PROVISION + 5270/5280/5295 SALARIES_EXPENSE /
+    // EMPLOYER_CONTRIBUTIONS / EOS_PROVISION_EXPENSE).
+    expect(diff.accounts.created).toBe(64);
+    expect(diff.purposes.created).toBe(41);
 
     const reRun = await request(
       "POST",

@@ -4089,6 +4089,7 @@ export interface Dictionary {
   instErrLateFeeNotChargeable: string;
   instErrWaiveReason: string;
 
+<<<<<<< HEAD
   // -- PHASE-034 (T11): multi-entity consolidation (القوائم الموحدة) ---------
   // (the consolidation workspace: groups + members (Settings §8), the
   // elimination Transaction Entry workspace (§4) with the live DR/CR preview,
@@ -4226,6 +4227,315 @@ export interface Dictionary {
   consolidationInv026Pass: string;
   consolidationInv026Fail: string;
   consolidationInv026Compared: string;
+=======
+  // -- PHASE-028 (budgeting): the period-column planning grid -------------------
+  // (the version register + the grid workspace + the lifecycle actions +
+  // consumption banners + the XLSX import wizard + the module report page;
+  // every string in BOTH locales. Nav label rides the registry (contracts
+  // NAV_ITEMS `accounting.budgets`); the navBudgets key below is the
+  // app-shell breadcrumb fallback, the navFixedAssets precedent.)
+
+  navBudgets: string;
+
+  // budgets register (§2 List+Search) + module tabs/reports
+  budgetsTitle: string;
+  budgetsNewTitle: string;
+  budgetsImportTitle: string;
+  budgetsImportLink: string;
+  budgetReportsTitle: string;
+  budgetReportsHint: string;
+  budgetReportsEmpty: string;
+  budgetsEmpty: string;
+  budgetsNewButton: string;
+  budgetsSearchPlaceholder: string;
+  budgetsAllStatuses: string;
+  budgetsFilterStatus: string;
+  budgetsFilterScope: string;
+  budgetsFilterYear: string;
+
+  // budget statuses (the BR-050 machine states) + scopes (§9 enums)
+  budgetStatusDraft: string;
+  budgetStatusPendingApproval: string;
+  budgetStatusActive: string;
+  budgetStatusRevised: string;
+  budgetStatusClosed: string;
+  budgetScopeAccounts: string;
+  budgetScopeCostCenters: string;
+  budgetScopeProjects: string;
+  budgetScopeBranches: string;
+
+  // register columns
+  budgetColCode: string;
+  budgetColName: string;
+  budgetColScope: string;
+  budgetColStatus: string;
+  budgetColYear: string;
+  budgetColRevision: string;
+  budgetColLines: string;
+  budgetColTotal: string;
+
+  // budget create (§3)
+  budgetFormName: string;
+  budgetFormNameAr: string;
+  budgetFormFiscalYear: string;
+  budgetFormScope: string;
+  budgetFormScopeHint: string;
+  budgetFormNote: string;
+  budgetFormNoteAr: string;
+  budgetFormSubmit: string;
+  budgetFormInvalid: string;
+  budgetFormCreatedToast: string;
+
+  // grid workspace (§4 variant — fiscal-period columns)
+  budgetGridTitle: string;
+  budgetGridDimension: string;
+  budgetGridRowTotal: string;
+  budgetGridPeriodTotals: string;
+  budgetGridYearTotal: string;
+  budgetGridAccount: string;
+  budgetGridAddLine: string;
+  budgetGridRemoveLine: string;
+  budgetGridSave: string;
+  budgetGridSavedToast: string;
+  budgetGridReadOnly: string;
+  budgetGridEmpty: string;
+  budgetLiveTotals: string;
+
+  // lifecycle actions (BR-050 + SoD)
+  budgetSubmit: string;
+  budgetApprove: string;
+  budgetActivate: string;
+  budgetSupersede: string;
+  budgetClose: string;
+  budgetSubmitToast: string;
+  budgetApproveToast: string;
+  budgetActivateToast: string;
+  budgetSupersedeToast: string;
+  budgetCloseToast: string;
+  budgetSupersedeHint: string;
+
+  // consumption banner (BR-051 — ADVISORY by default)
+  budgetConsumption: string;
+  budgetActual: string;
+  budgetVariance: string;
+  budgetOverBudget: string;
+  budgetAtOverBudget: string;
+  budgetAdvisoryNote: string;
+  budgetStaleWarning: string;
+  budgetComputedAt: string;
+  budgetConsumptionEmpty: string;
+
+  // XLSX import wizard (§9) + export
+  budgetImportChooseFile: string;
+  budgetImportFileRequired: string;
+  budgetImportFileTooLarge: string;
+  budgetImportBudgetRequired: string;
+  budgetImportNoDrafts: string;
+  budgetImportStepSetup: string;
+  budgetImportStepReview: string;
+  budgetImportDryRun: string;
+  budgetImportDryRunTitle: string;
+  budgetImportRowCount: string;
+  budgetImportValidRows: string;
+  budgetImportTotalsPreview: string;
+  budgetImportErrors: string;
+  budgetImportClean: string;
+  budgetImportCommit: string;
+  budgetImportCommitToast: string;
+  budgetImportRowCap: string;
+  budgetExportLabel: string;
+  budgetExportAr: string;
+  budgetExportEn: string;
+
+  // module reports (the budgeting.* registry family)
+  budgetReportVsActual: string;
+  budgetReportVarianceAnalysis: string;
+
+  // detail (§5): the supersede chain + stamps
+  budgetChainHistory: string;
+  budgetChainEmpty: string;
+  budgetSupersedes: string;
+  budgetSupersededBy: string;
+  budgetCreatedAt: string;
+
+  // budgets error pack (BR-050/051 + import failure codes → bilingual messages)
+  budgetErrImmutable: string;
+  budgetErrState: string;
+  budgetErrSelfApproval: string;
+  budgetErrActiveExists: string;
+  budgetErrPeriodMismatch: string;
+  budgetErrExceeded: string;
+  budgetErrNotApproved: string;
+  budgetErrScopeDimension: string;
+  budgetErrDuplicateLine: string;
+  budgetErrLineLimit: string;
+  budgetErrImportFormat: string;
+  budgetErrImportRowLimit: string;
+  budgetErrImportRow: string;
+
+  // -- PHASE-029 (payroll): salaries, loans & end-of-service ---------
+  // (the employee register + the structure builder + the run workspace +
+  // loans + EOS + the module report page + the typed error map; every
+  // string in BOTH locales. Nav labels ride the registry (contracts
+  // NAV_ITEMS `hr.*`); the navHr/navPayroll* keys below are the app-shell
+  // breadcrumb fallbacks, the navBudgets precedent.)
+
+  navHr: string;
+  navPayrollEmployees: string;
+  navPayrollStructures: string;
+  navPayrollRuns: string;
+  navPayrollLoans: string;
+  payTitle: string;
+  payEmployeesTitle: string;
+  payEmployeesNew: string;
+  payEmployeesSearch: string;
+  payEmployeesEmpty: string;
+  payEmployeeCode: string;
+  payEmployeeName: string;
+  payEmployeeHireDate: string;
+  payEmployeeContract: string;
+  payEmployeeBasicSalary: string;
+  payEmployeeStructure: string;
+  payEmployeeBranch: string;
+  payEmployeeCostCenter: string;
+  payEmployeeProject: string;
+  payEmployeeNationalId: string;
+  payEmployeeBank: string;
+  payEmployeeStatus: string;
+  payEmployeeEosBalance: string;
+  payStatusActive: string;
+  payStatusSuspended: string;
+  payStatusTerminated: string;
+  payContractFullTime: string;
+  payContractPartTime: string;
+  payContractContractor: string;
+  payEmployeeCreateTitle: string;
+  payEmployeeEditTitle: string;
+  payEmployeeTerminate: string;
+  payEmployeeTerminateDate: string;
+  payEmployeeTerminateReason: string;
+  payEmployeeSuspend: string;
+  payEmployeeReactivate: string;
+  payEmployeeSave: string;
+  payEmployeeCreatedToast: string;
+  payEmployeeUpdatedToast: string;
+  payEmployeeTerminatedToast: string;
+  payPiiNote: string;
+  payEmployeeTerminatedNote: string;
+  payStructuresTitle: string;
+  payStructureNew: string;
+  payStructureCode: string;
+  payStructureName: string;
+  payStructureCurrency: string;
+  payStructureStatus: string;
+  payStructureComponents: string;
+  payComponentKey: string;
+  payComponentKind: string;
+  payComponentCalc: string;
+  payComponentAmount: string;
+  payComponentRate: string;
+  payComponentAccount: string;
+  payComponentEosBase: string;
+  payKindAllowance: string;
+  payKindDeduction: string;
+  payKindEmployer: string;
+  payCalcFixed: string;
+  payCalcPercentBasic: string;
+  payCalcPercentGross: string;
+  payStructureAddComponent: string;
+  payStructureRemoveComponent: string;
+  payStructureSave: string;
+  payStructureArchived: string;
+  payStructureVersion: string;
+  payStructureVersionedToast: string;
+  payStructureSavedToast: string;
+  payStructureInUseNote: string;
+  payRunsTitle: string;
+  payRunNew: string;
+  payRunPeriod: string;
+  payRunStatus: string;
+  payRunGross: string;
+  payRunDeductions: string;
+  payRunNet: string;
+  payRunEmployer: string;
+  payRunEos: string;
+  payRunPaid: string;
+  payRunNumber: string;
+  payRunLines: string;
+  payRunCalculate: string;
+  payRunSubmit: string;
+  payRunApprove: string;
+  payRunPost: string;
+  payRunPayout: string;
+  payRunReverse: string;
+  payRunPayslips: string;
+  payRunDraft: string;
+  payRunPending: string;
+  payRunPosted: string;
+  payRunCalculatedToast: string;
+  payRunSubmittedToast: string;
+  payRunApprovedToast: string;
+  payRunPostedToast: string;
+  payRunPayoutToast: string;
+  payRunEmptyLines: string;
+  payRunLoanClampWarning: string;
+  payRunSkippedWarning: string;
+  payRunOutstanding: string;
+  payLoansTitle: string;
+  payLoanNew: string;
+  payLoanCode: string;
+  payLoanEmployee: string;
+  payLoanAmount: string;
+  payLoanInstallments: string;
+  payLoanStartPeriod: string;
+  payLoanCashAccount: string;
+  payLoanSchedule: string;
+  payLoanLineAmount: string;
+  payLoanLineStatus: string;
+  payLoanPending: string;
+  payLoanDeducted: string;
+  payLoanWaived: string;
+  payLoanWaive: string;
+  payLoanWaiveReason: string;
+  payLoanWriteOff: string;
+  payLoanWriteOffReason: string;
+  payLoanActive: string;
+  payLoanClosed: string;
+  payLoanWriteOffStatus: string;
+  payLoanDisbursedToast: string;
+  payLoanWaivedToast: string;
+  payLoanWrittenOffToast: string;
+  payEosTitle: string;
+  payEosAccrued: string;
+  payEosSettled: string;
+  payEosBalance: string;
+  payEosSettle: string;
+  payEosSettleAmount: string;
+  payEosPolicy: string;
+  payEosDisabled: string;
+  payEosSettledToast: string;
+  payReportsTitle: string;
+  payReportsEmpty: string;
+  payErrNotFound: string;
+  payErrStateInvalid: string;
+  payErrSelfApproval: string;
+  payErrImmutable: string;
+  payErrRunPeriodExists: string;
+  payErrStructureInUse: string;
+  payErrStructureNotActive: string;
+  payErrStructureCurrency: string;
+  payErrEmployeeStructureMissing: string;
+  payErrLoanCap: string;
+  payErrLoanUnmapped: string;
+  payErrEosBasis: string;
+  payErrEosExceeds: string;
+  payErrPayoutExceeds: string;
+  payErrEmployeeState: string;
+  payErrCodeConflict: string;
+  payErrEngineOnly: string;
+  payErrPurposeNotMapped: string;
+  payErrPeriodLocked: string;
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
 }
 
 const ar: Dictionary = {
@@ -8334,6 +8644,7 @@ const ar: Dictionary = {
   instErrLateFeeNotChargeable: "رسوم التأخير تُحتسب فقط على أقساط متأخرة غير محتسبة مسبقًا (G-28).",
   instErrWaiveReason: "سبب الإعفاء إلزامي (BR-049).",
 
+<<<<<<< HEAD
   // -- PHASE-034 (T11): multi-entity consolidation (القوائم الموحدة) --------
 
   navConsolidated: "القوائم الموحدة",
@@ -8460,6 +8771,294 @@ const ar: Dictionary = {
   consolidationInv026Pass: "INV-026: سليمة",
   consolidationInv026Fail: "INV-026: انحراف",
   consolidationInv026Compared: "المقارنة: {left} مقابل {right}",
+=======
+  // -- PHASE-028 (budgeting): the period-column planning grid ----------------
+  navBudgets: "الموازنات",
+
+  budgetsTitle: "الموازنات",
+  budgetsNewTitle: "موازنة جديدة",
+  budgetsImportTitle: "استيراد شبكة موازنة",
+  budgetsImportLink: "استيراد شبكة",
+  budgetReportsTitle: "تقارير الموازنات",
+  budgetReportsHint: "تقارير الموازنة مقابل الفعلي وتحليل الانحرافات (نطاق budgeting.*).",
+  budgetReportsEmpty: "لم تُسجَّل عقود تقارير لهذه الوحدة بعد — لن تُعرض قوائم مفبركة.",
+  budgetsEmpty: "لا موازنات مطابقة.",
+  budgetsNewButton: "موازنة جديدة",
+  budgetsSearchPlaceholder: "ابحث بالرمز أو الاسم…",
+  budgetsAllStatuses: "كل الحالات",
+  budgetsFilterStatus: "الحالة",
+  budgetsFilterScope: "النطاق",
+  budgetsFilterYear: "السنة المالية",
+
+  budgetStatusDraft: "مسودة",
+  budgetStatusPendingApproval: "بانتظار الاعتماد",
+  budgetStatusActive: "نشطة",
+  budgetStatusRevised: "معدَّلة (سبقتها نسخة أحدث)",
+  budgetStatusClosed: "مغلقة",
+  budgetScopeAccounts: "الحسابات",
+  budgetScopeCostCenters: "مراكز التكلفة",
+  budgetScopeProjects: "المشاريع",
+  budgetScopeBranches: "الفروع",
+
+  budgetColCode: "الرمز",
+  budgetColName: "الاسم",
+  budgetColScope: "النطاق",
+  budgetColStatus: "الحالة",
+  budgetColYear: "السنة المالية",
+  budgetColRevision: "المراجعة",
+  budgetColLines: "البنود",
+  budgetColTotal: "الإجمالي السنوي",
+
+  budgetFormName: "الاسم (EN)",
+  budgetFormNameAr: "الاسم (AR)",
+  budgetFormFiscalYear: "السنة المالية",
+  budgetFormScope: "النطاق",
+  budgetFormScopeHint:
+    "النطاق مرشِّح لا مسار: تحدد المحركات الأربع نفسها؛ النطاق يحدد البُعد الاختياري الذي تُجمَّع حسبه بنود الشبكة.",
+  budgetFormNote: "ملاحظة (EN)",
+  budgetFormNoteAr: "ملاحظة (AR)",
+  budgetFormSubmit: "إنشاء الموازنة (مسودة)",
+  budgetFormInvalid: "بيانات غير صالحة — أكمل الحقول المطلوبة.",
+  budgetFormCreatedToast: "أُنشئت الموازنة {code} كمسودة — أدخل بنود الشبكة ثم أرسلها.",
+
+  budgetGridTitle: "شبكة الموازنة",
+  budgetGridDimension: "البُعد",
+  budgetGridRowTotal: "الإجمالي السنوي",
+  budgetGridPeriodTotals: "إجماليات الفترات",
+  budgetGridYearTotal: "الإجمالي السنوي",
+  budgetGridAccount: "الحساب",
+  budgetGridAddLine: "إضافة بند",
+  budgetGridRemoveLine: "إزالة البند",
+  budgetGridSave: "حفظ الشبكة",
+  budgetGridSavedToast: "حُفظت الشبكة — {lines} بندًا، الإجمالي السنوي {total}.",
+  budgetGridReadOnly: "الشبكة للقراءة فقط — التعديل في حالة المسودة حصرًا (BR-050).",
+  budgetGridEmpty: "لا بنود موازنة بعد — أضف بندًا أو استورد شبكة.",
+  budgetLiveTotals: "الإجماليات المباشرة",
+
+  budgetSubmit: "إرسال للاعتماد",
+  budgetApprove: "اعتماد",
+  budgetActivate: "تنشيط",
+  budgetSupersede: "إنشاء نسخة معدَّلة",
+  budgetClose: "إغلاق",
+  budgetSubmitToast: "أُرسلت الموازنة للاعتماد (BR-050).",
+  budgetApproveToast: "وُضع ختم الاعتماد — يمكن التنشيط الآن.",
+  budgetActivateToast: "نُشِّطت الموازنة — النسخة السابقة (إن وجدت) أصبحت معدَّلة.",
+  budgetSupersedeToast: "أُنشئت نسخة مسودة جديدة تنسخ بنود هذه الموازنة (BR-050).",
+  budgetCloseToast: "أُغلقت الموازنة — تبقى مقروءة للأبد.",
+  budgetSupersedeHint:
+    "الإنشاء المعدَّل ينسخ البنود إلى مسودة جديدة مرتبطة بسلسلة هذه النسخة؛ التعديل المباشر بعد المسودة ممنوع (BR-050).",
+
+  budgetConsumption: "الاستهلاك مقابل الفعلي",
+  budgetActual: "الفعلي",
+  budgetVariance: "الانحراف",
+  budgetOverBudget: "تجاوز الموازنة",
+  budgetAtOverBudget: "تجاوزت الفترة الموازنة المخصصة",
+  budgetAdvisoryNote: "الرقابة استشارية — لن يُمنع أي ترحيل",
+  budgetStaleWarning: "قد تكون البيانات قديمة",
+  budgetComputedAt: "آخر احتساب",
+  budgetConsumptionEmpty: "لا استهلاك مسجل بعد على بنود هذه الموازنة.",
+
+  budgetImportChooseFile: "اختيار ملف الشبكة (XLSX)",
+  budgetImportFileRequired: "اختر ملف XLSX أولًا.",
+  budgetImportFileTooLarge: "حجم الملف يتجاوز الحد المسموح (15 ميغابايت).",
+  budgetImportBudgetRequired: "اختر موازنة مسودة أولًا.",
+  budgetImportNoDrafts: "لا موازنات مسودة متاحة — أنشئ موازنة أولًا (الاستيراد يستبدل شبكة المسودة بالكامل).",
+  budgetImportStepSetup: "اختيار الموازنة والملف",
+  budgetImportStepReview: "تقرير الفحص المسبق",
+  budgetImportDryRun: "فحص مسبق (بدون كتابة)",
+  budgetImportDryRunTitle: "تقرير الفحص المسبق (Dry-run)",
+  budgetImportRowCount: "عدد الصفوف",
+  budgetImportValidRows: "الصفوف الصالحة",
+  budgetImportTotalsPreview: "إجمالي المعاينة",
+  budgetImportErrors: "أخطاء الصفوف",
+  budgetImportClean: "كل الصفوف صالحة — يمكن تنفيذ الاستيراد.",
+  budgetImportCommit: "تنفيذ الاستيراد (استبدال الشبكة)",
+  budgetImportCommitToast: "نُفِّذ الاستيراد — {lines} بندًا، الإجمالي السنوي {total}.",
+  budgetImportRowCap: "سقف الاستيراد 5,000 صف بيانات — قسِّم الملف حسب البُعد.",
+  budgetExportLabel: "تصدير الشبكة",
+  budgetExportAr: "تصدير (عربي)",
+  budgetExportEn: "تصدير (إنجليزي)",
+
+  budgetReportVsActual: "الموازنة مقابل الفعلي",
+  budgetReportVarianceAnalysis: "تحليل الانحرافات",
+
+  budgetChainHistory: "سلسلة النسخ",
+  budgetChainEmpty: "لا سلسلة تعديل — هذه النسخة الأصلية.",
+  budgetSupersedes: "تسبق",
+  budgetSupersededBy: "مسبوقة بـ",
+  budgetCreatedAt: "تاريخ الإنشاء",
+
+  budgetErrImmutable: "الموازنة ليست مسودة — تعديل البنود متاح للمسودات حصرًا؛ عدّل عبر نسخة معدَّلة (BR-050).",
+  budgetErrState: "هذا الانتقال غير قانوني من الحالة الحالية (آلة BR-050).",
+  budgetErrSelfApproval: "فصل المهام: منشئ الموازنة لا يعتمدها — يتطلب الختم معتمدًا مختلفًا (BR-034).",
+  budgetErrActiveExists: "توجد موازنة نشطة مسبقًا لنفس السنة والنطاق — أنشئ نسخة معدَّلة منها، لا تنشِّط موازنة موازية (BR-050).",
+  budgetErrPeriodMismatch: "الفترة لا تنتمي إلى السنة المالية لهذه الموازنة.",
+  budgetErrExceeded: "تجاوز الموازنة على فترات المستند — سياسة المنشأة ENFORCE_DRAFT (BR-051): عدّل الموازنة أو قلِّل المستند.",
+  budgetErrNotApproved: "لا ختم اعتماد — اعتمد الموازنة (بمعتمد مختلف) قبل التنشيط.",
+  budgetErrScopeDimension: "أبعاد البنود لا تطابق نطاق الموازنة — بُعد واحد بالضبط لكل نطاق، وبلا أبعاد لنطاق الحسابات.",
+  budgetErrDuplicateLine: "بند مكرر لنفس (الفترة × مفتاح البُعد) — صف واحد لكل فترة ومفتاح.",
+  budgetErrLineLimit: "الشبكة تتجاوز حد 20,000 بند — قسِّم الاستيراد حسب البُعد.",
+  budgetErrImportFormat: "الملف ليس شبكة موازنة — راجع أعمدة التعريف الثلاثة وأعمدة الفترات (تُقبل ترويسات عربية أو إنجليزية).",
+  budgetErrImportRowLimit: "الاستيراد يتجاوز سقف 5,000 صف بيانات — قسِّم الملف.",
+  budgetErrImportRow: "الملف يحمل صفوفًا غير صالحة — صحّحها وأعد الفحص المسبق.",
+  // -- PHASE-029 (payroll): salaries, loans & end-of-service ---------
+  navHr: "الموظفون والرواتب",
+  navPayrollEmployees: "الموظفون",
+  navPayrollStructures: "هياكل الرواتب",
+  navPayrollRuns: "مسيرات الرواتب",
+  navPayrollLoans: "سلف الموظفين",
+  payTitle: "الرواتب",
+  payEmployeesTitle: "الموظفون",
+  payEmployeesNew: "موظف جديد",
+  payEmployeesSearch: "ابحث بالرمز أو الاسم…",
+  payEmployeesEmpty: "لا موظفين بعد — أضف أول موظف.",
+  payEmployeeCode: "الرمز",
+  payEmployeeName: "الاسم",
+  payEmployeeHireDate: "تاريخ التعيين",
+  payEmployeeContract: "نوع العقد",
+  payEmployeeBasicSalary: "الراتب الأساسي",
+  payEmployeeStructure: "هيكل الرواتب",
+  payEmployeeBranch: "الفرع",
+  payEmployeeCostCenter: "مركز التكلفة",
+  payEmployeeProject: "المشروع",
+  payEmployeeNationalId: "الهوية الوطنية (مقنّعة)",
+  payEmployeeBank: "البنك (مقنّع)",
+  payEmployeeStatus: "الحالة",
+  payEmployeeEosBalance: "رصيد مخصص نهاية الخدمة",
+  payStatusActive: "نشط",
+  payStatusSuspended: "موقوف",
+  payStatusTerminated: "منتهي الخدمة",
+  payContractFullTime: "دوام كامل",
+  payContractPartTime: "دوام جزئي",
+  payContractContractor: "متعاقد",
+  payEmployeeCreateTitle: "موظف جديد",
+  payEmployeeEditTitle: "بيانات الموظف",
+  payEmployeeTerminate: "إنهاء الخدمة",
+  payEmployeeTerminateDate: "تاريخ الإنهاء",
+  payEmployeeTerminateReason: "سبب الإنهاء",
+  payEmployeeSuspend: "إيقاف",
+  payEmployeeReactivate: "إعادة تنشيط",
+  payEmployeeSave: "حفظ",
+  payEmployeeCreatedToast: "أُنشئ الموظف {code}.",
+  payEmployeeUpdatedToast: "حُفظت بيانات الموظف {code}.",
+  payEmployeeTerminatedToast: "أُنهيت خدمة {code} بتاريخ {date} — تسوية نهاية الخدمة خطوة منفصلة.",
+  payPiiNote: "بيانات الموظف من فئة C-PII: الهوية والحقول البنكية مقنّعة بالبنية، وكل قراءة مسجلة في سجل التدقيق.",
+  payEmployeeTerminatedNote: "الصف المنتهي مجمد — ملاحظات فقط (سجل نهاية الخدمة يبقى).",
+  payStructuresTitle: "هياكل الرواتب",
+  payStructureNew: "هيكل جديد",
+  payStructureCode: "الرمز",
+  payStructureName: "الاسم",
+  payStructureCurrency: "العملة",
+  payStructureStatus: "الحالة",
+  payStructureComponents: "المكونات",
+  payComponentKey: "المفتاح",
+  payComponentKind: "النوع",
+  payComponentCalc: "طريقة الحساب",
+  payComponentAmount: "المبلغ",
+  payComponentRate: "النسبة %",
+  payComponentAccount: "الحساب",
+  payComponentEosBase: "أساس مخصص نهاية الخدمة",
+  payKindAllowance: "بدل",
+  payKindDeduction: "استقطاع",
+  payKindEmployer: "مساهمة صاحب العمل",
+  payCalcFixed: "مبلغ ثابت",
+  payCalcPercentBasic: "نسبة من الأساسي",
+  payCalcPercentGross: "نسبة من الإجمالي",
+  payStructureAddComponent: "أضف مكوّناً",
+  payStructureRemoveComponent: "أزل المكوّن",
+  payStructureSave: "حفظ المكونات",
+  payStructureArchived: "مؤرشف",
+  payStructureVersion: "أنشئ نسخة جديدة",
+  payStructureVersionedToast: "أُنشئت النسخة {code} وأُرشف السابق (BR-052).",
+  payStructureSavedToast: "حُفظت مكونات الهيكل.",
+  payStructureInUseNote: "الهياكل المستخدمة في مسيرات مرحّلة تُنسخ ولا تُعدّل — أنشئ نسخة جديدة (BR-052).",
+  payRunsTitle: "مسيرات الرواتب",
+  payRunNew: "مسير جديد",
+  payRunPeriod: "الفترة المالية",
+  payRunStatus: "الحالة",
+  payRunGross: "الإجمالي",
+  payRunDeductions: "الاستقطاعات",
+  payRunNet: "الصافي",
+  payRunEmployer: "مساهمات صاحب العمل",
+  payRunEos: "مخصص نهاية الخدمة",
+  payRunPaid: "المدفوع",
+  payRunNumber: "رقم المسير",
+  payRunLines: "سطور المسير",
+  payRunCalculate: "احسب",
+  payRunSubmit: "أرسل للاعتماد",
+  payRunApprove: "اعتمد",
+  payRunPost: "رحّل (G-29)",
+  payRunPayout: "اصرف (G-30)",
+  payRunReverse: "اعكس",
+  payRunPayslips: "قسائم الرواتب",
+  payRunDraft: "مسودة",
+  payRunPending: "بانتظار الاعتماد",
+  payRunPosted: "مرحّل",
+  payRunCalculatedToast: "حُسب المسير: {count} سطراً (إجمالي {gross} / صافي {net}).",
+  payRunSubmittedToast: "أُرسل المسير للاعتماد.",
+  payRunApprovedToast: "اعُتمد المسير — الترحيل متاح الآن.",
+  payRunPostedToast: "رُحّل المسير {runNo} — القيد {entryNo} (G-29).",
+  payRunPayoutToast: "صُرف {amount} عبر الحساب البنكي (G-30) — المتبقي {outstanding}.",
+  payRunEmptyLines: "لا سطور محسوبة — احسب المسير أولاً.",
+  payRunLoanClampWarning: "تخفيض استقطاع السلف إلى الحد ({clampedTo} من {scheduled}) — BR-054.",
+  payRunSkippedWarning: "موظفون متجاوزون: {list}.",
+  payRunOutstanding: "المتبقي",
+  payLoansTitle: "سلف الموظفين",
+  payLoanNew: "سلفة جديدة",
+  payLoanCode: "الرمز",
+  payLoanEmployee: "الموظف",
+  payLoanAmount: "المبلغ",
+  payLoanInstallments: "عدد الأقساط",
+  payLoanStartPeriod: "فترة البدء",
+  payLoanCashAccount: "حساب الصرف",
+  payLoanSchedule: "الجدول",
+  payLoanLineAmount: "مبلغ القسط",
+  payLoanLineStatus: "الحالة",
+  payLoanPending: "معلق",
+  payLoanDeducted: "مستقطع",
+  payLoanWaived: "معفى",
+  payLoanWaive: "أعفِ القسط",
+  payLoanWaiveReason: "سبب الإعفاء",
+  payLoanWriteOff: "شطب السلفة",
+  payLoanWriteOffReason: "سبب الشطب",
+  payLoanActive: "نشطة",
+  payLoanClosed: "مسددة",
+  payLoanWriteOffStatus: "مشطوبة",
+  payLoanDisbursedToast: "صُرفت السلفة {code} — {amount} عبر الحساب المحدد.",
+  payLoanWaivedToast: "أُعفي القسط ({reason}).",
+  payLoanWrittenOffToast: "شُطبت السلفة {code} ({reason}).",
+  payEosTitle: "مخصص نهاية الخدمة",
+  payEosAccrued: "المستحق",
+  payEosSettled: "المسدّد نقداً",
+  payEosBalance: "الرصيد",
+  payEosSettle: "سوِّ نهاية الخدمة (G-31)",
+  payEosSettleAmount: "المبلغ المسدد نقداً",
+  payEosPolicy: "سياسة المخصص: مفعّلة بأساس {days} يوماً لكل سنة خدمة (قيمة المستأجر — لا نسب نظامية).",
+  payEosDisabled: "المخصص معطّل (الافتراضي) — سياسة المستأجر تفعّله بقيمة صريحة.",
+  payEosSettledToast: "سُوّي المخصص: نقداً {settled} والفروق المحررة {residual} (G-31).",
+  payReportsTitle: "تقارير الرواتب",
+  payReportsEmpty: "لا عقود تقارير رواتب في السجل.",
+  payErrNotFound: "السجل غير موجود (أو تابع لمستأجر آخر).",
+  payErrStateInvalid: "حالة السجل لا تسمح بهذه الخطوة.",
+  payErrSelfApproval: "فصل المهام: منشئ المسير لا يعتمده — يتطلب معتمداً مختلفاً.",
+  payErrImmutable: "المستند مرحّل وغير قابل للتعديل — العكس هو طريق التصحيح الوحيد.",
+  payErrRunPeriodExists: "توجد مسيرات حية لهذه الفترة بالفعل — مسير واحد لكل فترة.",
+  payErrStructureInUse: "الهيكل مستخدم في مسير مرحّل — أنشئ نسخة جديدة (BR-052).",
+  payErrStructureNotActive: "الهيكل مؤرشف — المسيرات تتطلب هيكلاً نشطاً (BR-052).",
+  payErrStructureCurrency: "عملة الهيكل تخالف العملة الأساسية للمستأجر.",
+  payErrEmployeeStructureMissing: "الموظف بلا هيكل رواتب نشط — عيّن هيكلاً قبل الحساب.",
+  payErrLoanCap: "استقطاع السلفة فوق الحد المسموح من الصافي (BR-054).",
+  payErrLoanUnmapped: "حساب سلف الموظفين غير معيّن — اضبط payroll.loans.control_account_id.",
+  payErrEosBasis: "المخصص مفعّل بلا أساس صريح — BR-055 يرفض الصمت.",
+  payErrEosExceeds: "مبلغ التسوية يفوق رصيد المخصص للموظف.",
+  payErrPayoutExceeds: "المبلغ يفوق المتبقي من صافي المسير.",
+  payErrEmployeeState: "حالة الموظف لا تسمح بهذه الخطوة.",
+  payErrCodeConflict: "الرمز مستخدم بالفعل في هذا المستأجر.",
+  payErrEngineOnly: "حسابات الرواتب تُرحّل عبر المسيرات فقط — القيود اليدوية مرفوضة (BR-053).",
+  payErrPurposeNotMapped: "غرض محاسبي غير معيّن — عيّن الحساب قبل الترحيل.",
+  payErrPeriodLocked: "الفترة المالية مقفلة — الترحيل مرفوض.",
+
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
 };
 
 const en: Dictionary = {
@@ -12577,6 +13176,7 @@ const en: Dictionary = {
   instErrLateFeeNotChargeable: "Late fees post only on OVERDUE lines not already charged (G-28).",
   instErrWaiveReason: "A waive reason is required (BR-049).",
 
+<<<<<<< HEAD
   // -- PHASE-034 (T11): multi-entity consolidation (القوائم الموحدة) --------
 
   navConsolidated: "Consolidated statements",
@@ -12703,6 +13303,294 @@ const en: Dictionary = {
   consolidationInv026Pass: "INV-026: PASS",
   consolidationInv026Fail: "INV-026: FAIL",
   consolidationInv026Compared: "Compared: {left} vs {right}",
+=======
+  // -- PHASE-028 (budgeting): the period-column planning grid ----------------
+  navBudgets: "Budgets",
+
+  budgetsTitle: "Budgets",
+  budgetsNewTitle: "New budget",
+  budgetsImportTitle: "Import a budget grid",
+  budgetsImportLink: "Import grid",
+  budgetReportsTitle: "Budget reports",
+  budgetReportsHint: "The budget-vs-actual + variance report family (the budgeting.* scope).",
+  budgetReportsEmpty: "No report contracts registered for this module yet — no fabricated catalogs.",
+  budgetsEmpty: "No matching budgets.",
+  budgetsNewButton: "New budget",
+  budgetsSearchPlaceholder: "Search by code or name…",
+  budgetsAllStatuses: "All statuses",
+  budgetsFilterStatus: "Status",
+  budgetsFilterScope: "Scope",
+  budgetsFilterYear: "Fiscal year",
+
+  budgetStatusDraft: "Draft",
+  budgetStatusPendingApproval: "Pending approval",
+  budgetStatusActive: "Active",
+  budgetStatusRevised: "Revised (superseded)",
+  budgetStatusClosed: "Closed",
+  budgetScopeAccounts: "Accounts",
+  budgetScopeCostCenters: "Cost centers",
+  budgetScopeProjects: "Projects",
+  budgetScopeBranches: "Branches",
+
+  budgetColCode: "Code",
+  budgetColName: "Name",
+  budgetColScope: "Scope",
+  budgetColStatus: "Status",
+  budgetColYear: "Fiscal year",
+  budgetColRevision: "Revision",
+  budgetColLines: "Lines",
+  budgetColTotal: "Year total",
+
+  budgetFormName: "Name (EN)",
+  budgetFormNameAr: "Name (AR)",
+  budgetFormFiscalYear: "Fiscal year",
+  budgetFormScope: "Scope",
+  budgetFormScopeHint:
+    "Scope is a filter, not a fork — the four scopes share one engine; the scope only picks the optional dimension the grid groups by.",
+  budgetFormNote: "Note (EN)",
+  budgetFormNoteAr: "Note (AR)",
+  budgetFormSubmit: "Create budget (draft)",
+  budgetFormInvalid: "Invalid input — complete the required fields.",
+  budgetFormCreatedToast: "Budget {code} created as a draft — enter the grid lines then submit it.",
+
+  budgetGridTitle: "Budget grid",
+  budgetGridDimension: "Dimension",
+  budgetGridRowTotal: "Year total",
+  budgetGridPeriodTotals: "Period totals",
+  budgetGridYearTotal: "Year total",
+  budgetGridAccount: "Account",
+  budgetGridAddLine: "Add line",
+  budgetGridRemoveLine: "Remove line",
+  budgetGridSave: "Save grid",
+  budgetGridSavedToast: "Grid saved — {lines} lines, year total {total}.",
+  budgetGridReadOnly: "The grid is read-only — line edits are DRAFT-only (BR-050).",
+  budgetGridEmpty: "No budget lines yet — add a line or import a grid.",
+  budgetLiveTotals: "Live totals",
+
+  budgetSubmit: "Submit for approval",
+  budgetApprove: "Approve",
+  budgetActivate: "Activate",
+  budgetSupersede: "Create revision",
+  budgetClose: "Close",
+  budgetSubmitToast: "Budget submitted for approval (BR-050).",
+  budgetApproveToast: "Approval stamped — it can be activated now.",
+  budgetActivateToast: "Budget activated — the predecessor (if any) moved to revised.",
+  budgetSupersedeToast: "A fresh DRAFT revision was created copying this budget's lines (BR-050).",
+  budgetCloseToast: "Budget closed — it stays readable forever.",
+  budgetSupersedeHint:
+    "Supersede copies the lines into a new DRAFT linked to this version's chain; direct edits after draft are forbidden (BR-050).",
+
+  budgetConsumption: "Budget vs actual",
+  budgetActual: "Actual",
+  budgetVariance: "Variance",
+  budgetOverBudget: "Over budget",
+  budgetAtOverBudget: "A period exceeded its budget",
+  budgetAdvisoryNote: "Controls are advisory — no posting is ever blocked",
+  budgetStaleWarning: "Data may be stale",
+  budgetComputedAt: "Last computed",
+  budgetConsumptionEmpty: "No consumption recorded against this budget's lines yet.",
+
+  budgetImportChooseFile: "Choose the grid file (XLSX)",
+  budgetImportFileRequired: "Choose an XLSX file first.",
+  budgetImportFileTooLarge: "The file exceeds the allowed size (15 MB).",
+  budgetImportBudgetRequired: "Choose a draft budget first.",
+  budgetImportNoDrafts: "No draft budgets available — create a budget first (the import replaces the draft's grid whole).",
+  budgetImportStepSetup: "Choose budget + file",
+  budgetImportStepReview: "Dry-run report",
+  budgetImportDryRun: "Dry run (no writes)",
+  budgetImportDryRunTitle: "Dry-run report",
+  budgetImportRowCount: "Row count",
+  budgetImportValidRows: "Valid rows",
+  budgetImportTotalsPreview: "Totals preview",
+  budgetImportErrors: "Row errors",
+  budgetImportClean: "All rows valid — the import can be committed.",
+  budgetImportCommit: "Commit import (replace grid)",
+  budgetImportCommitToast: "Import committed — {lines} lines, year total {total}.",
+  budgetImportRowCap: "The import cap is 5,000 data rows — split the file per dimension.",
+  budgetExportLabel: "Export grid",
+  budgetExportAr: "Export (Arabic)",
+  budgetExportEn: "Export (English)",
+
+  budgetReportVsActual: "Budget vs actual",
+  budgetReportVarianceAnalysis: "Variance analysis",
+
+  budgetChainHistory: "Version chain",
+  budgetChainEmpty: "No revision chain — this is the original version.",
+  budgetSupersedes: "Supersedes",
+  budgetSupersededBy: "Superseded by",
+  budgetCreatedAt: "Created at",
+
+  budgetErrImmutable: "The budget is not a draft — line edits are DRAFT-only; revise via supersede (BR-050).",
+  budgetErrState: "This transition is not legal from the current status (the BR-050 machine).",
+  budgetErrSelfApproval: "Separation of duties: the budget's creator cannot approve it — the stamp needs a distinct approver (BR-034).",
+  budgetErrActiveExists: "An ACTIVE budget already exists for this fiscal year and scope — supersede it, never activate a sibling (BR-050).",
+  budgetErrPeriodMismatch: "The period does not belong to the budget's fiscal year.",
+  budgetErrExceeded: "Over budget on the document's periods — the tenant policy is ENFORCE_DRAFT (BR-051): revise the budget or reduce the document.",
+  budgetErrNotApproved: "No approval stamp — approve the budget (a distinct approver) before activating.",
+  budgetErrScopeDimension: "Line dimensions are inconsistent with the scope — exactly one dimension per scope, none for the ACCOUNTS scope.",
+  budgetErrDuplicateLine: "Duplicate grid line for the same (period × dimension key) — one row per period and key.",
+  budgetErrLineLimit: "The grid exceeds the 20,000-line bound — split the import per dimension.",
+  budgetErrImportFormat: "The file is not a budget grid — check the three identity columns + the period columns (AR or EN header sets accepted).",
+  budgetErrImportRowLimit: "The import exceeds the 5,000-data-row cap — split the file.",
+  budgetErrImportRow: "The file carries invalid rows — fix them and re-run the dry run.",
+  // -- PHASE-029 (payroll): salaries, loans & end-of-service ---------
+  navHr: "HR & Payroll",
+  navPayrollEmployees: "Employees",
+  navPayrollStructures: "Salary structures",
+  navPayrollRuns: "Payroll runs",
+  navPayrollLoans: "Employee loans",
+  payTitle: "Payroll",
+  payEmployeesTitle: "Employees",
+  payEmployeesNew: "New employee",
+  payEmployeesSearch: "Search by code or name…",
+  payEmployeesEmpty: "No employees yet — add the first one.",
+  payEmployeeCode: "Code",
+  payEmployeeName: "Name",
+  payEmployeeHireDate: "Hire date",
+  payEmployeeContract: "Contract type",
+  payEmployeeBasicSalary: "Basic salary",
+  payEmployeeStructure: "Salary structure",
+  payEmployeeBranch: "Branch",
+  payEmployeeCostCenter: "Cost center",
+  payEmployeeProject: "Project",
+  payEmployeeNationalId: "National ID (masked)",
+  payEmployeeBank: "Bank (masked)",
+  payEmployeeStatus: "Status",
+  payEmployeeEosBalance: "EOS provision balance",
+  payStatusActive: "Active",
+  payStatusSuspended: "Suspended",
+  payStatusTerminated: "Terminated",
+  payContractFullTime: "Full-time",
+  payContractPartTime: "Part-time",
+  payContractContractor: "Contractor",
+  payEmployeeCreateTitle: "New employee",
+  payEmployeeEditTitle: "Employee file",
+  payEmployeeTerminate: "Terminate",
+  payEmployeeTerminateDate: "Termination date",
+  payEmployeeTerminateReason: "Termination reason",
+  payEmployeeSuspend: "Suspend",
+  payEmployeeReactivate: "Reactivate",
+  payEmployeeSave: "Save",
+  payEmployeeCreatedToast: "Employee {code} created.",
+  payEmployeeUpdatedToast: "Employee {code} saved.",
+  payEmployeeTerminatedToast: "{code} terminated on {date} — the EOS settlement is a separate step.",
+  payPiiNote: "Employee data is C-PII: national ID and bank fields are masked by construction, and every read is audit-logged.",
+  payEmployeeTerminatedNote: "TERMINATED rows are frozen — note edits only (the EOS/audit history stays).",
+  payStructuresTitle: "Salary structures",
+  payStructureNew: "New structure",
+  payStructureCode: "Code",
+  payStructureName: "Name",
+  payStructureCurrency: "Currency",
+  payStructureStatus: "Status",
+  payStructureComponents: "Components",
+  payComponentKey: "Key",
+  payComponentKind: "Kind",
+  payComponentCalc: "Calculation",
+  payComponentAmount: "Amount",
+  payComponentRate: "Rate %",
+  payComponentAccount: "GL account",
+  payComponentEosBase: "EOS base",
+  payKindAllowance: "Allowance",
+  payKindDeduction: "Deduction",
+  payKindEmployer: "Employer contribution",
+  payCalcFixed: "Fixed",
+  payCalcPercentBasic: "Percent of basic",
+  payCalcPercentGross: "Percent of gross",
+  payStructureAddComponent: "Add component",
+  payStructureRemoveComponent: "Remove component",
+  payStructureSave: "Save components",
+  payStructureArchived: "Archived",
+  payStructureVersion: "Create new version",
+  payStructureVersionedToast: "Version {code} created; the predecessor archived (BR-052).",
+  payStructureSavedToast: "Structure components saved.",
+  payStructureInUseNote: "Structures snapshotted by posted runs version, never edit — create a new version (BR-052).",
+  payRunsTitle: "Payroll runs",
+  payRunNew: "New run",
+  payRunPeriod: "Fiscal period",
+  payRunStatus: "Status",
+  payRunGross: "Gross",
+  payRunDeductions: "Deductions",
+  payRunNet: "Net",
+  payRunEmployer: "Employer",
+  payRunEos: "EOS accrual",
+  payRunPaid: "Paid",
+  payRunNumber: "Run no",
+  payRunLines: "Run lines",
+  payRunCalculate: "Calculate",
+  payRunSubmit: "Submit",
+  payRunApprove: "Approve",
+  payRunPost: "Post (G-29)",
+  payRunPayout: "Payout (G-30)",
+  payRunReverse: "Reverse",
+  payRunPayslips: "Payslips",
+  payRunDraft: "Draft",
+  payRunPending: "Pending approval",
+  payRunPosted: "Posted",
+  payRunCalculatedToast: "Run calculated: {count} line(s) (gross {gross} / net {net}).",
+  payRunSubmittedToast: "Run submitted for approval.",
+  payRunApprovedToast: "Run approved — posting is now available.",
+  payRunPostedToast: "Run {runNo} posted — journal {entryNo} (G-29).",
+  payRunPayoutToast: "Paid out {amount} via the bank account (G-30) — outstanding {outstanding}.",
+  payRunEmptyLines: "No calculated lines — calculate the run first.",
+  payRunLoanClampWarning: "Loan deduction clamped to the cap ({clampedTo} of {scheduled}) — BR-054.",
+  payRunSkippedWarning: "Skipped employees: {list}.",
+  payRunOutstanding: "Outstanding",
+  payLoansTitle: "Employee loans",
+  payLoanNew: "New loan",
+  payLoanCode: "Code",
+  payLoanEmployee: "Employee",
+  payLoanAmount: "Amount",
+  payLoanInstallments: "Installments",
+  payLoanStartPeriod: "Start period",
+  payLoanCashAccount: "Paying account",
+  payLoanSchedule: "Schedule",
+  payLoanLineAmount: "Installment amount",
+  payLoanLineStatus: "Status",
+  payLoanPending: "Pending",
+  payLoanDeducted: "Deducted",
+  payLoanWaived: "Waived",
+  payLoanWaive: "Waive installment",
+  payLoanWaiveReason: "Waive reason",
+  payLoanWriteOff: "Write off loan",
+  payLoanWriteOffReason: "Write-off reason",
+  payLoanActive: "Active",
+  payLoanClosed: "Closed",
+  payLoanWriteOffStatus: "Written off",
+  payLoanDisbursedToast: "Loan {code} disbursed — {amount} via the selected account.",
+  payLoanWaivedToast: "Installment waived ({reason}).",
+  payLoanWrittenOffToast: "Loan {code} written off ({reason}).",
+  payEosTitle: "End-of-service provision",
+  payEosAccrued: "Accrued",
+  payEosSettled: "Cash settled",
+  payEosBalance: "Balance",
+  payEosSettle: "Settle EOS (G-31)",
+  payEosSettleAmount: "Cash settled amount",
+  payEosPolicy: "Provision policy: enabled with basis {days} days per service year (tenant value — no jurisdiction rates).",
+  payEosDisabled: "Provision disabled (default) — the tenant policy enables it with an explicit value.",
+  payEosSettledToast: "Provision settled: {settled} cash, {residual} released (G-31).",
+  payReportsTitle: "Payroll reports",
+  payReportsEmpty: "No payroll report contracts registered.",
+  payErrNotFound: "Record not found (or belongs to another tenant).",
+  payErrStateInvalid: "The record's state does not allow this step.",
+  payErrSelfApproval: "Separation of duties: the run's creator cannot approve it.",
+  payErrImmutable: "The document is posted and immutable — reversal is the only correction path.",
+  payErrRunPeriodExists: "A live run already exists for this period — one run per period.",
+  payErrStructureInUse: "The structure is frozen by a posted run — create a new version (BR-052).",
+  payErrStructureNotActive: "The structure is archived — runs require an ACTIVE structure (BR-052).",
+  payErrStructureCurrency: "The structure's currency differs from the tenant base.",
+  payErrEmployeeStructureMissing: "The employee carries no ACTIVE salary structure — assign one before calculating.",
+  payErrLoanCap: "The loan deduction exceeds the cap percent of net (BR-054).",
+  payErrLoanUnmapped: "The employee-loan control account is unmapped — set payroll.loans.control_account_id.",
+  payErrEosBasis: "The provision is enabled without an explicit basis — BR-055 refuses the silent path.",
+  payErrEosExceeds: "The settlement exceeds the employee's provision balance.",
+  payErrPayoutExceeds: "The amount exceeds the run's outstanding net.",
+  payErrEmployeeState: "The employee's state does not allow this step.",
+  payErrCodeConflict: "The code is already used in this tenant.",
+  payErrEngineOnly: "Payroll accounts post only via runs — manual journals are rejected (BR-053).",
+  payErrPurposeNotMapped: "An accounting purpose is unmapped — map the account before posting.",
+  payErrPeriodLocked: "The fiscal period is locked — posting is rejected.",
+
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
 };
 
 const dictionaries: Record<Locale, Dictionary> = { ar, en };

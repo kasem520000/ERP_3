@@ -163,4 +163,15 @@ export {
   type TimelinePanelProps,
   type TimelineTone,
 } from "./patterns/timeline-panel";
+// PHASE-028 pattern (COMPONENT_CATALOG §6.3 PeriodGrid row) — the
+// period-column spreadsheet grid (budget workspace variant; sticky
+// dimension column, keyboard cell navigation, live totals, RTL mirror).
+export {
+  PeriodGrid,
+  type PeriodGridColumn,
+  type PeriodGridRowData,
+  type PeriodGridTotals,
+  type PeriodGridLabels,
+  type PeriodGridProps,
+} from "./patterns/period-grid";
 export { useStockAvailability, type StockAvailabilityState } from "./hooks/use-stock-availability";

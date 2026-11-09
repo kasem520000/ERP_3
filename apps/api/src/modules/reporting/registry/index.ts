@@ -109,6 +109,7 @@ import { notesAgingContract } from "./notes/aging.contract";
 import { notesDishonoredRegisterContract } from "./notes/dishonored-register.contract";
 import { installmentsScheduleContract } from "./installments/schedule.contract";
 import { installmentsAgingContract } from "./installments/aging.contract";
+<<<<<<< HEAD
 // PHASE-034 · the consolidation set (REPORT_CATALOG §10 — the four
 // contracts that assert INV-026 in the footer and block exports on
 // failure; statements read the completed run's immutable snapshots).
@@ -116,6 +117,13 @@ import { consolidationConsolidatedTbContract } from "./consolidation/consolidate
 import { consolidationConsolidatedIsContract } from "./consolidation/consolidated-is.contract";
 import { consolidationConsolidatedBsContract } from "./consolidation/consolidated-bs.contract";
 import { consolidationEliminationsLogContract } from "./consolidation/eliminations-log.contract";
+=======
+import { budgetingBudgetVsActualContract } from "./budgeting/budget-vs-actual.contract";
+import { budgetingVarianceAnalysisContract } from "./budgeting/variance-analysis.contract";
+import { payrollRegisterContract } from "./payroll/register.contract";
+import { payrollCostSummaryContract } from "./payroll/cost-summary.contract";
+import { payrollEosProvisionContract } from "./payroll/eos-provision.contract";
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
 
 export const REPORT_CONTRACTS: readonly ReportContract[] = Object.freeze([
   // §1 financial statements
@@ -223,6 +231,7 @@ export const REPORT_CONTRACTS: readonly ReportContract[] = Object.freeze([
   notesDishonoredRegisterContract,
   installmentsScheduleContract,
   installmentsAgingContract,
+<<<<<<< HEAD
   // §10 consolidation (REPORT_CATALOG §10 PHASE-034 rows — the
   // consolidated-statement set: TB/IS/BS with the inv026 headline
   // block-on-fail assertion + the TB balance tie, and the eliminations
@@ -233,6 +242,24 @@ export const REPORT_CONTRACTS: readonly ReportContract[] = Object.freeze([
   consolidationConsolidatedIsContract,
   consolidationConsolidatedBsContract,
   consolidationEliminationsLogContract,
+=======
+  // §9 financial depth — PHASE-028 rows (REPORT_CATALOG §9): the
+  // budgeting set — budget vs actual (the ACTIVE version baseline vs the
+  // dimension-grouped GL actuals per period, the budget-ledger-tie
+  // block-on-fail check folding to the trial balance) and the variance
+  // analysis (the period trend + top over/under lines + threshold
+  // highlighting, the same ledger tie)
+  budgetingBudgetVsActualContract,
+  budgetingVarianceAnalysisContract,
+  // §payroll — PHASE-029 rows (REPORT_CATALOG §payroll): the payroll set —
+  // the register (per-employee gross/deductions/net with the INV-025 +
+  // G-29 journal tie), the cost summary (cost center × project × period
+  // with the per-period ledger tie), and the EOS provision (accruals,
+  // settlements, balances with the GL fold)
+  payrollRegisterContract,
+  payrollCostSummaryContract,
+  payrollEosProvisionContract,
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
 ]);
 
 export { validateRegistry, registrySnapshot } from "./runtime";

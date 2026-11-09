@@ -1,6 +1,6 @@
 # Feature Catalog
 
-> **Status:** STABLE · **Owner:** Product & Platform Architecture · **Updated:** 2026-11-07
+> **Status:** STABLE · **Owner:** Product & Platform Architecture · **Updated:** 2026-11-08
 
 The canonical, exhaustive registry of product features. Every feature has exactly one
 **feature key** (`module.feature_name`). This file is the single source of truth referenced by:
@@ -336,6 +336,29 @@ General sync foundation and native clients (PHASE-020…022) —
 
 The industry template engine (PHASE-015) — templates detailed in
 [INDUSTRY_CATALOG.md](INDUSTRY_CATALOG.md).
+
+**Cross-check (PHASE-030, shipped 2026-11-08): ZERO new feature keys.** The
+wholesale + electronics templates compose **pre-granted keys only** (wholesale:
+`items.price_lists`, `partners.credit_terms`, `partners.statements`,
+`sales.credit_limits`, `notes.received`…; electronics: `inventory.serial_tracking`,
+`crm.service_orders`, the `pos.*` set, trade-in via purchasing) — the
+configuration-only phase constraint (INV-022) held: no key, plan grant, or route was
+added, and the key count above is unchanged (the CI cross-checks are
+`capability-matrix-reconciliation.spec.ts` + the drift gate 245=245). The nine new
+typed workflow-**policy** keys live in the policy registry
+([CONFIGURATION_ENGINE.md](CONFIGURATION_ENGINE.md) §4), not here.
+
+**Cross-check (PHASE-031, shipped 2026-11-08): ZERO new feature keys again.** The
+healthcare commercial shell composes **pre-granted keys only** (its claim chain:
+`sales.invoices` + `notes.received` + `partners.statements` + `crm.service_orders` +
+`inventory.batch_tracking` + `sales.credit_limits`) — the "configuration + light
+extension" register pattern held: the single additive `sales_invoices.claim_ref`
+column (migration 0042) carries no entitlement semantics, the `insurance_claim_billing`
+capability is a CAPABILITY_MATRIX row over existing keys (NOT a catalog key), and no
+plan grant, route, or permission key was added (drift stays 245=245). The six new typed
+workflow-**policy** keys live in the policy registry
+([CONFIGURATION_ENGINE.md](CONFIGURATION_ENGINE.md) §4), not here; the group_by_claim
+report parameter rides existing contracts (register §J stays closed).
 
 | Feature key | Name (EN · AR) | Description | Priority | Phase | Permission key | Depends on |
 |---|---|---|---|---|---|---|

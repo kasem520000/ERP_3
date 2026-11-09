@@ -136,6 +136,27 @@ export class PostingService {
           apControlAccountId: apRow?.accountId ?? "00000000-0000-0000-0000-000000000000",
         };
       },
+      // PHASE-029 (BR-053): the six payroll purposes' actively-mapped
+      // account ids — fetched ONLY for manual-journal sources (the engine
+      // asks lazily; zero overhead on every module-source post).
+      findPayrollPurposeAccounts: async () => {
+        const keys = [
+          "SALARIES_EXPENSE",
+          "SALARIES_PAYABLE",
+          "DEDUCTIONS_PAYABLE",
+          "EMPLOYER_CONTRIBUTIONS",
+          "EOS_PROVISION",
+          "EOS_PROVISION_EXPENSE",
+        ];
+        const ids = new Set<string>();
+        for (const key of keys) {
+          const mapping = await store.findActivePurpose(key);
+          if (mapping !== undefined) {
+            ids.add(mapping.accountId);
+          }
+        }
+        return ids;
+      },
       baseCurrency: async () => ownTenantBaseCurrencyCached(),
     };
   }

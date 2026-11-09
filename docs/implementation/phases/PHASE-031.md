@@ -1,6 +1,7 @@
 # PHASE-031 — Healthcare Commercial Shell
 
-> **Status:** PLANNED · **Updated:** 2026-10-28
+> **Status:** COMPLETE (delivered 2026-11-08 — the evidence lives in
+> [reports/PHASE-031-COMPLETION.md](reports/PHASE-031-COMPLETION.md)) · **Updated:** 2026-11-08
 
 ## 1. Phase Overview
 

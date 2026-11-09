@@ -111,6 +111,7 @@ export const MIGRATIONS: readonly string[] = [
   // feature-key plan grants + the RC-11 'NOTES' kind + the notification
   // category widening).
   "0038_notes_installments",
+<<<<<<< HEAD
   // PHASE-032: 0039_education_template.sql (the education commercial shell
   // per ED-08 — configuration only: the industry_templates registry seed
   // converging the 0008 index row to the full v1.0.0 industry.education
@@ -136,6 +137,59 @@ export const MIGRATIONS: readonly string[] = [
   // reader function erp.consolidation_read_member_gl (BR-056 re-verified
   // in-function; zero cross-tenant writes at the grant level)).
   "0041_consolidation",
+=======
+  // PHASE-028: 0039_budgeting.sql (the budgeting module per DR-004/ED-04
+  // option A: budgets + budget_lines — versioned budgets by fiscal year &
+  // scope with the BR-050 partial unique (one ACTIVE per tenant/year/scope)
+  // + period-level amounts over account/cost-center/project/branch
+  // dimensions; NOT ledger documents — zero journal rules, zero goldens,
+  // zero CoA purposes) + the notifications category widening ('budgeting')
+  // + the six §22 feature-key plan grants. §3.13 permissions pre-seeded in
+  // 0004/0005 (docs-as-contract — nothing to add, drift stays 245=245).
+  "0039_budgeting",
+  // PHASE-029: 0040_payroll.sql (the payroll module per DR-005/ED-05,
+  // financial scope only: employees (PII-restricted) + salary_structures
+  // + salary_components (BR-052 versioning) + payroll_runs/run_lines 🔒
+  // (INV-025 row-level totals law, one G-29 journal per run, BR-053
+  // engine-only payroll accounts) + employee_loans/lines (BR-054 cap) +
+  // the six CoA template purposes (2170/2180/2190/5270/5280/5295 — the
+  // loan control account deliberately NOT a purpose) + the cash_movements
+  // source widening ('payroll_payout', 'employee_loan' — additive) + the
+  // notifications category widening ('payroll') + the eight §22
+  // feature-key plan grants. §3.14 permissions pre-seeded in 0004/0005
+  // with the payroll_officer role template (drift stays 245=245).
+  "0040_payroll",
+  // PHASE-030: 0041_industry_wholesale_electronics.sql (the first two
+  // Blueprint v2.0 stage-10 industry templates per ED-06 — DATA-ONLY:
+  // industry.wholesale + industry.electronics registry rows at v1.0.0,
+  // the report pins reconciled to the live keys ar.aging /
+  // inventory.valuation; zero new tables/columns/enums/journals/
+  // permissions/plan-grants — INV-022: templates are configuration,
+  // never a fork; every REQUIRED key was granted by earlier migrations
+  // (notes by 0038, POS by 0024, crm.service_orders by 0027), and the
+  // typed workflow-policy keys register in the code-owned POLICY_REGISTRY).
+  "0041_industry_wholesale_electronics",
+  // PHASE-031: 0042_healthcare_claim_ref.sql (the Healthcare Commercial
+  // Shell's SINGLE schema change per ED-07 — the additive nullable
+  // sales_invoices.claim_ref varchar(64), the external insurer claim
+  // reference: non-null = a claim (insured) invoice billed to the
+  // insurance-company partner, NULL = self-pay; plus the optional partial
+  // (tenant_id, claim_ref) grouping index. No backfill, no default, RLS
+  // untouched — ADR-0006 (never an official document number) + INV-022
+  // (metadata that never enters a journal line)).
+  "0042_healthcare_claim_ref",
+  // PHASE-031: 0043_industry_healthcare.sql (the industry.healthcare
+  // v1.0.0 registry seed — DATA-ONLY per the 0041 convention: the manifest
+  // transcribed VERBATIM with the partners.ar_aging pin reconciled to the
+  // live ar.aging key (inventory.expiry_list / notes.aging /
+  // notes.maturity-calendar resolve verbatim); every REQUIRED key granted by
+  // earlier migrations so the engine classifies everything LIVE, including
+  // the shell's own insurance_claim_billing capability at
+  // available_from_phase PHASE-031; the six typed workflow-policy keys
+  // register in the code-owned POLICY_REGISTRY — zero new tables/columns/
+  // enums/journals/permissions/plan-grants, INV-022).
+  "0043_industry_healthcare",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
 ];
 
 /**

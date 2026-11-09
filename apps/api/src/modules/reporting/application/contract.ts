@@ -41,7 +41,12 @@ export type DataSourceModule =
   | "fixed_assets" // PHASE-026: the fixed_assets query surface (asset register/schedule/movements)
   | "notes" // PHASE-027: the notes query surface (maturity calendar / aging / dishonored register)
   | "installments" // PHASE-027: the installments query surface (schedule / aging)
+<<<<<<< HEAD
   | "consolidation"; // PHASE-034: the consolidation query surface (consolidated TB/IS/BS + eliminations log over the completed run's immutable snapshots)
+=======
+  | "budgeting" // PHASE-028: the budgeting query surface (budget vs actual / variance analysis)
+  | "payroll"; // PHASE-029: the payroll query surface (register / cost summary / EOS provision)
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
 
 export interface DataSourceDecl {
   readonly module: DataSourceModule;
@@ -176,12 +181,23 @@ export interface ReportParams {
   readonly movementKind?: string;
   /** PHASE-026 (fixed assets): the projection fiscal period (schedule). */
   readonly fiscalPeriodId?: string;
+  /** PHASE-029 (payroll): the run of `payroll.register`. */
+  readonly runId?: string;
   /** PHASE-027 (notes): the issuing-bank filter of the maturity calendar. */
   readonly bank?: string;
   /** PHASE-027 (notes): the free-text reason filter of the dishonored register. */
   readonly reason?: string;
   /** PHASE-027 (installments): the plan of `installments.schedule`. */
   readonly planId?: string;
+  /** PHASE-028 (budgeting): the explicit budget of the variance contracts
+   * (defaults to the ACTIVE version of (fiscalYearId, scope)). */
+  readonly budgetId?: string;
+  /** PHASE-028 (budgeting): the scope filter when no explicit budgetId
+   * (ACCOUNTS / COST_CENTERS / PROJECTS / BRANCHES). */
+  readonly scope?: string;
+  /** PHASE-028 (budgeting): the variance-analysis warning threshold (int
+   * percent — the highlighting cutoff, default 100). */
+  readonly thresholdPercent?: number;
   readonly customerId?: string;
   readonly supplierId?: string;
   readonly itemId?: string;

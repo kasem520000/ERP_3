@@ -1,6 +1,12 @@
 # PHASE-029 — Payroll: Salaries, Loans & End-of-Service
 
-> **Status:** PLANNED · **Updated:** 2026-10-28
+> **Status:** COMPLETE · **Updated:** 2026-11-08 (delivered per
+> [reports/PHASE-029-COMPLETION.md](reports/PHASE-029-COMPLETION.md) — the
+> planning-docs flip was honestly deferred at 029 commit time (commit `9b251a0`)
+> and delivered with the PHASE-030 docs wave; the task-table drift was corrected
+> in-delivery: the migration is `0040_payroll.sql` (not 0029), the web pages live
+> under `apps/web/app/[locale]/payroll/**`, and the test suites under
+> `apps/api/src/__db__/payroll/**` — the repo conventions)
 
 ## 1. Phase Overview
 

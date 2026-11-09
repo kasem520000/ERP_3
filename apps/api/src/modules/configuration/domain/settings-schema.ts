@@ -189,6 +189,14 @@ export const SETTINGS_REGISTRY: Readonly<Record<string, SettingDefinition>> = Ob
     description:
       "RECEIVABLES_AND_PAYABLES §3.4: standalone credit notes (no stock/revenue reference semantics) only when policy-flagged — default OFF keeps the invoice reference mandatory (BR-004).",
   }),
+  // PHASE-031 healthcare keys (§2 item 3 — the claim-ref capture discipline).
+  "sales.claim_ref_required_for_insured": Object.freeze({
+    key: "sales.claim_ref_required_for_insured",
+    schema: z.boolean(),
+    default: true,
+    description:
+      "PHASE-031 healthcare (ED-07): an invoice saved with insurance billing selected but an empty claim ref (sales_invoices.claim_ref, migration 0042) is rejected with the typed CLAIM_REF_REQUIRED error — self-pay invoices save the field null. Default ON is the capture invariant (an insured invoice carries its external insurer reference, exactly what the industry.healthcare manifest ships as its L1 default); an explicit tenant setting (L5) relaxes it. Capture behavior ONLY: the policy never touches posting — claim_ref is metadata that never enters a journal line (INV-022, machine-checked by the negative ledger proof).",
+  }),
   "accounting.fx_revaluation_enabled": Object.freeze({
     key: "accounting.fx_revaluation_enabled",
     schema: z.boolean(),
@@ -411,6 +419,59 @@ export const SETTINGS_REGISTRY: Readonly<Record<string, SettingDefinition>> = Ob
     default: false,
     description:
       "PHASE-019 §4: when true, tagging a contract advance posts the reclass journal (DR AR control · CR DEFERRED_REVENUE, projectId-stamped) and posting a contract invoice releases it (DR DEFERRED · CR AR, allocated); false (platform default) keeps advances as plain on-account credits (BR-027 pure link-only).",
+  }),
+  // PHASE-028 budgeting control keys (BR-051 — the advisory-by-default
+  // policy surface; DR-004 option A): mode ADVISORY (default) warns at/over
+  // budget on DRAFT-stage saves; ENFORCE_DRAFT is the explicit tenant
+  // opt-in that blocks ONLY the DRAFT save with a typed, audited
+  // BUDGET_EXCEEDED reason — never a posted document, never the engine.
+  "budgeting.controls.mode": Object.freeze({
+    key: "budgeting.controls.mode",
+    schema: z.enum(["ADVISORY", "ENFORCE_DRAFT"]),
+    default: "ADVISORY",
+    description:
+      "PHASE-028 BR-051: budget controls are advisory by default (over-budget DRAFT saves succeed with a warning); ENFORCE_DRAFT is the explicit hard-block opt-in — it applies only at the DRAFT-stage save/approval step with a typed, visible, audited BUDGET_EXCEEDED reason, never as a posting-engine side-effect.",
+  }),
+  "budgeting.controls.warn_threshold_percent": Object.freeze({
+    key: "budgeting.controls.warn_threshold_percent",
+    schema: z.number().int().min(1).max(1000),
+    default: 100,
+    description:
+      "PHASE-028 BR-051: the at/over-budget warning threshold in percent of the period line (100 = warn at parity; PLACEHOLDER default pending the OQ-002 pricing pass) — evaluation only, the ledger is never blocked by budgets.",
+  }),
+  // PHASE-029 payroll policy keys (BR-054/BR-055 — the tenant-policy
+  // surface; DR-005/ED-05). The loan cap default is 25% PLACEHOLDER (the
+  // OQ-002 family — documented, never silent); the loan control account
+  // and the EOS accrual basis ship NULL on purpose: an EXPLICIT tenant
+  // value is required (LOAN_ACCOUNT_UNMAPPED / the accrual stays off) —
+  // the platform fabricates no jurisdiction rates (BR-055).
+  "payroll.loans.max_deduction_percent": Object.freeze({
+    key: "payroll.loans.max_deduction_percent",
+    schema: z.number().int().min(1).max(90),
+    default: 25,
+    description:
+      "PHASE-029 BR-054: the per-period loan-deduction cap as a percent of the employee's net (run lines clamp above-cap schedules with an explicit warning; net-floor never negative). PLACEHOLDER default 25 pending the OQ-002 pricing pass.",
+  }),
+  "payroll.loans.control_account_id": Object.freeze({
+    key: "payroll.loans.control_account_id",
+    schema: z.string().uuid().nullable(),
+    default: null,
+    description:
+      "PHASE-029 item 5: the tenant-mapped employee-loan control account (سلف الموظفين). NULL = unmapped (loan disbursement/deduction flows die typed LOAN_ACCOUNT_UNMAPPED) — deliberately NOT a canonical CoA purpose (the §E list stays closed); the tenant maps their own account.",
+  }),
+  "payroll.eos.enabled": Object.freeze({
+    key: "payroll.eos.enabled",
+    schema: z.boolean(),
+    default: false,
+    description:
+      "PHASE-029 BR-055: the end-of-service provision toggle — disabled by default; enabling WITHOUT an explicit accrual basis is rejected (EOS_BASIS_REQUIRED).",
+  }),
+  "payroll.eos.accrual_days_per_service_year": Object.freeze({
+    key: "payroll.eos.accrual_days_per_service_year",
+    schema: z.number().int().min(0).max(365).nullable(),
+    default: null,
+    description:
+      "PHASE-029 BR-055: the tenant's EOS accrual basis in days per service year. NO default ships — an explicit tenant value is required to enable accrual (the platform fabricates no jurisdiction rates; onboarding templates may pre-create empty component shells with documentation pointers, never rates).",
   }),
 });
 

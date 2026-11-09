@@ -1,5 +1,6 @@
 # Changelog
 
+<<<<<<< HEAD
 > **Status:** LIVING DOCUMENT — append-only, newest first · **Updated:** 2026-11-09
 
 Format: `DATE — item — type` where type ∈ {BLUEPRINT, PHASE-NNN, DOCS, BREAKING-ARCH, DECISION}.
@@ -62,6 +63,199 @@ Format: `DATE — item — type` where type ∈ {BLUEPRINT, PHASE-NNN, DOCS, BRE
   NAVIGATION_MODEL LIVE row · IMPLEMENTATION_STATUS COMPLETE + roadmap-complete note
   · the completion report with the acceptance-criteria table (all 10 PASS) —
   **PHASE-NNN**
+=======
+> **Status:** LIVING DOCUMENT — append-only, newest first · **Updated:** 2026-11-08
+
+Format: `DATE — item — type` where type ∈ {BLUEPRINT, PHASE-NNN, DOCS, BREAKING-ARCH, DECISION}.
+
+- 2026-11-08 — **PHASE-031 — Healthcare Commercial Shell (COMPLETE)**:
+  migrations `0042_healthcare_claim_ref.sql` (journal idx 41, schema_version 42) —
+  the phase's SINGLE schema change per ED-07 ("configuration + light extension"):
+  the additive nullable `sales_invoices.claim_ref` varchar(64) (an external
+  insurer claim reference — non-null = a claim invoice billed to the
+  insurance-company partner, null = self-pay دفع مباشر; never a document number
+  per ADR-0006; metadata that never enters a journal line per INV-022) + the
+  partial `(tenant_id, claim_ref)` grouping index (no backfill, RLS untouched) —
+  and `0043_industry_healthcare.sql` (journal idx 42, schema_version 43) —
+  **DATA-ONLY**: the `industry.healthcare` v1.0.0 registry seed with the
+  partners.ar_aging → ar.aging pin reconciliation (the 0025/0027/0041
+  convention; inventory.expiry_list / notes.aging / notes.maturity-calendar
+  resolve verbatim). Contracts: `HEALTHCARE_TEMPLATE_MANIFEST` transcribed
+  verbatim (`SHIPPED_TEMPLATE_MANIFESTS` 9→10, `pnpm validate:manifests` 10/10,
+  content hash sha256:f8b707e6…0947e — byte-equivalent to the 0043 seed). Sales:
+  the claim-ref capture (policy-gated via the NEW settings key
+  `sales.claim_ref_required_for_insured` — platform default true = the capture
+  invariant, the manifest ships the same true as its L1 default, L5 may relax;
+  typed `CLAIM_REF_REQUIRED` / `CLAIM_REF_ON_SELF_PAY` / `CLAIM_REF_INVALID`
+  errors, validated BEFORE the insert so every failure path leaves zero
+  residue) + the `(partner, claim_ref)` claim-slice read model
+  (`arClaimSlicesAsOf` — the open AR claim slices partitioning the partner's
+  open items, INV-009) + the additive `insured`/`claimRef` create fields on the
+  HTTP schema (read-compat per CONFIGURATION_ENGINE §4). Reporting: the
+  `group_by_claim` parameter on the EXISTING notes.aging /
+  notes.maturity-calendar / partner.statement contracts (a report-contract
+  parameter extension, register §J stays closed — zero new report keys; the
+  claim groups + per-row claim_ref column + the unchanged footer ties). Policy
+  registry: SIX typed healthcare keys (five registry-only +
+  claim_ref_required_for_insured mapped onto the settings surface).
+  CURRENT_SHIPPED_PHASE 030→031 (the shell's OWN insurance_claim_billing
+  capability — available_from_phase PHASE-031 — resolves LIVE at its release;
+  the REQUIRED pdc_notes chain on the 0038 grants: 027 is a prerequisite, so
+  claims cheques never phase-gate). Tests: `templates-031.spec` 7/7 (clean
+  apply with the KNOWN 0043 hash, the four series, pins, the all-visible
+  checklist with the honest "no clinical data" framing, modules notes+crm ON,
+  audited; the claim-capture legs — CLAIM_REF_REQUIRED typed + zero residue,
+  self-pay null, claim-ref-on-self-pay rejected; idempotent re-apply; switch
+  safety retail→healthcare additive-only with the posted CLAIM invoice
+  byte-identical AND claim_ref retained through both switches; degraded
+  entitlement fail-closed (notes.received feeds BOTH insurance_claim_billing
+  and pdc_notes) + grant-back recovery; L5-beats-L1 on the capture key with
+  the save path following; THE NEGATIVE LEDGER PROOF) +
+  `healthcare-claim-lifecycle.spec` 10/10 (THE acceptance-defining suite:
+  visit (crm.service_orders, no ledger) → self-pay invoice G-01 line-asserted
+  → insured invoice G-01 + G-03 with the FEFO pick (the dispensing moves
+  issue the nearest-expiry batch; WAC costing decoupled) + the claim slice →
+  BR-001 over-limit block with zero residue → per-insurer statement claim-
+  grouped + INV-009 tie → claim cheque G-24 → dunning per claim on the
+  group-by-claim aging with the footer tie unchanged → G-25 deposit+collect →
+  G-26 dishonor restores the claim EXACTLY (amount, partner, claim reference;
+  INV-024) → failure paths: CLAIM_REF_REQUIRED + over-dispensing INSUFFICIENT_
+  STOCK rollback with zero residue) + `healthcare-no-clinical-surfaces.spec`
+  7/7 (THE ZERO-CLINICAL GATE: the manifest, the registries, the report
+  surface, the 0042/0043 SQL executable text, the request vocabulary, and the
+  whole shipped set carry no clinical stems — the "just one diagnosis field"
+  creep fails CI) + capability-matrix-reconciliation 6/6 (HLT strict: zero
+  mismatches both directions; the §L explicit rows extended with
+  insurance_claim_billing N/A/N/A/REQ) + report-pack-wiring 5/5 (the
+  healthcare pins resolve; group_by_claim parameter surface asserted) +
+  template-prerequisites +3 healthcare legs (business INCLUDED incl.
+  insurance_claim_billing LIVE at release; starter blocked with the claim
+  chain; the downgraded-plan leg) + the synthetic phase-gate proofs moved to
+  education.students@PHASE-032 (the §18 lesson-5 relay) + golden-effective-
+  configs re-pinned (ALL 28 existing pins moved by the settings-key wave —
+  sales.claim_ref_required_for_insured lands in every tenant's policy map as a
+  platform default; the 3 new healthcare rows pin with the 0043 seed; the
+  old→new table in agent-ctx/P31-A-claim-ref.md) + contracts
+  industry-manifests +1 block. Web: ZERO changes (the billing/pharmacy
+  navigation + terminology are data-driven — the configuration-only ethos
+  held for the second stage-10 shell). Docs: ENTITY_CATALOG sales_invoices
+  claim_ref note; CONFIGURATION_ENGINE §4 the settings key + the six policy
+  rows; INDUSTRY_CATALOG + templates README + industries README shipped
+  pointers; FEATURE_CATALOG the zero-new-keys cross-check; healthcare.md
+  status + pin reconciliation; the manifest.healthcare.json mirror
+  regenerated; IMPLEMENTATION_STATUS row 031 → COMPLETE + the current-state
+  header; PHASE_ACCEPTANCE_CRITERIA §PHASE-031 copy; PHASE-031-COMPLETION.md
+  (the evidence report); CURRENT_STATE + NEXT_ACTION (post-PHASE-031 — next
+  eligible PHASE-032 Education Commercial Shell, identify only); agent-ctx
+  P31-A. FINAL SWEEP ALL GREEN: typecheck 8/8 · lint 8/8 · depcruise 0
+  violations/1,522 modules/10,723 dependencies · unit api 406/406 (37 files)
+  + web 73/73 + ui 42/42 + contracts 53/53 + sync-core 36/36 + desktop
+  274/274 + mobile 393/393 · DB suite 161 files / 2,295 tests (the full
+  0001–0043 chain fresh on embedded PG16, chunked foreground: 2,293 green
+  + 2 skipped + ONE documented environmental flake — the PHASE-025 T-04
+  perf-tier p95 budget under the chunked run, which measures GREEN in
+  isolation (13/13), the known load-dependent posture the 030 report
+  records) · validate:manifests 10/10 · docs:validate 29/29 ·
+  permissions-drift 245=245 · i18n 4,069=4,069 · check:rls green (violations=[], 199
+  catalog tables).
+  [PHASE-031-COMPLETION.md](../implementation/phases/reports/PHASE-031-COMPLETION.md)
+  — type: PHASE-031
+
+- 2026-11-08 — **PHASE-030 — Wholesale & Electronics Templates (COMPLETE)**:
+  migration `0041_industry_wholesale_electronics.sql` (journal idx 40,
+  schema_version 41) — **DATA-ONLY**: the two `industry_templates` registry rows
+  at v1.0.0 (idempotent upsert on key; INV-022 = zero new
+  tables/columns/enums/journals/permissions/plan-grants — every REQUIRED key was
+  already granted: wholesale's notes chain by 0038, the electronics POS set by
+  0024, `crm.service_orders` by 0027). Contracts: `WHOLESALE_TEMPLATE_MANIFEST`
+  + `ELECTRONICS_TEMPLATE_MANIFEST` transcribed verbatim
+  (`SHIPPED_TEMPLATE_MANIFESTS` 7→9, `pnpm validate:manifests` 9/9); report pins
+  reconciled to the LIVE registry keys at every layer (partners.ar_aging →
+  ar.aging, inventory.stock_valuation → inventory.valuation — the 0025/0027
+  convention); NINE typed workflow-policy keys (no settingsKey mappings — the
+  automotive/distribution L1-default posture); CURRENT_SHIPPED_PHASE 028→030
+  (the 029 leg bookkeeping-only — no template capability rides payroll). Tests:
+  `templates-030.spec` 8/8 (clean apply ×2 with the KNOWN 0041 hashes, series,
+  pins, checklists, terminology AR+EN, derived navigation, policies; idempotent
+  re-apply; switch safety retail→wholesale and retail→electronics additive-only
+  with posted invoices byte-identical + series unions + read-only archives +
+  audited switches; degraded entitlement fail-closed with the typed
+  `TemplatePrerequisitesBlockedError` + grant-back recovery — activation is
+  entitlement state, never a manifest edit; L5-beats-L1; THE NEGATIVE LEDGER
+  PROOF — zero journal rows around every apply/switch/re-apply/grant-back) +
+  `capability-matrix-reconciliation.spec` 6 (manifests ≡ CAPABILITY_MATRIX §1
+  WHL/ELC columns, zero mismatches both directions; the 32-entry pre-existing
+  planned-vs-shipped delta frozen as KNOWN_DELTA — growing fails CI) +
+  `report-pack-wiring.spec` 4 (every pin resolves in the live 81-contract
+  registry; the pre-030 retail+grocery doc-spelling gap frozen as
+  KNOWN_PRE030_UNRESOLVED_PINS). Web: ZERO changes (the /settings/templates
+  screen + navigation terminology are data-driven — i18n 4,069=4,069 unchanged,
+  permissions 245=245). Honest notes: the two frozen snapshots, the
+  phase-gating interplay resolved by sequencing (notes at 027 before 030), T11's
+  UI composition reduced to zero code by the data-driven surfaces, the
+  workflow-smoke/RTL-visual carve-outs, no E-commerce/carrier/BNPL. Evidence:
+  [PHASE-030-COMPLETION.md](../implementation/phases/reports/PHASE-030-COMPLETION.md) —
+  PHASE-030
+- 2026-11-08 — **PHASE-029 — Payroll: Salaries, Loans & End-of-Service
+  (COMPLETE — the planning-docs flip was honestly deferred at commit time
+  (`9b251a0`) and is delivered with this PHASE-030 docs wave)**: migration
+  `0040_payroll.sql` (journal idx 39, schema_version 40) — 7 RLS'd tenant tables
+  (`employees` the PII-restricted financial file — national_id C-PII: masked in
+  UI, excluded from logs/non-payroll exports by construction, employee reads are
+  audit events; `salary_structures` + `salary_components` with per-component GL
+  accounts + `is_eos_base`; `payroll_runs` DRAFT→PENDING_APPROVAL→POSTED;
+  `payroll_run_lines` 🔒 append-only frozen `component_snapshot` via
+  `erp.payroll_run_lines_guard`; `employee_loans` + `employee_loan_lines` with
+  the BR-054 cap) + `apply_tenant_policy` ×7 + purge_path policies + §9 enum
+  CHECKs + the CoA six payroll purposes (2170/2180/2190/5270/5280/5295 — the
+  loan control account deliberately NOT a purpose: tenant-mapped via
+  `payroll.loans.control_account_id`, typed `LOAN_ACCOUNT_UNMAPPED` until
+  mapped) + the `cash_movements` widening ('payroll_payout','employee_loan' —
+  ADDITIVE) + notifications category 'payroll' + the settings-registry payroll
+  keys (BR-055 tenant-policy EOS, no jurisdiction rates fabricated) + the 8
+  feature-key plan grants → business+enterprise (§3.14 permissions pre-seeded in
+  0004/0005 — drift 245=245). The `payroll` module — 8 services (employee /
+  structure / run-calculation / approval-workflow / run-posting / payout / loan
+  / eos): G-29 exactly one journal per run through the PHASE-007 engine behind
+  the six-account fail-closed precheck, the posting-engine BR-053 guard with the
+  typed `PAYROLL_ACCOUNT_ENGINE_ONLY`, G-30 treasury payouts + the masked
+  payslips batch, BR-054 deduction cap (default 25% PLACEHOLDER), BR-055 EOS
+  accrual with G-31 settlement; reports `payroll.register` /
+  `payroll.cost-summary` / `payroll.eos-provision` (registry 78→81, the
+  `payroll-register-tie` block-on-fail assertion); web: the 'hr' navigation
+  group (الموظفون والرواتب / HR & Payroll — group 10 filled with its four items)
+  + the 12 `/[locale]/payroll` screens + i18n 4,069=4,069; tests:
+  `payroll-rules.spec` (818 lines — the 14-story rule workbook incl. the G-29
+  worked example 11,800, INV-025, G-30, G-31, BR-052…055, the PII read-audit
+  trail) + `spoof.spec` 5 (S-04) + `fixtures.ts` (518 lines) + the isolation
+  registry +42 → 1,062/1,062. Honest deferrals: "E2 pending" (the P29-E
+  follow-up item, recorded as committed), the payslip print-template artifact
+  (the masked batch + workspace rendering shipped instead), SIF/WPS bank files
+  (the phase-doc §7 boundary). Evidence:
+  [PHASE-029-COMPLETION.md](../implementation/phases/reports/PHASE-029-COMPLETION.md) —
+  PHASE-029
+- 2026-11-08 — **PHASE-028 — Budgeting & Variance Control (COMPLETE)**: migration
+  `0039_budgeting.sql` (schema_version 39) — two RLS'd tenant tables (`budgets` with the
+  BR-050 partial unique `uq_budgets_one_active` + the one-directional shape CHECKs +
+  the `revision_no`/`supersedes_id` chain; `budget_lines` the period grid over the four
+  scope dimensions) + the notifications category widening (`budgeting`) + the six §22
+  feature-key plan grants; §3.13 permissions were PRE-SEEDED in 0004/0005 (docs-as-
+  contract — drift stays 245=245). The `budgeting` module: the version machine with SoD
+  approval + the atomic supersede flip, the DRAFT-only grid bulk replace (409
+  IMMUTABLE_DOCUMENT), the read-only dimension-grouped consumption engine (BRANCHES via
+  the source-document LATERAL with the honest unattributed bucket; ADR-0008 cache),
+  the advisory-by-default control guard (BR-051 — ADVISORY warn-once / ENFORCE_DRAFT
+  typed audited BUDGET_EXCEEDED on the DRAFT save only) + the daily sweep, XLSX
+  import/export (exceljs RTL, dry-run per-row AR+EN errors, sha256 LRU idempotency),
+  two report contracts (registry 76→78 with the `budget-ledger-tie` block-on-fail
+  assertion), and the web screens + the `PeriodGrid` pattern (i18n +115/locale →
+  3,914=3,914). THE NEGATIVE LEDGER PROOF: journal counts byte-identical after the
+  full operation set + zero engine submissions + the structural grep — budgets are
+  structurally ledger-incapable (DR-004). Honest deferrals recorded (guard production
+  call-site wiring; import hash LRU scope; BRANCHES attribution story). Evidence:
+  [PHASE-028-COMPLETION.md](../implementation/phases/reports/PHASE-028-COMPLETION.md) —
+  PHASE-028
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
 - 2026-11-07 — **PHASE-027 — Cheques, Promissory Notes & Installments (IN PROGRESS —
   the build waves + the docs sync landed; the serial orchestrator gate — full DB suite
   re-run + completion report + commit — closes the phase; status flips COMPLETE only on

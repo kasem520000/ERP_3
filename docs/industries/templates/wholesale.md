@@ -88,8 +88,8 @@ customers with limits and statements, bulk order entry, and receivables settled 
   "report_defaults": [
     { "report_key": "notes.maturity-calendar", "pinned": true, "dashboard": true, "default_period": "this_month" },
     { "report_key": "notes.aging", "pinned": true, "dashboard": false, "default_period": "this_month" },
-    { "report_key": "partners.ar_aging", "pinned": true, "dashboard": true, "default_period": "this_month" },
-    { "report_key": "inventory.stock_valuation", "pinned": true, "dashboard": false, "default_period": "custom" }
+    { "report_key": "ar.aging", "pinned": true, "dashboard": true, "default_period": "this_month" },
+    { "report_key": "inventory.valuation", "pinned": true, "dashboard": false, "default_period": "custom" }
   ],
   "onboarding_steps": [
     { "id": "coa_confirm", "title": { "en": "Confirm chart of accounts (trade receivables, notes receivable)", "ar": "تأكيد دليل الحسابات (ذمم التجار، أوراق القبض)" }, "required": true },
@@ -204,9 +204,11 @@ signature flow [../workflows/industry-workflows.md](../workflows/industry-workfl
 
 ## Reports emphasized
 
-`notes.maturity-calendar` (dashboard), `notes.aging`, `partners.ar_aging` (dashboard),
-`inventory.stock_valuation` — see [../reports/README.md](../reports/README.md). The two
-`notes.*` reports register with the `notes` module at PHASE-027
+`notes.maturity-calendar` (dashboard), `notes.aging`, `ar.aging` (dashboard),
+`inventory.valuation` — see [../reports/README.md](../reports/README.md); the pins use the
+LIVE registry keys (`ar.aging` / `inventory.valuation` — the 0025/0027 reconciliation
+convention for `partners.ar_aging` / `inventory.stock_valuation` doc spellings). The two
+`notes.*` reports registered with the `notes` module at PHASE-027
 ([../../EXPANSION_REGISTER.md](../../EXPANSION_REGISTER.md) §J).
 
 ## Out of scope for this template

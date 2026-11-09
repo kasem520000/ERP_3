@@ -80,6 +80,14 @@ const NO_UPDATE_GRANT = new Set([
   // resets). The column fallback below (updated_at) exists on the table,
   // so the A4 denial proves the grant shape directly.
   "depreciation_lines",
+  // PHASE-029 (migration 0040): the per-employee run lines are append-only
+  // 🔒 (INV-003/INV-025 pattern): UPDATE is grant-denied outright (proven
+  // here); DELETE is grant-CAPABLE but policy-owned by the
+  // erp.payroll_run_lines_guard trigger (posted-run lines are immutable
+  // history — DELETE passes only for purge_mode or DRAFT-run recalculation
+  // resets). The updated_at column exists, so the A4 denial proves the
+  // grant shape directly.
+  "payroll_run_lines",
   // PHASE-027 (migration 0038): the append-only 🔒 custody log (INV-003/
   // INV-024 pattern): UPDATE is grant-denied outright (proven here); DELETE
   // is grant-CAPABLE but policy-owned by the erp.note_events_guard trigger
@@ -1963,6 +1971,39 @@ async function seedFixtures(superuser: {
      ON CONFLICT (id) DO NOTHING`,
     [TENANT_A, TENANT_B],
   );
+  // PHASE-028 (migration 0039) — budgeting cluster: the 028-marked id block
+  // (e028028N budgets / f028028N lines × tenant 1/2). fiscal_year refs use
+  // the own-tenant fiscal_years fixture (c1c1c1c1), period refs the own-
+  // tenant fiscal_periods fixture (c2c2c2c2), account refs the own-tenant
+  // accounts fixture (b0b0b0b0) so the composite tenant FKs stay satisfied;
+  // lines point at the own-tenant budgets fixture.
+  await superuser.query(
+    `INSERT INTO budgets (id, tenant_id, code, fiscal_year_id, scope, name, name_ar,
+        revision_no, status)
+     VALUES
+       ('e0280281-0000-4000-8000-000000000001', $1, 'BUD-2026-1',
+        'c1c1c1c1-0000-4000-8000-000000000001', 'ACCOUNTS', 'FY2026 budget',
+        'موازنة 2026', 1, 'DRAFT'),
+       ('e0280281-0000-4000-8000-000000000002', $2, 'BUD-2026-1',
+        'c1c1c1c1-0000-4000-8000-000000000002', 'ACCOUNTS', 'FY2026 budget',
+        'موازنة 2026', 1, 'DRAFT')
+     ON CONFLICT (id) DO NOTHING`,
+    [TENANT_A, TENANT_B],
+  );
+  await superuser.query(
+    `INSERT INTO budget_lines (id, tenant_id, budget_id, fiscal_period_id, account_id, amount)
+     VALUES
+       ('f0280281-0000-4000-8000-000000000001', $1,
+        'e0280281-0000-4000-8000-000000000001',
+        'c2c2c2c2-0000-4000-8000-000000000001',
+        'b0b0b0b0-0000-4000-8000-000000000001', 1000),
+       ('f0280281-0000-4000-8000-000000000002', $2,
+        'e0280281-0000-4000-8000-000000000002',
+        'c2c2c2c2-0000-4000-8000-000000000002',
+        'b0b0b0b0-0000-4000-8000-000000000002', 1000)
+     ON CONFLICT (id) DO NOTHING`,
+    [TENANT_A, TENANT_B],
+  );
   // PHASE-027 (migration 0038) — notes & installments cluster: the 027-marked
   // id block (a027027N notes / b027027N events / c027027N plans / d027027N
   // lines × tenant 1/2). partner refs use the own-tenant partners fixture
@@ -2016,6 +2057,111 @@ async function seedFixtures(superuser: {
         'c0270271-0000-4000-8000-000000000001', 1, '2026-08-01', 1000, 'PENDING'),
        ('d0270271-0000-4000-8000-000000000002', $2,
         'c0270271-0000-4000-8000-000000000002', 1, '2026-08-01', 1000, 'PENDING')
+     ON CONFLICT (id) DO NOTHING`,
+    [TENANT_A, TENANT_B],
+  );
+  // PHASE-028 (migration 0039) — budgeting cluster (same 028-marked ids as
+  // the seed above; the B row doubles as the A4/A7 foreign probe target).
+  await superuser.query(
+    `INSERT INTO budgets (id, tenant_id, code, fiscal_year_id, scope, name, name_ar,
+        revision_no, status)
+     VALUES
+       ('e0280281-0000-4000-8000-000000000001', $1, 'BUD-2026-1',
+        'c1c1c1c1-0000-4000-8000-000000000001', 'ACCOUNTS', 'FY2026 budget',
+        'موازنة 2026', 1, 'DRAFT'),
+       ('e0280281-0000-4000-8000-000000000002', $2, 'BUD-2026-1',
+        'c1c1c1c1-0000-4000-8000-000000000002', 'ACCOUNTS', 'FY2026 budget',
+        'موازنة 2026', 1, 'DRAFT')
+     ON CONFLICT (id) DO NOTHING`,
+    [TENANT_A, TENANT_B],
+  );
+  await superuser.query(
+    `INSERT INTO budget_lines (id, tenant_id, budget_id, fiscal_period_id, account_id, amount)
+     VALUES
+       ('f0280281-0000-4000-8000-000000000001', $1,
+        'e0280281-0000-4000-8000-000000000001',
+        'c2c2c2c2-0000-4000-8000-000000000001',
+        'b0b0b0b0-0000-4000-8000-000000000001', 1000),
+       ('f0280281-0000-4000-8000-000000000002', $2,
+        'e0280281-0000-4000-8000-000000000002',
+        'c2c2c2c2-0000-4000-8000-000000000002',
+        'b0b0b0b0-0000-4000-8000-000000000002', 1000)
+     ON CONFLICT (id) DO NOTHING`,
+    [TENANT_A, TENANT_B],
+  );
+
+  // PHASE-029 (migration 0040) — payroll cluster (029-marked ids; the B
+  // rows double as the A4/A7 foreign probe targets). FKs reference each
+  // tenant's own fixtures (fiscal period c2c2c2c2…N, account b0b0b0b0…N)
+  // so the composite tenant FKs stay satisfied.
+  await superuser.query(
+    `INSERT INTO salary_structures (id, tenant_id, code, name, currency, status)
+     VALUES
+       ('a0290291-0000-4000-8000-000000000001', $1, 'ST-ISO', 'Isolation structure', 'SAR', 'ACTIVE'),
+       ('a0290291-0000-4000-8000-000000000002', $2, 'ST-ISO', 'Isolation structure', 'SAR', 'ACTIVE')
+     ON CONFLICT (id) DO NOTHING`,
+    [TENANT_A, TENANT_B],
+  );
+  await superuser.query(
+    `INSERT INTO salary_components (id, tenant_id, structure_id, key, name, kind, calc, amount, gl_account_id, is_eos_base, seq)
+     VALUES
+       ('b0290291-0000-4000-8000-000000000001', $1, 'a0290291-0000-4000-8000-000000000001',
+        'ISO-ALLOW', 'Isolation allowance', 'ALLOWANCE', 'FIXED', 100, 'b0b0b0b0-0000-4000-8000-000000000001', false, 1),
+       ('b0290291-0000-4000-8000-000000000002', $2, 'a0290291-0000-4000-8000-000000000002',
+        'ISO-ALLOW', 'Isolation allowance', 'ALLOWANCE', 'FIXED', 100, 'b0b0b0b0-0000-4000-8000-000000000002', false, 1)
+     ON CONFLICT (id) DO NOTHING`,
+    [TENANT_A, TENANT_B],
+  );
+  await superuser.query(
+    `INSERT INTO employees (id, tenant_id, code, name, hire_date, contract_type, basic_salary, salary_structure_id, status)
+     VALUES
+       ('c0290291-0000-4000-8000-000000000001', $1, 'EMP-ISO', 'Isolation Employee', '2025-01-01', 'FULL_TIME', 5000,
+        'a0290291-0000-4000-8000-000000000001', 'ACTIVE'),
+       ('c0290291-0000-4000-8000-000000000002', $2, 'EMP-ISO', 'Isolation Employee', '2025-01-01', 'FULL_TIME', 5000,
+        'a0290291-0000-4000-8000-000000000002', 'ACTIVE')
+     ON CONFLICT (id) DO NOTHING`,
+    [TENANT_A, TENANT_B],
+  );
+  await superuser.query(
+    `INSERT INTO payroll_runs (id, tenant_id, run_no, fiscal_period_id, status)
+     VALUES
+       ('d0290291-0000-4000-8000-000000000001', $1, NULL, 'c2c2c2c2-0000-4000-8000-000000000001', 'DRAFT'),
+       ('d0290291-0000-4000-8000-000000000002', $2, NULL, 'c2c2c2c2-0000-4000-8000-000000000002', 'DRAFT')
+     ON CONFLICT (id) DO NOTHING`,
+    [TENANT_A, TENANT_B],
+  );
+  await superuser.query(
+    `INSERT INTO payroll_run_lines (id, tenant_id, run_id, employee_id, component_snapshot,
+        gross_amount, deductions_amount, net_amount)
+     VALUES
+       ('e0290291-0000-4000-8000-000000000001', $1, 'd0290291-0000-4000-8000-000000000001',
+        'c0290291-0000-4000-8000-000000000001',
+        '{"structure":{"id":"a","code":"ST-ISO","name":"X"},"components":[],"loanDeductions":[],"eos":{"enabled":false,"accrual":"0"},"basicSalary":"5000"}'::jsonb,
+        5000, 0, 5000),
+       ('e0290291-0000-4000-8000-000000000002', $2, 'd0290291-0000-4000-8000-000000000002',
+        'c0290291-0000-4000-8000-000000000002',
+        '{"structure":{"id":"a","code":"ST-ISO","name":"X"},"components":[],"loanDeductions":[],"eos":{"enabled":false,"accrual":"0"},"basicSalary":"5000"}'::jsonb,
+        5000, 0, 5000)
+     ON CONFLICT (id) DO NOTHING`,
+    [TENANT_A, TENANT_B],
+  );
+  await superuser.query(
+    `INSERT INTO employee_loans (id, tenant_id, code, employee_id, amount, installments_count, start_period_id, status)
+     VALUES
+       ('f0290291-0000-4000-8000-000000000001', $1, 'LON-ISO', 'c0290291-0000-4000-8000-000000000001', 300, 1,
+        'c2c2c2c2-0000-4000-8000-000000000001', 'ACTIVE'),
+       ('f0290291-0000-4000-8000-000000000002', $2, 'LON-ISO', 'c0290291-0000-4000-8000-000000000002', 300, 1,
+        'c2c2c2c2-0000-4000-8000-000000000002', 'ACTIVE')
+     ON CONFLICT (id) DO NOTHING`,
+    [TENANT_A, TENANT_B],
+  );
+  await superuser.query(
+    `INSERT INTO employee_loan_lines (id, tenant_id, loan_id, fiscal_period_id, amount, status)
+     VALUES
+       ('0a290291-0000-4000-8000-000000000001', $1, 'f0290291-0000-4000-8000-000000000001',
+        'c2c2c2c2-0000-4000-8000-000000000001', 300, 'PENDING'),
+       ('0a290291-0000-4000-8000-000000000002', $2, 'f0290291-0000-4000-8000-000000000002',
+        'c2c2c2c2-0000-4000-8000-000000000002', 300, 'PENDING')
      ON CONFLICT (id) DO NOTHING`,
     [TENANT_A, TENANT_B],
   );
@@ -2437,6 +2583,22 @@ const OWN_ROW: Record<string, [string, string]> = {
     "d0270271-0000-4000-8000-000000000001",
     "d0270271-0000-4000-8000-000000000002",
   ],
+  // PHASE-028 (0039): the budgeting cluster — the B row doubles as the
+  // A4/A7 foreign probe target.
+  budgets: ["e0280281-0000-4000-8000-000000000001", "e0280281-0000-4000-8000-000000000002"],
+  budget_lines: [
+    "f0280281-0000-4000-8000-000000000001",
+    "f0280281-0000-4000-8000-000000000002",
+  ],
+  // PHASE-029 (0040): the payroll cluster — the B rows double as the
+  // A4/A7 foreign probe targets.
+  salary_structures: ["a0290291-0000-4000-8000-000000000001", "a0290291-0000-4000-8000-000000000002"],
+  salary_components: ["b0290291-0000-4000-8000-000000000001", "b0290291-0000-4000-8000-000000000002"],
+  employees: ["c0290291-0000-4000-8000-000000000001", "c0290291-0000-4000-8000-000000000002"],
+  payroll_runs: ["d0290291-0000-4000-8000-000000000001", "d0290291-0000-4000-8000-000000000002"],
+  payroll_run_lines: ["e0290291-0000-4000-8000-000000000001", "e0290291-0000-4000-8000-000000000002"],
+  employee_loans: ["f0290291-0000-4000-8000-000000000001", "f0290291-0000-4000-8000-000000000002"],
+  employee_loan_lines: ["0a290291-0000-4000-8000-000000000001", "0a290291-0000-4000-8000-000000000002"],
 };
 
 /** Mismatched-tenant INSERT shapes per table (A3) — explicit columns so the
@@ -3016,6 +3178,47 @@ const MISMATCHED_INSERT: Record<string, string> = {
   installment_lines: `INSERT INTO installment_lines (id, tenant_id, plan_id, seq, due_date, amount, status)
      VALUES ('d0270271-3000-4000-8000-000000000003', $1,
        'c0270271-0000-4000-8000-000000000002', 1, '2026-08-01', 1000, 'PENDING')`,
+  // PHASE-028 (0039): the budgeting cluster — FKs reference tenant B's own
+  // fixtures (fiscal year c1c1c1c1…2, period c2c2c2c2…2, account b0b0b0b0…2,
+  // budget e0280281…2) so the composite tenant FKs stay satisfied and the
+  // RLS WITH CHECK is the isolated rejection.
+  budgets: `INSERT INTO budgets (id, tenant_id, code, fiscal_year_id, scope, name, name_ar,
+        revision_no, status)
+     VALUES ('e0280281-3000-4000-8000-000000000003', $1, 'BUD-2026-2',
+       'c1c1c1c1-0000-4000-8000-000000000002', 'ACCOUNTS', 'Attack budget',
+       'موازنة هجوم', 1, 'DRAFT')`,
+  budget_lines: `INSERT INTO budget_lines (id, tenant_id, budget_id, fiscal_period_id, account_id, amount)
+     VALUES ('f0280281-3000-4000-8000-000000000003', $1,
+       'e0280281-0000-4000-8000-000000000002',
+       'c2c2c2c2-0000-4000-8000-000000000002',
+       'b0b0b0b0-0000-4000-8000-000000000002', 1000)`,
+  // PHASE-029 (0040): the payroll cluster — FKs reference tenant B's own
+  // fixtures (structure a0290291…2, employee c0290291…2, run d0290291…2,
+  // loan f0290291…2, period c2c2c2c2…2, account b0b0b0b0…2) so the
+  // composite tenant FKs stay satisfied and the RLS WITH CHECK is the
+  // isolated rejection.
+  salary_structures: `INSERT INTO salary_structures (id, tenant_id, code, name, currency, status)
+     VALUES ('a0290291-3000-4000-8000-000000000003', $1, 'ST-ATK', 'Attack structure', 'SAR', 'ACTIVE')`,
+  salary_components: `INSERT INTO salary_components (id, tenant_id, structure_id, key, name, kind, calc, amount, gl_account_id, is_eos_base, seq)
+     VALUES ('b0290291-3000-4000-8000-000000000003', $1, 'a0290291-0000-4000-8000-000000000002',
+       'ATK', 'Attack component', 'ALLOWANCE', 'FIXED', 50, 'b0b0b0b0-0000-4000-8000-000000000002', false, 1)`,
+  employees: `INSERT INTO employees (id, tenant_id, code, name, hire_date, contract_type, basic_salary, salary_structure_id, status)
+     VALUES ('c0290291-3000-4000-8000-000000000003', $1, 'EMP-ATK', 'Attack Employee', '2025-01-01', 'FULL_TIME', 1000,
+       'a0290291-0000-4000-8000-000000000002', 'ACTIVE')`,
+  payroll_runs: `INSERT INTO payroll_runs (id, tenant_id, fiscal_period_id, status)
+     VALUES ('d0290291-3000-4000-8000-000000000003', $1, 'c2c2c2c2-0000-4000-8000-000000000002', 'DRAFT')`,
+  payroll_run_lines: `INSERT INTO payroll_run_lines (id, tenant_id, run_id, employee_id, component_snapshot,
+        gross_amount, deductions_amount, net_amount)
+     VALUES ('e0290291-3000-4000-8000-000000000003', $1, 'd0290291-0000-4000-8000-000000000002',
+       'c0290291-0000-4000-8000-000000000002',
+       '{"structure":{"id":"a","code":"S","name":"X"},"components":[],"loanDeductions":[],"eos":{"enabled":false,"accrual":"0"},"basicSalary":"1000"}'::jsonb,
+       1000, 0, 1000)`,
+  employee_loans: `INSERT INTO employee_loans (id, tenant_id, code, employee_id, amount, installments_count, start_period_id, status)
+     VALUES ('f0290291-3000-4000-8000-000000000003', $1, 'LON-ATK', 'c0290291-0000-4000-8000-000000000002', 100, 1,
+       'c2c2c2c2-0000-4000-8000-000000000002', 'ACTIVE')`,
+  employee_loan_lines: `INSERT INTO employee_loan_lines (id, tenant_id, loan_id, fiscal_period_id, amount, status)
+     VALUES ('0a290291-3000-4000-8000-000000000003', $1, 'f0290291-0000-4000-8000-000000000002',
+       'c2c2c2c2-0000-4000-8000-000000000002', 100, 'PENDING')`,
 };
 
 beforeAll(async () => {

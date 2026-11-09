@@ -1,17 +1,29 @@
 import type { IndustryTemplateManifest } from "./manifest";
 
 /**
+<<<<<<< HEAD
  * The nine shipped v1.0.0 templates — the three PHASE-015 priority ones
+=======
+ * The ten shipped v1.0.0 templates — the three PHASE-015 priority ones
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
  * (transcribed VERBATIM from the normative template documents), the
  * two PHASE-017 industry templates (transcribed VERBATIM from the
  * migration 0025 registry seeds), the PHASE-018 manufacturing
  * template (transcribed VERBATIM from the migration 0026 registry seed),
  * the PHASE-019 professional-services template (transcribed VERBATIM
+<<<<<<< HEAD
  * from the migration 0027 registry seed), the PHASE-032 education
  * template (transcribed VERBATIM from the migration 0039 registry seed),
  * and the PHASE-033 agriculture template (transcribed VERBATIM from the
  * migration 0040 registry seed; the seeds are canonical; every key, every
  * Arabic string, every numbering rule):
+=======
+ * from the migration 0027 registry seed), the PHASE-030
+ * wholesale + electronics pair (transcribed VERBATIM from the migration
+ * 0041 registry seeds), and the PHASE-031 healthcare commercial shell
+ * (transcribed VERBATIM from the migration 0043 registry seed; the seeds
+ * are canonical; every key, every Arabic string, every numbering rule):
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
  *
  *   - RETAIL_MANIFEST      docs/industries/templates/retail.md
  *   - GROCERY_MANIFEST     docs/industries/templates/grocery-supermarket.md
@@ -24,6 +36,7 @@ import type { IndustryTemplateManifest } from "./manifest";
  *     mirror: docs/industries/templates/manifests/manifest.food_manufacturing.json)
  *   - PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST apps/api/migrations/0027 (docs
  *     mirror: docs/industries/templates/manifests/manifest.professional_services.json)
+<<<<<<< HEAD
  *   - EDUCATION_TEMPLATE_MANIFEST apps/api/migrations/0039 (docs mirror:
  *     docs/industries/templates/manifests/manifest.education.json — the
  *     §J doc reconciliation applied: partners.ar_aging pinned to the live
@@ -32,6 +45,20 @@ import type { IndustryTemplateManifest } from "./manifest";
  *     docs/industries/templates/manifests/manifest.agriculture.json — the
  *     §J doc reconciliation applied: inventory.stock_valuation pinned to
  *     the live inventory.valuation registry key, the 0025/0039 precedent)
+=======
+ *   - WHOLESALE_TEMPLATE_MANIFEST apps/api/migrations/0041 (docs mirror:
+ *     docs/industries/templates/manifests/manifest.wholesale.json — the
+ *     report pins reconciled to the LIVE registry keys ar.aging /
+ *     inventory.valuation, the 0025/0027 convention)
+ *   - ELECTRONICS_TEMPLATE_MANIFEST apps/api/migrations/0041 (docs mirror:
+ *     docs/industries/templates/manifests/manifest.electronics.json — the
+ *     valuation pin reconciled to inventory.valuation likewise)
+ *   - HEALTHCARE_TEMPLATE_MANIFEST apps/api/migrations/0043 (docs mirror:
+ *     docs/industries/templates/manifests/manifest.healthcare.json — the
+ *     aging pin reconciled to the LIVE registry key ar.aging likewise;
+ *     inventory.expiry_list / notes.aging / notes.maturity-calendar resolve
+ *     verbatim)
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
  *
  * CI (scripts/validate-manifests.ts, wired into scripts/ci/local-gate.sh)
  * re-parses each constant against the §3 schema so contracts and docs cannot
@@ -1813,6 +1840,7 @@ export const PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST: IndustryTemplateManifest =
   },
 });
 
+<<<<<<< HEAD
 /**
  * The PHASE-032 education commercial shell (ED-08) — transcribed VERBATIM
  * from the migration 0039 registry seed (docs mirror:
@@ -1845,11 +1873,40 @@ export const EDUCATION_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreeze(
     "installments.plans",
     "installments.collections",
     "installments.late_fees",
+=======
+// ---------------------------------------------------------------------------
+// PHASE-030 (migration 0041 registry seeds): the wholesale + electronics
+// pair — the first two Blueprint v2.0 stage-10 templates, configuration-only
+// over the existing modules (INV-022: zero new journal/schema surface; the
+// pins land from existing report keys only, register §J).
+// ---------------------------------------------------------------------------
+
+export const WHOLESALE_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreeze({
+  id: "industry.wholesale",
+  name: "Wholesale & Trade",
+  name_ar: "الجملة والتجارة",
+  version: "1.0.0",
+  required_feature_keys: [
+    "industry.template_engine",
+    "items.barcodes",
+    "items.price_lists",
+    "partners.credit_terms",
+    "partners.statements",
+    "sales.quotations",
+    "sales.orders",
+    "sales.deliveries",
+    "sales.invoices",
+    "sales.credit_limits",
+    "purchasing.goods_receipts",
+    "inventory.multi_warehouse",
+    "notes.received",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
   ],
   default_modules_enabled: [
     "accounting",
     "partners",
     "items",
+<<<<<<< HEAD
     "sales",
     "treasury",
     "tax",
@@ -1869,10 +1926,35 @@ export const EDUCATION_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreeze(
     "billing.down_payment": { en: "Down payment", ar: "الدفعة المقدمة" },
     "fee.late": { en: "Late fee", ar: "رسوم التأخير" },
     "discount.siblings": { en: "Sibling discount", ar: "خصم الأشقاء" },
+=======
+    "inventory",
+    "sales",
+    "purchasing",
+    "treasury",
+    "tax",
+    "reporting",
+    "notes",
+    "configuration",
+  ],
+  terminology_overrides: {
+    "partner.customer": { en: "Customer (trader)", ar: "العميل / التاجر" },
+    "doc.sales_invoice": { en: "Wholesale sales invoice", ar: "فاتورة بيع جملة" },
+    "doc.quotation": { en: "Trade quote", ar: "عرض السعر" },
+    "doc.sales_order": { en: "Bulk order", ar: "أمر التوريد" },
+    "billing.receipt_voucher": { en: "Receipt voucher", ar: "سند قبض" },
+    "price.qty_break": { en: "Quantity break", ar: "شريحة الكمية" },
+    "price.min_qty": { en: "Min. quantity", ar: "الحد الأدنى للكمية" },
+    "price.customer_tier": { en: "Customer price tier", ar: "فئة سعر العميل" },
+    "credit.limit": { en: "Credit limit", ar: "سقف الائتمان" },
+    "credit.terms": { en: "Credit terms", ar: "شروط الدفع" },
+    "notes.pdc": { en: "Post-dated note", ar: "شيك مؤجل" },
+    "billing.statement": { en: "Customer statement", ar: "كشف حساب العميل" },
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
   },
   navigation_manifest: {
     groups: [
       {
+<<<<<<< HEAD
         id: "enrollment",
         label: { en: "Enrollment", ar: "الالتحاق" },
         order: 1,
@@ -1892,10 +1974,36 @@ export const EDUCATION_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreeze(
             id: "fee_lists",
             label: { en: "Fee schedules", ar: "جداول الرسوم" },
             target: "items.price_lists",
+=======
+        id: "trading",
+        label: { en: "Trading", ar: "التجارة" },
+        order: 1,
+        items: [
+          {
+            id: "quick_order",
+            label: { en: "Bulk quick order", ar: "إدخال طلب سريع" },
+            target: "sales.quick_order",
+          },
+          {
+            id: "quotes",
+            label: { en: "Quotes", ar: "عروض الأسعار" },
+            target: "sales.quotations",
+          },
+          {
+            id: "orders",
+            label: { en: "Bulk orders", ar: "أوامر التوريد" },
+            target: "sales.orders",
+          },
+          {
+            id: "deliveries",
+            label: { en: "Deliveries", ar: "إشعارات التسليم" },
+            target: "sales.deliveries",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
           },
         ],
       },
       {
+<<<<<<< HEAD
         id: "billing",
         label: { en: "Tuition billing", ar: "فوترة الرسوم" },
         order: 2,
@@ -1921,12 +2029,40 @@ export const EDUCATION_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreeze(
             id: "receipts",
             label: { en: "Receipts", ar: "سندات القبض" },
             target: "treasury.receipts",
+=======
+        id: "credit",
+        label: { en: "Credit & collections", ar: "الائتمان والتحصيل" },
+        order: 2,
+        items: [
+          {
+            id: "invoices",
+            label: { en: "Credit invoices", ar: "فواتير الآجل" },
+            target: "sales.invoices",
+          },
+          {
+            id: "statements",
+            label: { en: "Customer statements", ar: "كشوف الحسابات" },
+            target: "partners.statements",
+          },
+          {
+            id: "pdc",
+            label: { en: "PDC custody", ar: "الشيكات المؤجلة" },
+            target: "notes.received",
+            feature_key: "notes.received",
+          },
+          {
+            id: "maturity",
+            label: { en: "Maturity calendar", ar: "تقويم الاستحقاق" },
+            target: "notes.pdc_calendar",
+            feature_key: "notes.pdc_calendar",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
           },
         ],
       },
     ],
   },
   workflow_policies: {
+<<<<<<< HEAD
     guardian_is_paying_partner: true,
     tuition_invoice_from_contract: true,
     installment_schedule_immutable_after_activation: true,
@@ -1939,6 +2075,32 @@ export const EDUCATION_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreeze(
     contract_invoice: {
       prefix: "INV",
       format: "INV-{yyyy}-{seq:6}",
+=======
+    credit_sale_credit_limit_enforced: true,
+    qty_break_pricing_automatic: true,
+    tier_price_automatic_by_partner: true,
+    bulk_order_from_quote_one_click: true,
+    delivery_before_credit_invoice: true,
+    statement_monthly_by_default: true,
+    pdc_note_requires_maturity_date: true,
+  },
+  document_numbering_defaults: {
+    quotation: {
+      prefix: "QT",
+      format: "QT-{yyyy}-{seq:5}",
+      per_branch: false,
+      reserve_on_approval: false,
+    },
+    sales_order: {
+      prefix: "ORD",
+      format: "ORD-{yyyy}-{seq:6}",
+      per_branch: false,
+      reserve_on_approval: true,
+    },
+    delivery_note: {
+      prefix: "DLV",
+      format: "DLV-{yyyy}-{seq:5}",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
       per_branch: false,
       reserve_on_approval: false,
     },
@@ -1948,15 +2110,36 @@ export const EDUCATION_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreeze(
       per_branch: false,
       reserve_on_approval: false,
     },
+<<<<<<< HEAD
+=======
+    credit_note: {
+      prefix: "CN",
+      format: "CN-{yyyy}-{seq:5}",
+      per_branch: false,
+      reserve_on_approval: false,
+    },
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
     receipt: {
       prefix: "RCP",
       format: "RCP-{yyyy}-{seq:6}",
       per_branch: false,
       reserve_on_approval: false,
     },
+<<<<<<< HEAD
     credit_note: {
       prefix: "CN",
       format: "CN-{yyyy}-{seq:5}",
+=======
+    goods_receipt: {
+      prefix: "GRN",
+      format: "GRN-{yyyy}-{seq:6}",
+      per_branch: false,
+      reserve_on_approval: false,
+    },
+    stock_transfer: {
+      prefix: "TRF",
+      format: "TRF-{yyyy}-{seq:5}",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
       per_branch: false,
       reserve_on_approval: false,
     },
@@ -1972,12 +2155,17 @@ export const EDUCATION_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreeze(
   },
   report_defaults: [
     {
+<<<<<<< HEAD
       report_key: "installments.schedule",
+=======
+      report_key: "notes.maturity-calendar",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
       pinned: true,
       dashboard: true,
       default_period: "this_month",
     },
     {
+<<<<<<< HEAD
       report_key: "installments.aging",
       pinned: true,
       dashboard: true,
@@ -1991,37 +2179,75 @@ export const EDUCATION_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreeze(
     },
     {
       report_key: "ar.aging",
+=======
+      report_key: "notes.aging",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
       pinned: true,
       dashboard: false,
       default_period: "this_month",
     },
+<<<<<<< HEAD
+=======
+    { report_key: "ar.aging", pinned: true, dashboard: true, default_period: "this_month" },
+    {
+      report_key: "inventory.valuation",
+      pinned: true,
+      dashboard: false,
+      default_period: "custom",
+    },
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
   ],
   onboarding_steps: [
     {
       id: "coa_confirm",
       title: {
+<<<<<<< HEAD
         en: "Confirm chart of accounts (tuition revenue, late-fee income)",
         ar: "تأكيد دليل الحسابات (إيراد الرسوم، إيراد رسوم التأخير)",
+=======
+        en: "Confirm chart of accounts (trade receivables, notes receivable)",
+        ar: "تأكيد دليل الحسابات (ذمم التجار، أوراق القبض)",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
       },
       required: true,
     },
     {
+<<<<<<< HEAD
       id: "programs",
       title: {
         en: "Programs/grades + fee schedule price lists",
         ar: "البرامج والصفوف + جداول الرسوم",
+=======
+      id: "warehouses",
+      title: { en: "Main & branch warehouses", ar: "المستودع الرئيسي ومستودعات الفروع" },
+      required: true,
+    },
+    {
+      id: "price_tiers",
+      title: {
+        en: "Price lists with quantity breaks & customer tiers",
+        ar: "قوائم الأسعار مع شرائح الكمية وفئات العملاء",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
       },
       required: true,
     },
     {
+<<<<<<< HEAD
       id: "guardians",
       title: {
         en: "Guardian partners & student financial files",
         ar: "أولياء الأمور والملفات المالية للطلاب",
+=======
+      id: "customers_credit",
+      title: {
+        en: "Customers with credit terms, limits & opening balances",
+        ar: "العملاء مع شروط الدفع وحدود الائتمان والأرصدة الافتتاحية",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
       },
       required: true,
     },
     {
+<<<<<<< HEAD
       id: "first_contract",
       title: {
         en: "First enrollment contract",
@@ -2069,19 +2295,64 @@ export const EDUCATION_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreeze(
     },
     customer_price_tiers: {
       level: "OPTIONAL",
+=======
+      id: "opening_stock",
+      title: { en: "Opening stock via goods receipts", ar: "المخزون الافتتاحي عبر سندات الاستلام" },
+      required: true,
+    },
+    {
+      id: "first_cycle",
+      title: {
+        en: "Run quote → bulk order → delivery → credit invoice",
+        ar: "تنفيذ أول دورة: عرض، أمر توريد، تسليم، فاتورة آجل",
+      },
+      required: false,
+    },
+    {
+      id: "first_pdc",
+      title: {
+        en: "Receive a first PDC note against an invoice",
+        ar: "استلام أول شيك مؤجل مقابل فاتورة",
+      },
+      required: false,
+      feature_key: "notes.received",
+    },
+  ],
+  capability_prerequisites: {
+    customer_price_tiers: {
+      level: "REQUIRED",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
       feature_keys: ["items.price_lists", "distribution.customer_tiers"],
       available_from_phase: "PHASE-017",
     },
     pdc_notes: {
+<<<<<<< HEAD
       level: "OPTIONAL",
       feature_keys: ["notes.received"],
       available_from_phase: "PHASE-027",
     },
+=======
+      level: "REQUIRED",
+      feature_keys: ["notes.received", "notes.pdc_calendar"],
+      available_from_phase: "PHASE-027",
+    },
+    installment_terms: {
+      level: "OPTIONAL",
+      feature_keys: ["installments.plans", "installments.late_fees"],
+      available_from_phase: "PHASE-027",
+    },
+    barcode_pos: {
+      level: "OPTIONAL",
+      feature_keys: ["pos.terminals", "pos.sales", "pos.receipts"],
+      available_from_phase: "PHASE-016",
+    },
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
     cashier_shifts: {
       level: "OPTIONAL",
       feature_keys: ["treasury.cashier_shifts"],
       available_from_phase: "PHASE-016",
     },
+<<<<<<< HEAD
   },
 });
 
@@ -2117,6 +2388,68 @@ export const AGRICULTURE_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreez
     "sales.invoices",
     "accounting.projects",
     "accounting.cost_centers",
+=======
+    imei_tracking: {
+      level: "OPTIONAL",
+      feature_keys: ["inventory.serial_tracking"],
+      available_from_phase: "PHASE-010",
+    },
+    expiry_tracking_fefo: {
+      level: "OPTIONAL",
+      feature_keys: ["inventory.batch_tracking"],
+      available_from_phase: "PHASE-010",
+    },
+    free_goods_promo: {
+      level: "OPTIONAL",
+      feature_keys: ["sales.discount_management", "distribution.free_goods"],
+      available_from_phase: "PHASE-017",
+    },
+    commissions: {
+      level: "OPTIONAL",
+      feature_keys: ["sales.commissions"],
+      available_from_phase: "PHASE-017",
+    },
+    landed_costs: {
+      level: "OPTIONAL",
+      feature_keys: ["purchasing.landed_costs"],
+      available_from_phase: "PHASE-011",
+    },
+    route_planning: {
+      level: "OPTIONAL",
+      feature_keys: ["distribution.routes"],
+      available_from_phase: "PHASE-017",
+    },
+    field_collections: {
+      level: "OPTIONAL",
+      feature_keys: ["treasury.receipts_disbursements"],
+      available_from_phase: "PHASE-017",
+    },
+    shipment_tracking: {
+      level: "OPTIONAL",
+      feature_keys: ["distribution.shipment_tracking"],
+      available_from_phase: "PHASE-019",
+    },
+  },
+});
+
+export const ELECTRONICS_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreeze({
+  id: "industry.electronics",
+  name: "Mobile & Electronics",
+  name_ar: "الجوالات والإلكترونيات",
+  version: "1.0.0",
+  required_feature_keys: [
+    "industry.template_engine",
+    "items.barcodes",
+    "items.price_lists",
+    "inventory.serial_tracking",
+    "pos.terminals",
+    "pos.sales",
+    "pos.offline_queue",
+    "pos.receipts",
+    "crm.service_orders",
+    "sales.invoices",
+    "treasury.cashier_shifts",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
   ],
   default_modules_enabled: [
     "accounting",
@@ -2128,6 +2461,7 @@ export const AGRICULTURE_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreez
     "treasury",
     "tax",
     "reporting",
+<<<<<<< HEAD
     "manufacturing",
     "configuration",
   ],
@@ -2143,10 +2477,28 @@ export const AGRICULTURE_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreez
     "input.feed": { en: "Feed", ar: "الأعلاف" },
     "mfg.yield": { en: "Yield", ar: "المردود" },
     "mfg.scrap": { en: "Crop loss", ar: "الفاقد" },
+=======
+    "pos",
+    "crm",
+    "configuration",
+  ],
+  terminology_overrides: {
+    "pos.sale": { en: "Retail sale", ar: "بيع بالتجزئة" },
+    "svc.repair_card": { en: "Repair card", ar: "بطاقة صيانة" },
+    "svc.repair": { en: "Repair", ar: "الصيانة / الإصلاح" },
+    "item.imei": { en: "IMEI", ar: "الرقم التسلسلي (IMEI)" },
+    "device.checkin": { en: "Device check-in", ar: "استلام الجهاز" },
+    "tradein.purchase": { en: "Trade-in purchase", ar: "شراء جهاز مستعمل" },
+    "part.accessory": { en: "Accessory", ar: "ملحق" },
+    "part.spare": { en: "Spare part", ar: "قطعة غيار" },
+    "svc.warranty": { en: "Warranty claim", ar: "بطارية الضمان / مطالبة الضمان" },
+    "svc.labor": { en: "Labor", ar: "أجور الصيانة" },
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
   },
   navigation_manifest: {
     groups: [
       {
+<<<<<<< HEAD
         id: "season",
         label: { en: "Season", ar: "الموسم" },
         order: 1,
@@ -2167,10 +2519,33 @@ export const AGRICULTURE_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreez
             label: { en: "Cycle run orders", ar: "أوامر تنفيذ الدورات" },
             target: "manufacturing.orders",
             feature_key: "manufacturing.production_orders",
+=======
+        id: "counter",
+        label: { en: "Counter", ar: "الكاونتر" },
+        order: 1,
+        items: [
+          {
+            id: "pos",
+            label: { en: "Point of sale", ar: "نقطة البيع" },
+            target: "pos.counter",
+            feature_key: "pos.sales",
+          },
+          {
+            id: "imei",
+            label: { en: "IMEI register", ar: "سجل الأجهزة" },
+            target: "inventory.imei",
+            feature_key: "inventory.serial_tracking",
+          },
+          {
+            id: "tradein",
+            label: { en: "Trade-in purchases", ar: "شراء الأجهزة المستعملة" },
+            target: "purchasing.tradein",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
           },
         ],
       },
       {
+<<<<<<< HEAD
         id: "harvest",
         label: { en: "Harvest & trade", ar: "الحصاد والتجارة" },
         order: 2,
@@ -2191,12 +2566,34 @@ export const AGRICULTURE_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreez
             label: { en: "Livestock register", ar: "سجل الثروة الحيوانية" },
             target: "inventory.serials",
             feature_key: "inventory.serial_tracking",
+=======
+        id: "service",
+        label: { en: "Repair", ar: "الصيانة" },
+        order: 2,
+        items: [
+          {
+            id: "repair_cards",
+            label: { en: "Repair cards", ar: "بطاقات الصيانة" },
+            target: "crm.service_orders",
+            feature_key: "crm.service_orders",
+          },
+          {
+            id: "returns",
+            label: { en: "Returns & exchanges", ar: "المرتجعات والاستبدال" },
+            target: "sales.credit_notes",
+          },
+          {
+            id: "receipts",
+            label: { en: "Receipts", ar: "سندات القبض" },
+            target: "treasury.receipts",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
           },
         ],
       },
     ],
   },
   workflow_policies: {
+<<<<<<< HEAD
     cycle_order_per_field_project: true,
     harvest_batch_genealogy_enabled: true,
     field_cost_center_mandatory_on_cycle: true,
@@ -2217,12 +2614,24 @@ export const AGRICULTURE_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreez
       per_branch: false,
       reserve_on_approval: false,
     },
+=======
+    cash_sales_autopost: true,
+    imei_capture_required_flagged_items: true,
+    repair_parts_issue_mode: "reserve",
+    repair_card_labor_rate_source: "price_list",
+    tradein_purchase_at_branch: true,
+    warranty_credit_note_requires_original_invoice: true,
+    shift_variance_approval_required: true,
+  },
+  document_numbering_defaults: {
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
     sales_invoice: {
       prefix: "INV",
       format: "INV-{yyyy}-{seq:6}",
       per_branch: false,
       reserve_on_approval: false,
     },
+<<<<<<< HEAD
     delivery_note: {
       prefix: "DLV",
       format: "DLV-{yyyy}-{seq:5}",
@@ -2232,6 +2641,320 @@ export const AGRICULTURE_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreez
     stock_transfer: {
       prefix: "TRF",
       format: "TRF-{yyyy}-{seq:5}",
+=======
+    pos_sale: {
+      prefix: "POS",
+      format: "POS-{branch}-{yy}{MM}-{seq:5}",
+      per_branch: true,
+      reserve_on_approval: false,
+    },
+    job_card: {
+      prefix: "RC",
+      format: "RC-{yyyy}-{seq:5}",
+      per_branch: true,
+      reserve_on_approval: false,
+    },
+    credit_note: {
+      prefix: "CN",
+      format: "CN-{yyyy}-{seq:5}",
+      per_branch: false,
+      reserve_on_approval: false,
+    },
+    goods_receipt: {
+      prefix: "GRN",
+      format: "GRN-{yyyy}-{seq:5}",
+      per_branch: false,
+      reserve_on_approval: false,
+    },
+  },
+  inventory_policy_defaults: {
+    costing_method: "WAC",
+    default_track_batch: false,
+    default_track_expiry: false,
+    default_track_serial: true,
+    default_imei_tracking: true,
+    fefo_picking: false,
+    allow_negative_stock: false,
+  },
+  report_defaults: [
+    {
+      report_key: "retail.imei_register",
+      pinned: true,
+      dashboard: true,
+      default_period: "this_month",
+    },
+    {
+      report_key: "pos.sales_by_terminal",
+      pinned: true,
+      dashboard: true,
+      default_period: "today",
+    },
+    {
+      report_key: "pos.sales_by_hour",
+      pinned: true,
+      dashboard: false,
+      default_period: "this_week",
+    },
+    {
+      report_key: "inventory.valuation",
+      pinned: true,
+      dashboard: false,
+      default_period: "custom",
+    },
+  ],
+  onboarding_steps: [
+    {
+      id: "counter_branch",
+      title: {
+        en: "Create branch, stockroom & terminals",
+        ar: "إنشاء الفرع والمستودع وأجهزة نقطة البيع",
+      },
+      required: true,
+    },
+    {
+      id: "coa_confirm",
+      title: {
+        en: "Confirm chart of accounts (device vs service vs used-goods)",
+        ar: "تأكيد دليل الحسابات (الأجهزة، الصيانة، الأجهزة المستعملة)",
+      },
+      required: true,
+    },
+    {
+      id: "imei_categories",
+      title: { en: "Item categories with IMEI flags", ar: "تصنيفات الأصناف مع خيار تسجيل IMEI" },
+      required: true,
+    },
+    {
+      id: "labor_rates",
+      title: { en: "Repair labor rate lists", ar: "قوائم أسعار أجور الصيانة" },
+      required: true,
+    },
+    {
+      id: "opening_stock",
+      title: { en: "Opening stock with IMEI capture", ar: "المخزون الافتتاحي مع تسجيل الأجهزة" },
+      required: true,
+    },
+    {
+      id: "first_repair",
+      title: { en: "Run a first repair card end-to-end", ar: "تنفيذ أول بطاقة صيانة كاملة" },
+      required: false,
+      feature_key: "crm.service_orders",
+    },
+    {
+      id: "first_shift",
+      title: { en: "Open first shift and sell", ar: "افتتاح أول وردية وإجراء أول عملية بيع" },
+      required: false,
+      feature_key: "pos.sales",
+    },
+  ],
+  capability_prerequisites: {
+    imei_tracking: {
+      level: "REQUIRED",
+      feature_keys: ["inventory.serial_tracking"],
+      available_from_phase: "PHASE-010",
+    },
+    job_cards: {
+      level: "REQUIRED",
+      feature_keys: ["crm.service_orders"],
+      available_from_phase: "PHASE-019",
+    },
+    barcode_pos: {
+      level: "REQUIRED",
+      feature_keys: ["pos.terminals", "pos.sales", "pos.offline_queue", "pos.receipts"],
+      available_from_phase: "PHASE-016",
+    },
+    cashier_shifts: {
+      level: "REQUIRED",
+      feature_keys: ["treasury.cashier_shifts"],
+      available_from_phase: "PHASE-016",
+    },
+    composite_kits: {
+      level: "OPTIONAL",
+      feature_keys: ["items.composite_products"],
+      available_from_phase: "PHASE-016",
+    },
+    customer_price_tiers: {
+      level: "OPTIONAL",
+      feature_keys: ["distribution.customer_tiers"],
+      available_from_phase: "PHASE-017",
+    },
+    free_goods_promo: {
+      level: "OPTIONAL",
+      feature_keys: ["sales.discount_management", "distribution.free_goods"],
+      available_from_phase: "PHASE-017",
+    },
+    commissions: {
+      level: "OPTIONAL",
+      feature_keys: ["sales.commissions"],
+      available_from_phase: "PHASE-017",
+    },
+    landed_costs: {
+      level: "OPTIONAL",
+      feature_keys: ["purchasing.landed_costs"],
+      available_from_phase: "PHASE-011",
+    },
+    service_contracts: {
+      level: "OPTIONAL",
+      feature_keys: ["crm.service_contracts"],
+      available_from_phase: "PHASE-019",
+    },
+    pdc_notes: {
+      level: "OPTIONAL",
+      feature_keys: ["notes.received"],
+      available_from_phase: "PHASE-027",
+    },
+    installment_terms: {
+      level: "OPTIONAL",
+      feature_keys: ["installments.plans"],
+      available_from_phase: "PHASE-027",
+    },
+  },
+});
+
+// ---------------------------------------------------------------------------
+// PHASE-031 · industry.healthcare — the Healthcare Commercial Shell (ED-07)
+// ---------------------------------------------------------------------------
+
+/**
+ * The healthcare commercial shell (transcribed VERBATIM from the migration
+ * 0043 registry seed — the source docs/industries/templates/healthcare.md
+ * with the single §J pin reconciliation partners.ar_aging → ar.aging):
+ * the patient is a partner FINANCIAL file only (the bold ED-07/ED-11
+ * zero-clinical boundary — no diagnosis/prescription/appointment field
+ * exists anywhere in the shell, machine-checked by the
+ * zero-clinical-surface test), insurers are customer-kind partners with
+ * per-claim open items tracked through the single additive
+ * sales_invoices.claim_ref column (migration 0042 — a claim_ref-carrying
+ * invoice is a claim invoice billed to the insurer partner; a null one is
+ * self-pay دفع مباشر billed to the patient), the pharmacy is a FEFO batch
+ * store reusing inventory.batch_tracking unchanged, and claims settle by
+ * cheque / post-dated note through the PHASE-027 notes module
+ * (G-24/G-25/G-26 — REQUIRED pdc_notes, live at apply time since 027
+ * shipped before this template registered).
+ */
+export const HEALTHCARE_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreeze({
+  id: "industry.healthcare",
+  name: "Healthcare (Commercial Shell)",
+  name_ar: "الرعاية الصحية — الغلاف التجاري",
+  version: "1.0.0",
+  required_feature_keys: [
+    "industry.template_engine",
+    "partners.directory",
+    "partners.statements",
+    "sales.invoices",
+    "sales.credit_limits",
+    "notes.received",
+    "inventory.batch_tracking",
+    "crm.service_orders",
+  ],
+  default_modules_enabled: [
+    "accounting",
+    "partners",
+    "items",
+    "inventory",
+    "sales",
+    "purchasing",
+    "treasury",
+    "tax",
+    "reporting",
+    "crm",
+    "notes",
+    "configuration",
+  ],
+  terminology_overrides: {
+    "partner.patient": { en: "Patient (financial file)", ar: "المريض (الملف المالي)" },
+    "partner.insurer": { en: "Insurance company", ar: "شركة التأمين" },
+    "claim.ref": { en: "Insurance claim", ar: "مطالبة تأمينية" },
+    "pharmacy.store": { en: "Pharmacy", ar: "صيدلية" },
+    "svc.visit": { en: "Visit", ar: "الزيارة" },
+    "doc.services_invoice": { en: "Medical services invoice", ar: "فاتورة الخدمات الطبية" },
+    "billing.self_pay": { en: "Self-pay", ar: "دفع مباشر" },
+    "notes.pdc": { en: "Post-dated note", ar: "شيك مؤجل" },
+    "billing.collection": { en: "Collection", ar: "التحصيل" },
+  },
+  navigation_manifest: {
+    groups: [
+      {
+        id: "billing",
+        label: { en: "Billing", ar: "الفوترة" },
+        order: 1,
+        items: [
+          {
+            id: "visits",
+            label: { en: "Visits & service orders", ar: "الزيارات وأوامر الخدمة" },
+            target: "crm.service_orders",
+            feature_key: "crm.service_orders",
+          },
+          {
+            id: "invoices",
+            label: { en: "Invoices (patient / insurance)", ar: "الفواتير (مريض / تأمين)" },
+            target: "sales.invoices",
+          },
+          {
+            id: "claims",
+            label: { en: "Claims by insurer", ar: "المطالبات حسب الشركة" },
+            target: "partners.statements",
+          },
+        ],
+      },
+      {
+        id: "pharmacy",
+        label: { en: "Pharmacy", ar: "الصيدلية" },
+        order: 2,
+        items: [
+          {
+            id: "expiry",
+            label: { en: "Expiry control", ar: "الرقابة على الصلاحية" },
+            target: "inventory.expiry_list",
+            feature_key: "inventory.batch_tracking",
+          },
+          {
+            id: "counter",
+            label: { en: "Pharmacy counter", ar: "كاونتر الصيدلية" },
+            target: "pos.counter",
+            feature_key: "pos.sales",
+          },
+          {
+            id: "pdc",
+            label: { en: "Claims cheques", ar: "شيكات المطالبات" },
+            target: "notes.received",
+            feature_key: "notes.received",
+          },
+        ],
+      },
+    ],
+  },
+  workflow_policies: {
+    patient_file_financial_only: true,
+    claim_ref_required_for_insured_invoices: true,
+    insurance_invoice_billed_to_company_partner: true,
+    pharmacy_fefo_enforced: true,
+    dunning_by_claim_enabled: true,
+    insurance_credit_limit_per_company: true,
+  },
+  document_numbering_defaults: {
+    sales_invoice: {
+      prefix: "INV",
+      format: "INV-{yyyy}-{seq:6}",
+      per_branch: false,
+      reserve_on_approval: false,
+    },
+    credit_note: {
+      prefix: "CN",
+      format: "CN-{yyyy}-{seq:5}",
+      per_branch: false,
+      reserve_on_approval: false,
+    },
+    receipt: {
+      prefix: "RCP",
+      format: "RCP-{yyyy}-{seq:6}",
+      per_branch: false,
+      reserve_on_approval: false,
+    },
+    goods_receipt: {
+      prefix: "GRN",
+      format: "GRN-{yyyy}-{seq:6}",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
       per_branch: false,
       reserve_on_approval: false,
     },
@@ -2247,6 +2970,7 @@ export const AGRICULTURE_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreez
   },
   report_defaults: [
     {
+<<<<<<< HEAD
       report_key: "manufacturing.production_cost",
       pinned: true,
       dashboard: true,
@@ -2257,6 +2981,24 @@ export const AGRICULTURE_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreez
       pinned: true,
       dashboard: false,
       default_period: "custom",
+=======
+      report_key: "notes.aging",
+      pinned: true,
+      dashboard: true,
+      default_period: "this_month",
+    },
+    {
+      report_key: "notes.maturity-calendar",
+      pinned: true,
+      dashboard: true,
+      default_period: "this_month",
+    },
+    {
+      report_key: "ar.aging",
+      pinned: true,
+      dashboard: false,
+      default_period: "this_month",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
     },
     {
       report_key: "inventory.expiry_list",
@@ -2264,47 +3006,77 @@ export const AGRICULTURE_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreez
       dashboard: false,
       default_period: "this_week",
     },
+<<<<<<< HEAD
     {
       report_key: "manufacturing.batch_genealogy",
       pinned: true,
       dashboard: false,
       default_period: "custom",
     },
+=======
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
   ],
   onboarding_steps: [
     {
       id: "coa_confirm",
       title: {
+<<<<<<< HEAD
         en: "Confirm chart of accounts (WIP, crop loss, biological assets)",
         ar: "تأكيد دليل الحسابات (تحت التشغيل، الفاقد، الأصول الحيوية)",
+=======
+        en: "Confirm chart of accounts (services, pharmacy, notes receivable)",
+        ar: "تأكيد دليل الحسابات (الخدمات، الصيدلية، أوراق القبض)",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
       },
       required: true,
     },
     {
+<<<<<<< HEAD
       id: "fields",
       title: {
         en: "Fields as projects + cost centers",
         ar: "الحقول كمشاريع ومراكز تكلفة",
+=======
+      id: "payers",
+      title: {
+        en: "Insurers with credit limits & contracted fee schedules",
+        ar: "شركات التأمين مع سقوف الائتمان وأسعار التعاقد",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
       },
       required: true,
     },
     {
+<<<<<<< HEAD
       id: "recipes",
       title: {
         en: "Crop-cycle recipes per crop",
         ar: "وصفات الدورات لكل محصول",
+=======
+      id: "patients",
+      title: {
+        en: "Patient financial files (no clinical data)",
+        ar: "الملفات المالية للمرضى (بيانات مالية فقط)",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
       },
       required: true,
     },
     {
+<<<<<<< HEAD
       id: "inputs",
       title: {
         en: "Seeds/feed/inputs with batches",
         ar: "البذور والأعلاف والمدخلات مع الدفعات",
+=======
+      id: "pharmacy_items",
+      title: {
+        en: "Pharmacy items with batches & expiry",
+        ar: "أصناف الصيدلية مع الدفعات والصلاحية",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
       },
       required: true,
     },
     {
+<<<<<<< HEAD
       id: "livestock",
       title: {
         en: "Livestock items with head-level serials",
@@ -2337,12 +3109,50 @@ export const AGRICULTURE_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreez
       level: "REQUIRED",
       feature_keys: ["manufacturing.bom", "manufacturing.production_orders"],
       available_from_phase: "PHASE-018",
+=======
+      id: "service_items",
+      title: {
+        en: "Service items (consultation, procedure fees)",
+        ar: "بنود الخدمات (الاستشارات، الرسوم الطبية)",
+      },
+      required: true,
+    },
+    {
+      id: "first_visit",
+      title: {
+        en: "Bill a first visit (self-pay and insurance)",
+        ar: "فوترة أول زيارة (دفع مباشر وتأمين)",
+      },
+      required: false,
+    },
+    {
+      id: "first_claim",
+      title: {
+        en: "Register a first claim cheque",
+        ar: "تسجيل أول شيك مطالبة",
+      },
+      required: false,
+      feature_key: "notes.received",
+    },
+  ],
+  capability_prerequisites: {
+    insurance_claim_billing: {
+      level: "REQUIRED",
+      feature_keys: ["sales.invoices", "notes.received", "partners.statements"],
+      available_from_phase: "PHASE-031",
+    },
+    pdc_notes: {
+      level: "REQUIRED",
+      feature_keys: ["notes.received", "notes.pdc_calendar"],
+      available_from_phase: "PHASE-027",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
     },
     expiry_tracking_fefo: {
       level: "REQUIRED",
       feature_keys: ["inventory.batch_tracking"],
       available_from_phase: "PHASE-010",
     },
+<<<<<<< HEAD
     batch_genealogy: {
       level: "OPTIONAL",
       feature_keys: ["manufacturing.batch_genealogy"],
@@ -2377,12 +3187,41 @@ export const AGRICULTURE_TEMPLATE_MANIFEST: IndustryTemplateManifest = deepFreez
       level: "OPTIONAL",
       feature_keys: ["notes.received"],
       available_from_phase: "PHASE-027",
+=======
+    job_cards: {
+      level: "REQUIRED",
+      feature_keys: ["crm.service_orders"],
+      available_from_phase: "PHASE-019",
+    },
+    barcode_pos: {
+      level: "OPTIONAL",
+      feature_keys: ["pos.terminals", "pos.sales", "pos.receipts"],
+      available_from_phase: "PHASE-016",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
     },
     cashier_shifts: {
       level: "OPTIONAL",
       feature_keys: ["treasury.cashier_shifts"],
       available_from_phase: "PHASE-016",
     },
+<<<<<<< HEAD
+=======
+    customer_price_tiers: {
+      level: "OPTIONAL",
+      feature_keys: ["items.price_lists", "distribution.customer_tiers"],
+      available_from_phase: "PHASE-017",
+    },
+    service_contracts: {
+      level: "OPTIONAL",
+      feature_keys: ["crm.service_contracts"],
+      available_from_phase: "PHASE-019",
+    },
+    installment_terms: {
+      level: "OPTIONAL",
+      feature_keys: ["installments.plans"],
+      available_from_phase: "PHASE-027",
+    },
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
   },
 });
 
@@ -2395,6 +3234,13 @@ export const SHIPPED_TEMPLATE_MANIFESTS: readonly IndustryTemplateManifest[] = O
   DISTRIBUTION_TEMPLATE_MANIFEST,
   FOOD_MANUFACTURING_TEMPLATE_MANIFEST,
   PROFESSIONAL_SERVICES_TEMPLATE_MANIFEST,
+<<<<<<< HEAD
   EDUCATION_TEMPLATE_MANIFEST,
   AGRICULTURE_TEMPLATE_MANIFEST,
+=======
+  WHOLESALE_TEMPLATE_MANIFEST,
+  ELECTRONICS_TEMPLATE_MANIFEST,
+  HEALTHCARE_TEMPLATE_MANIFEST,
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
 ]);
+

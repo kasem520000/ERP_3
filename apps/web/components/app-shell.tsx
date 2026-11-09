@@ -171,6 +171,27 @@ const FALLBACK_CRUMBS: Record<string, { group?: keyof Dictionary; label: keyof D
   "installments": { group: "navSales", label: "navInstallmentPlans" },
   "installments/new": { group: "navSales", label: "instNewTitle" },
   "installments/reports": { group: "navSales", label: "instReportsTitle" },
+  // -- PHASE-028 (T9): budgets (the period-column planning grid). The
+  // registry row `accounting.budgets` (contracts NAV_ITEMS) drives the
+  // sidebar; these fallbacks cover nav-fetch failure for the module's
+  // sub-surfaces (the support-sessions rule — crumbs only; the sidebar
+  // stays registry-driven).
+  "budgeting": { group: "navAccounting", label: "navBudgets" },
+  "budgeting/new": { group: "navAccounting", label: "budgetsNewTitle" },
+  "budgeting/import": { group: "navAccounting", label: "budgetsImportTitle" },
+  "budgeting/reports": { group: "navAccounting", label: "budgetReportsTitle" },
+  // -- PHASE-029 (T11): the payroll module surfaces (the hr group 10). The
+  // registry rows `hr.*` (contracts NAV_ITEMS) drive the sidebar; these
+  // fallbacks cover nav-fetch failure for the module's sub-surfaces (the
+  // same support-sessions rule — crumbs only).
+  "payroll": { group: "navHr", label: "navPayrollEmployees" },
+  "payroll/employees/new": { group: "navHr", label: "payEmployeeCreateTitle" },
+  "payroll/structures": { group: "navHr", label: "navPayrollStructures" },
+  "payroll/runs": { group: "navHr", label: "navPayrollRuns" },
+  "payroll/runs/new": { group: "navHr", label: "payRunNew" },
+  "payroll/loans": { group: "navHr", label: "navPayrollLoans" },
+  "payroll/loans/new": { group: "navHr", label: "payLoanNew" },
+  "payroll/reports": { group: "navHr", label: "payReportsTitle" },
 };
 
 /**
@@ -223,6 +244,7 @@ function fallbackCrumbsFor(
   if (pagePath.startsWith("installments/") && pagePath !== "installments/new" && pagePath !== "installments/reports") {
     return { groupLabel: d.navSales, label: d.navInstallmentPlans };
   }
+<<<<<<< HEAD
   // PHASE-034 (T11) — consolidation group detail routes
   // (consolidation/groups/:id): the module label is the honest leaf crumb
   // (the inventory/items/:id rule; static module routes resolve via the exact
@@ -233,6 +255,30 @@ function fallbackCrumbsFor(
     !pagePath.startsWith("consolidation/groups/new")
   ) {
     return { groupLabel: d.navReports, label: d.consolidationGroupsNav };
+=======
+  // PHASE-028 (T9) — budget detail routes (budgeting/:id): the module label
+  // is the honest leaf crumb (the notes/[id] rule; static module routes
+  // resolve via the exact map above).
+  if (
+    pagePath.startsWith("budgeting/") &&
+    pagePath !== "budgeting/new" &&
+    pagePath !== "budgeting/import" &&
+    pagePath !== "budgeting/reports"
+  ) {
+    return { groupLabel: d.navAccounting, label: d.navBudgets };
+  }
+  // PHASE-029 (T11) — payroll detail routes (payroll/employees/:id,
+  // payroll/structures/:id, payroll/runs/:id, payroll/loans/:id): the
+  // module surface label is the honest leaf crumb (the budgeting/:id
+  // rule; static module routes resolve via the exact map above).
+  if (
+    (pagePath.startsWith("payroll/employees/") && pagePath !== "payroll/employees/new") ||
+    (pagePath.startsWith("payroll/structures/") && pagePath !== "payroll/structures") ||
+    (pagePath.startsWith("payroll/runs/") && pagePath !== "payroll/runs/new") ||
+    (pagePath.startsWith("payroll/loans/") && pagePath !== "payroll/loans/new")
+  ) {
+    return { groupLabel: d.navHr, label: d.navPayrollEmployees };
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
   }
   return undefined;
 }

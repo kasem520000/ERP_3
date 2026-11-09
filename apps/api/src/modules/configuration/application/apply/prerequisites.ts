@@ -76,7 +76,26 @@ import {
 // + the in-process SLO substrate — GA hardening only, zero new plan keys or
 // template capabilities (the 024→025 bump is bookkeeping only; the roadmap
 // notes PHASE-026+ fixed-assets keys arrive with their own phase).
-export const CURRENT_SHIPPED_PHASE = "PHASE-027";
+// PHASE-029 payroll shipped (2026-11-08): the financial-scope payroll
+// module + its eight feature-key plan grants — no industry-template
+// capability rides payroll (no template's prerequisite chain cites a
+// payroll key), so the 028→029 leg is bookkeeping only.
+// PHASE-030 wholesale + electronics shipped (2026-11-08): the first two
+// Blueprint v2.0 stage-10 templates register over already-granted keys —
+// their REQUIRED chains (notes 0038, POS 0024, crm.service_orders 0027,
+// distribution.customer_tiers 0025) resolve LIVE from this bump (the
+// wholesale pdc_notes capability's available_from_phase PHASE-027 ≤ 030);
+// zero new capability ids past PHASE-027 exist in any shipped manifest, so
+// nothing phase-gates at 030.
+// PHASE-031 healthcare shipped (2026-11-08): the Healthcare Commercial
+// Shell (ED-07) registers over already-granted keys with ONE new capability
+// id — insurance_claim_billing (REQUIRED: sales.invoices + notes.received +
+// partners.statements, all granted) at available_from_phase PHASE-031 ≤
+// 031, so the shell's defining entry resolves LIVE from this bump; the
+// claim-ref light extension is the single additive sales_invoices.claim_ref
+// column (migration 0042) with capture enforced by the
+// claim_ref_required_for_insured_invoices policy on the settings surface.
+export const CURRENT_SHIPPED_PHASE = "PHASE-031";
 
 /** "PHASE-0NN" → the numeric phase (for ordering). */
 export function phaseNumber(phase: string): number {
@@ -93,11 +112,7 @@ export function phaseNumber(phase: string): number {
 
 /** Per-capability classification for the "included / optional / coming
  *  soon / blocked" screen (onboarding wizard + admin preview). */
-export type PrerequisiteCapabilityStatus =
-  | "included"
-  | "phase_gated"
-  | "hidden"
-  | "blocked";
+export type PrerequisiteCapabilityStatus = "included" | "phase_gated" | "hidden" | "blocked";
 
 export interface PrerequisiteCapabilityState {
   readonly capabilityId: string;

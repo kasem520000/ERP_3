@@ -217,7 +217,7 @@
       "default_period": "this_week"
     },
     {
-      "report_key": "inventory.stock_valuation",
+      "report_key": "inventory.valuation",
       "pinned": true,
       "dashboard": false,
       "default_period": "custom"

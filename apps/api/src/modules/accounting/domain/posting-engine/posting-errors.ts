@@ -32,7 +32,8 @@ export type PostingErrorCode =
   | "ALREADY_REVERSED"
   | "INVALID_AMOUNT"
   | "PROJECT_NOT_FOUND"
-  | "PROJECT_CLOSED";
+  | "PROJECT_CLOSED"
+  | "PAYROLL_ACCOUNT_ENGINE_ONLY";
 
 export function entryNotBalanced(details: {
   debit: string;
@@ -162,6 +163,25 @@ export function projectClosed(details: { projectId: string }): PostingError {
   return new PostingError(
     "PROJECT_CLOSED",
     `project ${details.projectId} is CLOSED — new journal-line stamps are rejected (posted history stays; PHASE-019 §8)`,
+    details,
+  );
+}
+
+/**
+ * PHASE-029 (BR-053): a manual journal (source `journal_entry`) touched an
+ * account actively mapped to one of the six payroll purposes — payroll
+ * accounts post ONLY via runs (G-29/G-30/G-31 module sources; the phase
+ * §2 item 3 source-guard). Covers both the purpose-keyed line and the
+ * explicit-accountId smuggle.
+ */
+export function payrollAccountEngineOnly(details: {
+  accountId: string;
+  purposeKey?: string;
+  sourceType: string;
+}): PostingError {
+  return new PostingError(
+    "PAYROLL_ACCOUNT_ENGINE_ONLY",
+    `account ${details.accountId} is a payroll account (${details.purposeKey ?? "explicit id"}) — payroll accounts post only via payroll runs (BR-053; manual journals are rejected)`,
     details,
   );
 }

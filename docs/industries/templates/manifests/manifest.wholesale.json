@@ -253,13 +253,13 @@
       "default_period": "this_month"
     },
     {
-      "report_key": "partners.ar_aging",
+      "report_key": "ar.aging",
       "pinned": true,
       "dashboard": true,
       "default_period": "this_month"
     },
     {
-      "report_key": "inventory.stock_valuation",
+      "report_key": "inventory.valuation",
       "pinned": true,
       "dashboard": false,
       "default_period": "custom"

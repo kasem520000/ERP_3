@@ -40,7 +40,16 @@ export const F_ACTOR = "aaaaaaaa-0000-4000-8000-0000000000fa";
 export const F_APPROVER = "aaaaaaaa-0000-4000-8000-0000000000fb";
 export const F_FOREIGN_ACTOR = "aaaaaaaa-0000-4000-8000-0000000000fc";
 export const TENANT_F = "6a6a6a6a-6a6a-6a6a-6a6a-6a6a6a6a6a6a";
-export const TENANT_F_FOREIGN = "6b6b6b6b-6b6b-6b6b-6b6b-6b6b6b6b6b6b";
+// PHASE-029 regression hardening: the spoof-target tenant originally rode
+// 6b6b6b6b — colliding with crm/time.spec's TENANT_T. The spoof fixture
+// seeds that tenant with a raw FY2026 (January period ONLY), so whenever
+// the size-sorted file order ran the fixed-assets spoof spec BEFORE
+// crm/time.spec, time.spec's findFiscalYearByName("FY2026") guard skipped
+// its own 12-month createYear and the billing preview's March lookup
+// returned periodStatus NONE (an order-dependent flake). The spoof target
+// now owns 7e7e7e7e — verified unused across the whole __db__ tree; the
+// spoof ids stay foreign-by-RLS regardless of the specific tenant id.
+export const TENANT_F_FOREIGN = "7e7e7e7e-7e7e-7e7e-7e7e-7e7e7e7e7e7e";
 
 /** Deterministic fixed ids for the FOREIGN tenant's S-04 attack targets. */
 export const FOREIGN_FIXTURE_IDS = {

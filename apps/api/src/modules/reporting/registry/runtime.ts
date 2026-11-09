@@ -61,7 +61,12 @@ const SOURCE_MODULES: readonly DataSourceModule[] = [
   "fixed_assets", // PHASE-026: the fixed_assets query surface (asset register/schedule/movements)
   "notes", // PHASE-027: the notes query surface (maturity calendar / aging / dishonored register)
   "installments", // PHASE-027: the installments query surface (schedule / aging)
+<<<<<<< HEAD
   "consolidation", // PHASE-034: the consolidation query surface (consolidated TB/IS/BS + eliminations log over the completed run's immutable snapshots)
+=======
+  "budgeting", // PHASE-028: the budgeting query surface (budget vs actual / variance analysis)
+  "payroll", // PHASE-029: the payroll query surface (register / cost summary / EOS provision)
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
 ];
 
 const dataSourceSchema = z.object({
@@ -191,6 +196,7 @@ const MODULE_DATA_PHASE: Readonly<Record<DataSourceModule, number>> = Object.fre
   fixed_assets: 26, // PHASE-026: asset register / depreciation schedule / movements query surfaces
   notes: 27, // PHASE-027: maturity calendar / aging / dishonored register query surfaces
   installments: 27, // PHASE-027: installment schedule / aging query surfaces
+<<<<<<< HEAD
   consolidation: 34, // PHASE-034: consolidated TB/IS/BS + eliminations log over the completed run's immutable snapshots
 });
 
@@ -199,6 +205,17 @@ const REGISTERED_PHASE_WINDOW = 34; // PHASE-013 window, widened by the
 // 15 (industry reports) + 16 (the POS set) + 17 (distribution) + 18
 // (manufacturing) + 19 (CRM) + 26 (fixed assets) + 27 (notes/installments)
 // + 34 (consolidation — see MODULE_DATA_PHASE).
+=======
+  budgeting: 28, // PHASE-028: budget vs actual / variance analysis query surfaces
+  payroll: 29, // PHASE-029: register / cost-summary / eos-provision query surfaces
+});
+
+const REGISTERED_PHASE_WINDOW = 29; // PHASE-013 window, widened by the
+// delivering phases that registered contracts over real query surfaces:
+// 15 (industry reports) + 16 (the POS set) + 17 (distribution) + 18
+// (manufacturing) + 19 (CRM) + 26 (fixed assets) + 27 (notes/installments) +
+// 28 (budgeting — see MODULE_DATA_PHASE) + 29 (payroll — see MODULE_DATA_PHASE).
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
 
 /** Financial reports must carry the §11 minimum assertion set (§16 checklist). */
 const FINANCIAL_MINIMUM_ASSERTIONS: Readonly<Record<string, readonly string[]>> = Object.freeze({

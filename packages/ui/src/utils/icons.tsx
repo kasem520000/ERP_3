@@ -86,6 +86,7 @@ import {
   UsersRound,
   WalletCards,
   X,
+  Layers,
 } from "lucide-react";
 
 import { cn } from "./cn";
@@ -174,6 +175,7 @@ export const ICON_REGISTRY = {
   "receipt-text": ReceiptText,
   "calendar-clock": CalendarClock,
   "wallet-cards": WalletCards,
+  "layers": Layers,
   "truck": Truck,
   "boxes": Boxes,
   "ledger": Landmark,

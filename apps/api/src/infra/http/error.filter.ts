@@ -206,6 +206,49 @@ import {
   NotePartnerNotFoundError,
   NoteSourceInvalidError,
 } from "../../modules/notes/domain/notes-errors";
+// PHASE-028 (in-phase): the budgeting error taxonomy (T2 — registration
+// is expected in-phase per the SF-027-001 lesson): 404 not-founds (A7
+// parity — unknown == foreign ids, never an existence disclosure), 409
+// lifecycle conflicts (the state machine, SoD self-approval, DRAFT-only
+// grid immutability, the BR-050 one-ACTIVE race backstop); the 422
+// validation family (period mismatch, scope dimensions, line caps,
+// duplicate keys, BUDGET_EXCEEDED, import shape) falls through to the
+// 422 default by design.
+import {
+  BudgetActiveExistsError,
+  BudgetBranchNotFoundError,
+  BudgetCostCenterNotFoundError,
+  BudgetImmutableError,
+  BudgetNotFoundError,
+  BudgetNotApprovedError,
+  BudgetSelfApprovalError,
+  BudgetStateError,
+} from "../../modules/budgeting/domain/budgeting-errors";
+// PHASE-029 (in-phase): the payroll error taxonomy (registration is
+// expected in-phase per the SF-027-001 lesson): 404 not-founds (A7
+// parity — unknown == foreign ids, never an existence disclosure), 409
+// lifecycle conflicts (run state machine, SoD self-approval, IMMUTABLE_
+// DOCUMENT on posted runs/loan schedules, the one-live-run-per-period
+// law, BR-052 structure freeze); the 422 family (currency/shape, cap,
+// EOS basis, payout bound, code conflicts) falls through to the 422
+// default by design.
+import {
+  ComponentAccountNotFoundError,
+  ComponentNotFoundError,
+  EmployeeNotFoundError,
+  EosSettlementExceedsBalanceError,
+  LoanLineNotFoundError,
+  LoanNotFoundError,
+  PayrollCodeConflictError,
+  PayrollStateError,
+  RunImmutableError,
+  RunNotFoundError,
+  RunPeriodExistsError,
+  RunSelfApprovalError,
+  StructureInUseError,
+  StructureNotActiveError,
+  StructureNotFoundError,
+} from "../../modules/payroll/domain/payroll-errors";
 // SF-027-001 (the honest 026 gap repair): the fixed_assets error classes
 // were never registered in domainStatus (verified at 027 HEAD — they
 // surfaced over HTTP with the 422 fallback while the codes stayed typed at
@@ -536,6 +579,59 @@ function domainStatus(error: DomainError): number {
     return HttpStatus.NOT_FOUND;
   }
   if (error instanceof NoteAlreadyResolvedError) {
+    return HttpStatus.CONFLICT;
+  }
+  // PHASE-028 budgeting (T2 — 404/409; A7 parity: unknown == foreign
+  // budget/cost-center/branch ids, never an existence disclosure). The
+  // reused accounting not-founds (FiscalYear/Period/Account/Project) are
+  // registered above. The 422 family (period mismatch, scope dimensions,
+  // line caps, duplicate keys, BUDGET_EXCEEDED, import shape) falls
+  // through to the 422 default by design.
+  if (
+    error instanceof BudgetNotFoundError ||
+    error instanceof BudgetCostCenterNotFoundError ||
+    error instanceof BudgetBranchNotFoundError
+  ) {
+    return HttpStatus.NOT_FOUND;
+  }
+  if (
+    error instanceof BudgetStateError ||
+    error instanceof BudgetSelfApprovalError ||
+    error instanceof BudgetImmutableError ||
+    error instanceof BudgetNotApprovedError ||
+    error instanceof BudgetActiveExistsError
+  ) {
+    return HttpStatus.CONFLICT;
+  }
+  // PHASE-029 payroll (in-phase): 404 not-founds (A7 parity — unknown ==
+  // foreign employee/structure/component/run/loan/line/account ids);
+  // 409 lifecycle conflicts (the run state machine + SoD, posted-run
+  // immutability + loan-schedule immutability + the one-live-run law +
+  // the BR-052 structure freeze). The 422 family (structure currency,
+  // component shape, employee structure missing, BR-054 cap, EOS basis,
+  // settlement/payout bounds, code conflicts) falls through to the 422
+  // default by design.
+  if (
+    error instanceof EmployeeNotFoundError ||
+    error instanceof StructureNotFoundError ||
+    error instanceof ComponentNotFoundError ||
+    error instanceof ComponentAccountNotFoundError ||
+    error instanceof RunNotFoundError ||
+    error instanceof LoanNotFoundError ||
+    error instanceof LoanLineNotFoundError
+  ) {
+    return HttpStatus.NOT_FOUND;
+  }
+  if (
+    error instanceof PayrollStateError ||
+    error instanceof RunSelfApprovalError ||
+    error instanceof RunImmutableError ||
+    error instanceof RunPeriodExistsError ||
+    error instanceof StructureInUseError ||
+    error instanceof StructureNotActiveError ||
+    error instanceof PayrollCodeConflictError ||
+    error instanceof EosSettlementExceedsBalanceError
+  ) {
     return HttpStatus.CONFLICT;
   }
   // SF-027-001: the fixed_assets 404s + 409s (the policy/validation family

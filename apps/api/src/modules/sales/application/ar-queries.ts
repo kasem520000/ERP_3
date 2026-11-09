@@ -45,6 +45,10 @@ export interface StatementEntry {
   balance: string;
   baseBalance: string;
   outstanding: string;
+  /** PHASE-031 (0042): the source sales invoice's external insurer claim
+   *  reference — the group-by-claim grouping key on the per-insurer
+   *  statement view (null for non-invoice entries + self-pay invoices). */
+  claimRef: string | null;
 }
 
 export interface CustomerStatement {
@@ -188,6 +192,7 @@ export class ArQueriesService {
         balance: balance.toDecimalPlaces(4, Decimal.ROUND_HALF_UP).toFixed(4),
         baseBalance: baseBalance.toDecimalPlaces(4, Decimal.ROUND_HALF_UP).toFixed(4),
         outstanding: entry.outstanding,
+        claimRef: entry.claimRef,
       });
     }
     const closing = balance.toDecimalPlaces(4, Decimal.ROUND_HALF_UP).toFixed(4);
@@ -232,6 +237,23 @@ export class ArQueriesService {
       openOnly: true,
       limit: filter.limit ?? 200,
     });
+  }
+
+  /**
+   * PHASE-031 (0042 — the healthcare claim grouping read model): the open
+   * AR claim slices, one row per (partner, claim_ref, currency) over the
+   * open items of claim (insured) invoices. Each claim is its own open-item
+   * slice on the insurer subledger; receipts/notes allocate to the items
+   * through the ordinary allocation machinery (INV-016) and the slices
+   * partition the partner's open items, so `Σ slices + Σ self-pay and
+   * non-invoice open items = the partner's AR open total` (INV-009/012 —
+   * the claim-lifecycle spec reconciles at every step).
+   */
+  async claimSlices(input: { asOf: string; customerId?: string }): Promise<store.ClaimSliceRow[]> {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(input.asOf)) {
+      throw new ArQueryInvalidError(`as-of must be an ISO date: ${input.asOf}`);
+    }
+    return store.arClaimSlicesAsOf({ customerId: input.customerId, asOf: input.asOf });
   }
 
   /**

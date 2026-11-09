@@ -5552,6 +5552,7 @@ export const installmentLines = pgTable(
 );
 
 // ---------------------------------------------------------------------------
+<<<<<<< HEAD
 // PHASE-034 (migration 0041) — multi-entity consolidation (ADR-0018 / DR-006
 // option A / ED-10, stage 11 — the final roadmap phase): groups as
 // CONFIGURATION in the owner tenant's plane (a legal entity = a tenant,
@@ -5570,10 +5571,36 @@ export const installmentLines = pgTable(
  * amending DR-006 §4: CLOSING_RATE default, TEMPORARY bounded), status. */
 export const consolidationGroups = pgTable(
   "consolidation_groups",
+=======
+// PHASE-028 (migration 0039) — budgeting (DR-004/ED-04): versioned budgets
+// by fiscal year & scope with period-level amounts over account/cost-center/
+// project/branch dimensions. Budgets are NOT ledger documents — zero journal
+// rules, zero goldens, structurally ledger-incapable (the module reads the
+// GL for variance, never writes it; ADR-0007/INV-022).
+// ---------------------------------------------------------------------------
+
+/** Budget versions (T2 — BR-050): the version register — scope budget_scope
+ * §9 (ACCOUNTS/COST_CENTERS/PROJECTS/BRANCHES); revision_no counts the
+ * supersede chain (1 = original; the standard optimistic-lock "version"
+ * integer owns that column name); supersedes_id links a revision to its
+ * predecessor (same-(year,scope), service-validated); code is the
+ * tenant-scoped natural key BUD-<year>-<seq> (DATA_DICTIONARY §12 — no
+ * official numbers: planning data, not a document, ADR-0006). Lifecycle
+ * stamps with the shape CHECKs: approved_at is one-directional (approve()
+ * stamps it while status is still PENDING_APPROVAL — pre- and
+ * post-approval both live there); activated_at is bidirectional on
+ * ACTIVE/REVISED/CLOSED (the machine only ever sets REVISED/CLOSED from an
+ * ACTIVE row); closed_at on CLOSED. The BR-050 partial unique
+ * (one ACTIVE per tenant/year/scope) lives in the SQL — see
+ * uq_budgets_one_active. */
+export const budgets = pgTable(
+  "budgets",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
   {
     ...standardColumns,
     tenantId: uuid("tenant_id").notNull(),
     createdBy: uuid("created_by"),
+<<<<<<< HEAD
     name: text("name").notNull(),
     nameAr: text("name_ar").notNull(),
     baseCurrency: varchar("base_currency", { length: 3 }).notNull(),
@@ -5643,10 +5670,232 @@ export const eliminationEntries = pgTable(
     postedBy: uuid("posted_by"),
     journalEntryIds: jsonb("journal_entry_ids").notNull().default([]),
     reversalOf: uuid("reversal_of"),
+=======
+    code: text("code").notNull(),
+    fiscalYearId: uuid("fiscal_year_id").notNull(),
+    scope: text("scope").notNull(),
+    name: text("name").notNull(),
+    nameAr: text("name_ar"),
+    revisionNo: integer("revision_no").notNull(),
+    status: text("status").notNull(),
+    supersedesId: uuid("supersedes_id"),
+    submittedAt: timestamp("submitted_at", { withTimezone: true, mode: "string" }),
+    submittedBy: uuid("submitted_by"),
+    approvedAt: timestamp("approved_at", { withTimezone: true, mode: "string" }),
+    approvedBy: uuid("approved_by"),
+    activatedAt: timestamp("activated_at", { withTimezone: true, mode: "string" }),
+    activatedBy: uuid("activated_by"),
+    closedAt: timestamp("closed_at", { withTimezone: true, mode: "string" }),
+    closedBy: uuid("closed_by"),
     note: text("note"),
     noteAr: text("note_ar"),
   },
   (table) => [
+    uniqueIndex("uq_budgets_id_tenant").on(table.id, table.tenantId),
+    index("ix_budgets_tenant_year_scope_status").on(
+      table.tenantId,
+      table.fiscalYearId,
+      table.scope,
+      table.status,
+    ),
+    index("ix_budgets_tenant_supersedes").on(table.tenantId, table.supersedesId),
+  ],
+);
+
+/** Budget lines (T3): the period grid — one row per (dimension key × fiscal
+ * period), amount 19,4 (ADR-0009) non-negative. account_id REQUIRED;
+ * cost_center/project/branch optional per scope (scope is a filter, not a
+ * fork). The period must belong to the parent budget's fiscal year
+ * (service-validated, BUDGET_PERIOD_MISMATCH). Mutable only while the
+ * parent is DRAFT (409 IMMUTABLE_DOCUMENT on non-DRAFT replace) —
+ * REVISED/CLOSED versions freeze rows at the version level. */
+export const budgetLines = pgTable(
+  "budget_lines",
+  {
+    ...standardColumns,
+    tenantId: uuid("tenant_id").notNull(),
+    createdBy: uuid("created_by"),
+    budgetId: uuid("budget_id").notNull(),
+    fiscalPeriodId: uuid("fiscal_period_id").notNull(),
+    accountId: uuid("account_id").notNull(),
+    costCenterId: uuid("cost_center_id"),
+    projectId: uuid("project_id"),
+    branchId: uuid("branch_id"),
+    amount: numeric("amount", { precision: 19, scale: 4 }).notNull(),
+  },
+  (table) => [
+    uniqueIndex("uq_budget_lines_id_tenant").on(table.id, table.tenantId),
+    index("ix_budget_lines_tenant_period_account").on(
+      table.tenantId,
+      table.fiscalPeriodId,
+      table.accountId,
+    ),
+    index("ix_budget_lines_tenant_budget").on(table.tenantId, table.budgetId),
+    index("ix_budget_lines_tenant_dimensions").on(
+      table.tenantId,
+      table.costCenterId,
+      table.projectId,
+      table.branchId,
+    ),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// PHASE-029 (migration 0040) — payroll (salaries, loans & end-of-service;
+// DR-005/ED-05 financial scope): the PII-restricted employee financial
+// file, versioned salary structures + per-component GL accounts, monthly
+// runs posting exactly one G-29 journal through the engine (BR-053),
+// frozen per-employee component snapshots 🔒 append-only run lines
+// (INV-003/INV-025), and employee loans with the BR-054-capped schedule.
+// ---------------------------------------------------------------------------
+
+/** Salary structure versions (T3 — BR-052): ACTIVE/ARCHIVED with the
+ * superseded_by chain — mid-period changes create a NEW version, used
+ * structures are never edited in place (the run's component_snapshot is
+ * the frozen truth). Every component carries its own gl_account_id +
+ * the is_eos_base flag (BR-055 accrual basis). */
+export const salaryStructures = pgTable(
+  "salary_structures",
+  {
+    ...standardColumns,
+    tenantId: uuid("tenant_id").notNull(),
+    createdBy: uuid("created_by"),
+    code: text("code").notNull(),
+    name: text("name").notNull(),
+    nameAr: text("name_ar"),
+    currency: varchar("currency", { length: 3 }).notNull(),
+    status: text("status").notNull(),
+    supersededById: uuid("superseded_by_id"),
+    note: text("note"),
+    noteAr: text("note_ar"),
+  },
+  (table) => [
+    uniqueIndex("uq_salary_structures_id_tenant").on(table.id, table.tenantId),
+    uniqueIndex("uq_salary_structures_tenant_code").on(table.tenantId, table.code),
+    index("ix_salary_structures_tenant_status").on(table.tenantId, table.status),
+  ],
+);
+
+/** Salary components (T3): the per-structure list — kind ALLOWANCE/
+ * DEDUCTION/EMPLOYER_CONTRIBUTION, calc FIXED/PERCENT_OF_BASIC/
+ * PERCENT_OF_GROSS (one driver per the SQL calc shape CHECK; rate 7,4),
+ * per-component gl_account_id (expense-side CoA mapping) + is_eos_base.
+ * Editable only while the parent structure is unused (BR-052). */
+export const salaryComponents = pgTable(
+  "salary_components",
+  {
+    ...standardColumns,
+    tenantId: uuid("tenant_id").notNull(),
+    createdBy: uuid("created_by"),
+    structureId: uuid("structure_id").notNull(),
+    key: text("key").notNull(),
+    name: text("name").notNull(),
+    nameAr: text("name_ar"),
+    kind: text("kind").notNull(),
+    calc: text("calc").notNull(),
+    amount: numeric("amount", { precision: 19, scale: 4 }),
+    rate: numeric("rate", { precision: 7, scale: 4 }),
+    glAccountId: uuid("gl_account_id").notNull(),
+    isEosBase: boolean("is_eos_base").notNull().default(false),
+    seq: integer("seq").notNull().default(1),
+  },
+  (table) => [
+    uniqueIndex("uq_salary_components_id_tenant").on(table.id, table.tenantId),
+    uniqueIndex("uq_salary_components_structure_key").on(
+      table.tenantId,
+      table.structureId,
+      table.key,
+    ),
+    index("ix_salary_components_tenant_structure").on(table.tenantId, table.structureId),
+  ],
+);
+
+/** Employees (T2): the PII-restricted employee financial file. national_id
+ * + bank fields are C-PII (DATA_PROTECTION §1): masked in API responses,
+ * audit-on-read, never in logs, never in non-payroll exports. Status
+ * ACTIVE/SUSPENDED/TERMINATED (termination_date ⇔ TERMINATED); the
+ * salary_structure/branch/cost_center/project ids are the run-calculation
+ * dimensions. Status-lifecycled — no delete (TERMINATED rows are the
+ * EOS/audit history). */
+export const employees = pgTable(
+  "employees",
+  {
+    ...standardColumns,
+    tenantId: uuid("tenant_id").notNull(),
+    createdBy: uuid("created_by"),
+    code: text("code").notNull(),
+    name: text("name").notNull(),
+    nameAr: text("name_ar"),
+    nationalId: text("national_id"),
+    hireDate: date("hire_date").notNull(),
+    terminationDate: date("termination_date"),
+    terminationReason: text("termination_reason"),
+    contractType: text("contract_type").notNull(),
+    basicSalary: numeric("basic_salary", { precision: 19, scale: 4 }).notNull(),
+    salaryStructureId: uuid("salary_structure_id"),
+    branchId: uuid("branch_id"),
+    costCenterId: uuid("cost_center_id"),
+    projectId: uuid("project_id"),
+    bankName: text("bank_name"),
+    bankIban: text("bank_iban"),
+    bankAccount: text("bank_account"),
+    eosSettledAmount: numeric("eos_settled_amount", { precision: 19, scale: 4 }),
+    eosSettlementJournalEntryId: uuid("eos_settlement_journal_entry_id"),
+    eosSettledAt: timestamp("eos_settled_at", { withTimezone: true, mode: "string" }),
+    status: text("status").notNull().default("ACTIVE"),
+    note: text("note"),
+    noteAr: text("note_ar"),
+  },
+  (table) => [
+    uniqueIndex("uq_employees_id_tenant").on(table.id, table.tenantId),
+    uniqueIndex("uq_employees_tenant_code").on(table.tenantId, table.code),
+    index("ix_employees_tenant_status").on(table.tenantId, table.status),
+    index("ix_employees_tenant_structure").on(table.tenantId, table.salaryStructureId),
+  ],
+);
+
+/** Payroll runs (T4): the monthly register — DRAFT → PENDING_APPROVAL →
+ * POSTED (SoD approval; the approved stamp lands while STILL
+ * PENDING_APPROVAL). INV-025 is a row-level CHECK (net = gross −
+ * deductions exactly); run_no is the official PR-{YYYY}-{SEQ:6} number
+ * (INV-021); journal_entry_id ⇔ POSTED; reversal-only corrections
+ * (reversal_journal_entry_id — POSTED stays POSTED, INV-003). One live
+ * (non-DRAFT) run per period — the partial unique in the SQL. */
+export const payrollRuns = pgTable(
+  "payroll_runs",
+  {
+    ...standardColumns,
+    tenantId: uuid("tenant_id").notNull(),
+    createdBy: uuid("created_by"),
+    runNo: text("run_no"),
+    fiscalPeriodId: uuid("fiscal_period_id").notNull(),
+    status: text("status").notNull(),
+    grossTotal: numeric("gross_total", { precision: 19, scale: 4 }).notNull(),
+    deductionsTotal: numeric("deductions_total", { precision: 19, scale: 4 }).notNull(),
+    netTotal: numeric("net_total", { precision: 19, scale: 4 }).notNull(),
+    paidNetTotal: numeric("paid_net_total", { precision: 19, scale: 4 }).notNull(),
+    employerContributionsTotal: numeric("employer_contributions_total", {
+      precision: 19,
+      scale: 4,
+    }).notNull(),
+    eosAccrualTotal: numeric("eos_accrual_total", { precision: 19, scale: 4 }).notNull(),
+    journalEntryId: uuid("journal_entry_id"),
+    entryNo: text("entry_no"),
+    submittedAt: timestamp("submitted_at", { withTimezone: true, mode: "string" }),
+    submittedBy: uuid("submitted_by"),
+    approvedAt: timestamp("approved_at", { withTimezone: true, mode: "string" }),
+    approvedBy: uuid("approved_by"),
+    postedAt: timestamp("posted_at", { withTimezone: true, mode: "string" }),
+    postedBy: uuid("posted_by"),
+    reversalJournalEntryId: uuid("reversal_journal_entry_id"),
+    reversedAt: timestamp("reversed_at", { withTimezone: true, mode: "string" }),
+    reversedBy: uuid("reversed_by"),
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
+    note: text("note"),
+    noteAr: text("note_ar"),
+  },
+  (table) => [
+<<<<<<< HEAD
     uniqueIndex("uq_elimination_entries_id_tenant").on(table.id, table.tenantId),
     index("ix_elimination_entries_tenant_group_period").on(
       table.tenantId,
@@ -5666,10 +5915,30 @@ export const eliminationEntries = pgTable(
  * makes COMPLETED snapshots rewrite-proof. */
 export const consolidationRuns = pgTable(
   "consolidation_runs",
+=======
+    uniqueIndex("uq_payroll_runs_id_tenant").on(table.id, table.tenantId),
+    index("ix_payroll_runs_tenant_period_status").on(
+      table.tenantId,
+      table.fiscalPeriodId,
+      table.status,
+    ),
+  ],
+);
+
+/** Payroll run lines 🔒 (T4): per-employee frozen pay lines — append-only
+ * (INV-003; UPDATE grant-denied, DELETE policy-owned by the
+ * erp.payroll_run_lines_guard trigger: DRAFT recalc resets + purge only).
+ * component_snapshot jsonb freezes the calculation basis (BR-052); the
+ * totals carry the INV-025 row-level law; dimensions stamp the G-29
+ * expense lines. */
+export const payrollRunLines = pgTable(
+  "payroll_run_lines",
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
   {
     ...standardColumns,
     tenantId: uuid("tenant_id").notNull(),
     createdBy: uuid("created_by"),
+<<<<<<< HEAD
     groupId: uuid("group_id").notNull(),
     fiscalPeriodId: uuid("fiscal_period_id").notNull(),
     status: text("status").notNull().default("QUEUED"),
@@ -5690,5 +5959,94 @@ export const consolidationRuns = pgTable(
       table.fiscalPeriodId,
     ),
     index("ix_consolidation_runs_tenant_status").on(table.tenantId, table.status),
+=======
+    runId: uuid("run_id").notNull(),
+    employeeId: uuid("employee_id").notNull(),
+    componentSnapshot: jsonb("component_snapshot").notNull(),
+    grossAmount: numeric("gross_amount", { precision: 19, scale: 4 }).notNull(),
+    deductionsAmount: numeric("deductions_amount", { precision: 19, scale: 4 }).notNull(),
+    netAmount: numeric("net_amount", { precision: 19, scale: 4 }).notNull(),
+    employerContributions: numeric("employer_contributions", {
+      precision: 19,
+      scale: 4,
+    }).notNull(),
+    eosAccrual: numeric("eos_accrual", { precision: 19, scale: 4 }).notNull(),
+    costCenterId: uuid("cost_center_id"),
+    projectId: uuid("project_id"),
+    branchId: uuid("branch_id"),
+  },
+  (table) => [
+    uniqueIndex("uq_payroll_run_lines_id_tenant").on(table.id, table.tenantId),
+    index("ix_payroll_run_lines_tenant_run").on(table.tenantId, table.runId),
+    index("ix_payroll_run_lines_tenant_employee").on(table.tenantId, table.employeeId),
+  ],
+);
+
+/** Employee loans (T8): disbursement posts DR <tenant-mapped loan control
+ * account> · CR CASH (source employee_loan/disburse — the control account
+ * via the payroll.loans.control_account_id policy key, NOT a canonical
+ * purpose) + the treasury cash movement (INV-019). Status ACTIVE/CLOSED/
+ * WRITE_OFF (write-off requires reason + audit); BR-054 caps the per-
+ * period deduction at payroll.loans.max_deduction_percent of net. */
+export const employeeLoans = pgTable(
+  "employee_loans",
+  {
+    ...standardColumns,
+    tenantId: uuid("tenant_id").notNull(),
+    createdBy: uuid("created_by"),
+    code: text("code").notNull(),
+    employeeId: uuid("employee_id").notNull(),
+    amount: numeric("amount", { precision: 19, scale: 4 }).notNull(),
+    installmentsCount: integer("installments_count").notNull(),
+    startPeriodId: uuid("start_period_id").notNull(),
+    status: text("status").notNull(),
+    cashAccountId: uuid("cash_account_id"),
+    disbursementJournalEntryId: uuid("disbursement_journal_entry_id"),
+    disbursedAt: timestamp("disbursed_at", { withTimezone: true, mode: "string" }),
+    disbursedBy: uuid("disbursed_by"),
+    writeOffReason: text("write_off_reason"),
+    writeOffAt: timestamp("write_off_at", { withTimezone: true, mode: "string" }),
+    writeOffBy: uuid("write_off_by"),
+    note: text("note"),
+    noteAr: text("note_ar"),
+  },
+  (table) => [
+    uniqueIndex("uq_employee_loans_id_tenant").on(table.id, table.tenantId),
+    uniqueIndex("uq_employee_loans_tenant_code").on(table.tenantId, table.code),
+    index("ix_employee_loans_tenant_employee_status").on(
+      table.tenantId,
+      table.employeeId,
+      table.status,
+    ),
+  ],
+);
+
+/** Employee loan lines (T8): the per-period deduction schedule — immutable
+ * after disbursement; PENDING → DEDUCTED (stamps the deducting run) /
+ * WAIVED (reason required, sticky). */
+export const employeeLoanLines = pgTable(
+  "employee_loan_lines",
+  {
+    ...standardColumns,
+    tenantId: uuid("tenant_id").notNull(),
+    createdBy: uuid("created_by"),
+    loanId: uuid("loan_id").notNull(),
+    fiscalPeriodId: uuid("fiscal_period_id").notNull(),
+    amount: numeric("amount", { precision: 19, scale: 4 }).notNull(),
+    status: text("status").notNull(),
+    payrollRunId: uuid("payroll_run_id"),
+    waivedReason: text("waived_reason"),
+    waivedAt: timestamp("waived_at", { withTimezone: true, mode: "string" }),
+    waivedBy: uuid("waived_by"),
+  },
+  (table) => [
+    uniqueIndex("uq_employee_loan_lines_id_tenant").on(table.id, table.tenantId),
+    index("ix_employee_loan_lines_tenant_period_status").on(
+      table.tenantId,
+      table.fiscalPeriodId,
+      table.status,
+    ),
+    index("ix_employee_loan_lines_tenant_loan").on(table.tenantId, table.loanId),
+>>>>>>> 49e6b929827c3c0055e83dd34194e79e9eff8268
   ],
 );

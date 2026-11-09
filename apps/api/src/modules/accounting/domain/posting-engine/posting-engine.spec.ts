@@ -71,6 +71,24 @@ function model(overrides: ModelOverrides = {}): PostingReadModel {
       arControlAccountId: ACCOUNTS.arControl.id,
       apControlAccountId: ACCOUNTS.apControl.id,
     }),
+    // PHASE-029 (BR-053): empty by default — specs inject payroll account
+    // ids through overrides.purposes to exercise the manual-journal guard.
+    findPayrollPurposeAccounts: async () => {
+      const ids = new Set<string>();
+      for (const key of [
+        "SALARIES_EXPENSE",
+        "SALARIES_PAYABLE",
+        "DEDUCTIONS_PAYABLE",
+        "EMPLOYER_CONTRIBUTIONS",
+        "EOS_PROVISION",
+        "EOS_PROVISION_EXPENSE",
+      ]) {
+        if (purposes[key] !== undefined) {
+          ids.add(purposes[key]);
+        }
+      }
+      return ids;
+    },
     baseCurrency: async () => overrides.base ?? "SAR",
   };
 }

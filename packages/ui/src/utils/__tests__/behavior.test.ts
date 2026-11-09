@@ -144,9 +144,10 @@ describe("navigation resolution (NAVIGATION_MODEL §2 — server-only)", () => {
     // PHASE-008: the treasury group (الخزينة) went live; PHASE-009: the
     // reports group (التقارير) gained its first item (the VAT return);
     // PHASE-011: the purchasing group (المشتريات); PHASE-012: the sales
-    // group (المبيعات) — the shipped-item set is now home, sales,
-    // purchasing, inventory, accounting, treasury, reports, partners,
-    // settings (binding group order).
+    // group (المبيعات); PHASE-029: the hr group (الموظفون والرواتب) —
+    // the shipped-item set is now home, sales, purchasing, inventory,
+    // accounting, treasury, reports, partners, settings, hr (binding
+    // group order — hr ships last by NAVIGATION_MODEL §1).
     expect(resolved.groups.map((g) => g.id)).toEqual([
       "home",
       "sales",
@@ -157,6 +158,7 @@ describe("navigation resolution (NAVIGATION_MODEL §2 — server-only)", () => {
       "reports",
       "partners",
       "settings",
+      "hr",
     ]);
     const order = NAV_GROUPS.map((g) => g.id);
     const indices = resolved.groups.map((g) => order.indexOf(g.id));

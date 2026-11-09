@@ -614,6 +614,24 @@ export const NAV_ITEMS: readonly NavItem[] = [
     archetype: "list-search",
     order: 70,
   },
+  // PHASE-028 (T9): budgets — the period-column planning grid. The v2.0
+  // registry row `accounting.budgets` (NAVIGATION_MODEL §1.1; ED-12):
+  // featureKey the exact FEATURE_CATALOG `budgeting.budgets` string;
+  // permission the exact seeded §3.13 viewer key. The register / workspace /
+  // import / reports surfaces navigate through the module route tree (the
+  // fixed-assets one-item-many-screens decision-8 precedent).
+  {
+    id: "accounting.budgets",
+    parentGroup: "accounting",
+    label: { ar: "الموازنات", en: "Budgets" },
+    icon: "bar-chart",
+    route: "/budgeting",
+    featureKey: "budgeting.budgets",
+    permission: "budgeting.budgets.view",
+    branchScoped: false,
+    archetype: "list-search",
+    order: 80,
+  },
   // purchasing group — PHASE-011 (T13-UI): the procure-to-pay chain.
   // Feature keys are the exact FEATURE_CATALOG §9 strings; permissions the
   // exact seeded matrix keys the purchasing controller enforces (matrix
@@ -962,6 +980,61 @@ export const NAV_ITEMS: readonly NavItem[] = [
     branchScoped: false,
     archetype: "report",
     order: 98,
+  },
+  // PHASE-029 (T11): the payroll module fills the pre-registered `hr` group
+  // (NAVIGATION_MODEL §1 group 10 — الموظفون والرواتب / HR & Payroll; the
+  // group row shipped at PHASE-013 with zero items, waiting for this
+  // phase). Four items — employees (PII-restricted reads), salary
+  // structures, payroll runs, employee loans — featureKeys the exact
+  // FEATURE_CATALOG §22 strings; permissions the exact seeded §3.14 keys
+  // (payroll.employees.view is the sensitivity-critical restricted read).
+  {
+    id: "hr.employees",
+    parentGroup: "hr",
+    label: { ar: "الموظفون", en: "Employees" },
+    icon: "users",
+    route: "/payroll",
+    featureKey: "payroll.employees",
+    permission: "payroll.employees.view",
+    branchScoped: true,
+    archetype: "list-search",
+    order: 10,
+  },
+  {
+    id: "hr.salary_structures",
+    parentGroup: "hr",
+    label: { ar: "هياكل الرواتب", en: "Salary structures" },
+    icon: "layers",
+    route: "/payroll/structures",
+    featureKey: "payroll.salary_structures",
+    permission: "payroll.employees.view",
+    branchScoped: false,
+    archetype: "settings",
+    order: 20,
+  },
+  {
+    id: "hr.runs",
+    parentGroup: "hr",
+    label: { ar: "مسيرات الرواتب", en: "Payroll runs" },
+    icon: "file-text",
+    route: "/payroll/runs",
+    featureKey: "payroll.runs",
+    permission: "payroll.runs.view",
+    branchScoped: false,
+    archetype: "transaction-entry",
+    order: 30,
+  },
+  {
+    id: "hr.loans",
+    parentGroup: "hr",
+    label: { ar: "سلف الموظفين", en: "Employee loans" },
+    icon: "wallet-cards",
+    route: "/payroll/loans",
+    featureKey: "payroll.loans",
+    permission: "payroll.employees.view",
+    branchScoped: false,
+    archetype: "list-search",
+    order: 40,
   },
 ];
 

@@ -50,7 +50,11 @@ export type NotificationCategory =
   // PHASE-027 (0038 category widening): dishonor surfacing (BR-046) and
   // installment dunning/DEFAULTED (BR-049 family).
   | "notes"
-  | "installments";
+  | "installments"
+  // PHASE-028 (0039 category widening): the advisory overspend warnings
+  // (BR-051 — notification + banner at/over budget) and the
+  // at/over-threshold sweep surface.
+  | "budgeting";
 export type NotificationSeverity = "info" | "warning" | "critical";
 
 export interface BilingualText {

@@ -779,3 +779,11 @@ export async function listNumberAssignments(filter: {
   `);
   return rows.rows as unknown as NumberAssignmentRow[];
 }
+
+/** Count the tenant's journal entries (the fixture idempotency probe). */
+export async function countJournalEntries(): Promise<number> {
+  const rows = await tenantTx().execute(
+    sql`SELECT COUNT(*)::int AS n FROM journal_entries WHERE tenant_id = erp.current_tenant_id()`,
+  );
+  return Number((rows.rows as unknown as { n: number }[])[0]?.n ?? 0);
+}

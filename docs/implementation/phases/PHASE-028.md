@@ -1,6 +1,11 @@
 # PHASE-028 — Budgeting & Variance Control
 
-> **Status:** PLANNED · **Updated:** 2026-10-28
+> **Status:** COMPLETE · **Updated:** 2026-11-08 (delivered per
+> [reports/PHASE-028-COMPLETION.md](reports/PHASE-028-COMPLETION.md); the
+> task-table drift was corrected in-delivery: the migration is `0039_budgeting.sql`
+> (not 0028), the web pages live under `apps/web/app/[locale]/budgeting/**`, and
+> the test suites under `apps/api/src/__db__/budgeting/**` — the repo
+> conventions the master plan pinned)
 
 ## 1. Phase Overview
 

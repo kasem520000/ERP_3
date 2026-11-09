@@ -1,6 +1,6 @@
 # Template: Healthcare (Commercial Shell) — `healthcare`
 
-> **Status:** STABLE · **Owner:** Industry Solutions Architecture · **Updated:** 2026-10-28
+> **Status:** SHIPPED (PHASE-031, migration 0043 — the registry seed is canonical) · **Owner:** Industry Solutions Architecture · **Updated:** 2026-11-08
 
 The **commercial back office** for medical businesses: the patient is a *financial file
 only* (no clinical data — ED-07), insurers are partners with **per-claim open items
@@ -78,7 +78,7 @@ only* (no clinical data — ED-07), insurers are partners with **per-claim open 
   "report_defaults": [
     { "report_key": "notes.aging", "pinned": true, "dashboard": true, "default_period": "this_month" },
     { "report_key": "notes.maturity-calendar", "pinned": true, "dashboard": true, "default_period": "this_month" },
-    { "report_key": "partners.ar_aging", "pinned": true, "dashboard": false, "default_period": "this_month" },
+    { "report_key": "ar.aging", "pinned": true, "dashboard": false, "default_period": "this_month" },
     { "report_key": "inventory.expiry_list", "pinned": true, "dashboard": false, "default_period": "this_week" }
   ],
   "onboarding_steps": [
@@ -189,7 +189,8 @@ compact flow [../workflows/industry-workflows.md](../workflows/industry-workflow
 ## Reports emphasized
 
 `notes.aging` (dashboard — by claim), `notes.maturity-calendar` (dashboard),
-`partners.ar_aging`, `inventory.expiry_list` — see [../reports/README.md](../reports/README.md).
+`ar.aging` (reconciled to the live registry key at the 0043 seed — the doc draft said
+`partners.ar_aging`), `inventory.expiry_list` — see [../reports/README.md](../reports/README.md).
 `notes.*` reports register at PHASE-027 ([../../EXPANSION_REGISTER.md](../../EXPANSION_REGISTER.md) §J).
 
 ## Out of scope for this template (ED-07, ED-11 — commercial shell only)

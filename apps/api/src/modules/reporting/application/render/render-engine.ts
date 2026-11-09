@@ -100,8 +100,13 @@ export class ChromiumRenderEngine implements RenderEngine {
     const promise = this.browserPromise;
     this.browserPromise = undefined;
     if (promise !== undefined) {
-      const browser = await promise;
-      await browser.close().catch(() => undefined);
+      // A rejected launch (no headless Chromium in this environment) must
+      // not escape close() — the render spec's afterAll calls this and
+      // its documented contract is a graceful skip, not a suite failure.
+      const browser = await promise.catch(() => undefined);
+      if (browser !== undefined) {
+        await browser.close().catch(() => undefined);
+      }
     }
   }
 }

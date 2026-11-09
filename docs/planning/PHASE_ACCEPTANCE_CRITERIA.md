@@ -1,6 +1,6 @@
 # Phase Acceptance Criteria
 
-> **Status:** STABLE · **Owner:** Platform Architecture · **Updated:** 2026-11-07
+> **Status:** STABLE · **Owner:** Platform Architecture · **Updated:** 2026-11-08
 
 Consolidated, objective acceptance criteria and exit gates per phase. The authoritative,
 expanded version lives in each phase document's sections 6–8 ("Verification",
@@ -132,6 +132,76 @@ verdict rows live in
     labels + featureKeys; the `treasury.cheques` re-point and the PHASE-008/012
     pointers are in place (ED-03 chain closed).
 
+
+### PHASE-028 — Budgeting & Variance Control
+
+- **BR-050 enforced** at the DB AND service level: exactly one ACTIVE budget version
+  per (fiscal year, scope) — the partial unique `uq_budgets_one_active` rejects a
+  second ACTIVE insert outright; revisions supersede (a linked DRAFT with copied
+  lines, `supersedes_id` chain) and never edit; the predecessor flips ACTIVE → REVISED
+  only at the successor's activation, atomically; non-DRAFT budgets reject line edits
+  with 409 `IMMUTABLE_DOCUMENT`; closed budgets stay readable for variance history.
+- **BR-051 enforced**: controls are ADVISORY by default (an over-budget DRAFT-save
+  evaluation returns exactly one warning — notification + banner payload — and the
+  save proceeds); hard-block exists only via the explicit
+  `budgeting.controls.mode = ENFORCE_DRAFT` tenant policy, acts only at the
+  DRAFT-stage save step with the typed, audited `BUDGET_EXCEEDED` reason, and never
+  affects posted documents or the posting engine; both policy keys documented in the
+  settings schema with PLACEHOLDER defaults (OQ-002 family).
+- **The negative ledger proof**: after the full budgeting operation set,
+  `journal_entries`/`journal_lines` counts are byte-identical, zero `JournalSpec`
+  submissions ran (engine spy), and the module's store greps clean of any
+  journal-table write — budgets are structurally ledger-incapable (DR-004).
+- The variance engine reads actuals strictly read-only from the GL (dimension-grouped
+  shared query incl. the BRANCHES-via-source-document attribution with the honest
+  unattributed bucket); the worked example holds (budget 1,000.00, actual 750.00 in
+  period 4 ⇒ variance −250.00 / −25.0000%) and is as-of deterministic.
+- `budgeting.budget-vs-actual` + `budgeting.variance-analysis` registered per
+  REPORT_CONTRACT (registry 76→78) with the `budget-ledger-tie` block-on-fail
+  assertion folding to the trial balance; seeded drift ⇒ FAIL (export blocked).
+- XLSX import/export round-trips grids (19,4 exact), dry-run reports per-row typed
+  AR+EN errors with zero writes, row caps typed, idempotent per file hash (the honest
+  LRU + HTTP Idempotency-Key scope documented).
+- `budgets` + `budget_lines` tenant-owned + RLS + the isolation registry (A1–A10);
+  the S-04 spoof battery over foreign year/period/account/dimension/budget ids →
+  typed 404s with zero partial creation; the الموازنات / Budgets nav item renders
+  under المحاسبة / Accounting; the `PeriodGrid` pattern has a catalog row + AR+EN
+  baselines.
+
+**Acceptance criteria (objective) — copied at completion, 2026-11-08 (verbatim from
+[../implementation/phases/PHASE-028.md](../implementation/phases/PHASE-028.md) §6; the
+verdict rows live in
+[PHASE-028-COMPLETION.md](../implementation/phases/reports/PHASE-028-COMPLETION.md)):**
+
+1. `budgets` + `budget_lines` exist tenant-owned with RLS and pass the full isolation
+   registry suite (A1–A10, S-04, A7) with zero partial creation on foreign dimension
+   references.
+2. BR-050 is enforced at the database and service level: exactly one ACTIVE version
+   per (fiscal year, scope); revisions supersede via the chain and never edit an
+   ACTIVE version; non-DRAFT budgets are immutable.
+3. The approval lifecycle (DRAFT → PENDING_APPROVAL → ACTIVE → REVISED → CLOSED)
+   enforces `budgeting.budgets.approve` with SoD (creator cannot approve) and audits
+   every transition.
+4. The variance engine computes actuals read-only from GL read models: every
+   consumption figure ties to the trial balance (assertion-tested), and the suite's
+   negative proof shows zero journal-table writes and zero JournalSpec submissions
+   after the full run.
+5. `budgeting.budget-vs-actual` and `budgeting.variance-analysis` are registered per
+   REPORT_CONTRACT with provenance, permissions, as-of determinism, drill-down, and
+   export-blocked-on-assertion-failure behavior.
+6. BR-051 holds: controls are advisory by default; hard-block exists only via the
+   explicit `budgeting.controls.mode = ENFORCE_DRAFT` tenant policy, acts only at the
+   DRAFT-stage save/approval step with an audited reason, and never affects posted
+   documents or the posting engine; both policy keys are documented in the settings
+   schema with their PLACEHOLDER defaults.
+7. XLSX import/export round-trips grids exactly (19,4), is idempotent per file hash,
+   bounded by row caps, and handles Arabic headers.
+8. All §3.13 permissions enforce on their routes (generated checklist green); the SoD
+   approve key is audited on use.
+9. Every budgeting screen instantiates a sanctioned archetype with AR+EN baselines;
+   the `PeriodGrid` pattern has a catalog entry; the الموازنات / Budgets item renders
+   under المحاسبة per the nav resolution rule.
+
 ### PHASE-028 — Budgeting & Variance Control
 
 - **One ACTIVE budget version per (fiscal year, scope)** (BR-050); revisions supersede —
@@ -166,6 +236,49 @@ verdict rows live in
   `payroll_runs`, `payroll_run_lines` 🔒, `employee_loans`, `employee_loan_lines`)
   tenant-owned + RLS + isolation attack tests.
 
+**Acceptance criteria (objective) — copied at completion, 2026-11-08 (verbatim from
+[../implementation/phases/PHASE-029.md](../implementation/phases/PHASE-029.md) §6; the
+verdict rows live in
+[PHASE-029-COMPLETION.md](../implementation/phases/reports/PHASE-029-COMPLETION.md) —
+the planning-docs flip was honestly deferred at 029 commit time and delivered with the
+PHASE-030 docs wave):**
+
+1. All seven tables exist tenant-owned with RLS and pass the isolation
+   registry suite (A1–A10, S-04, A7) including the PII-access attack rows, with
+   audit events on every restricted read and every export.
+2. BR-052 holds: runs require an ACTIVE structure; mid-period changes create a
+   new version; archived/used structures are never edited in place; run lines
+   freeze `component_snapshot`.
+3. G-29 posts exactly through the engine with line-level expected-vs-actual
+   asserts (worked example), official numbers (INV-021), cost-center/project
+   allocation on every line, and INV-013 idempotency per run.
+4. INV-025 is enforced and in the permanently-blocking CI suite: run totals
+   equal Σ lines and net = gross − deductions exactly; posted runs and their
+   lines are immutable (reversal-only).
+5. BR-053 holds: payroll-purpose accounts post only via runs (manual journals
+   rejected with `PAYROLL_ACCOUNT_ENGINE_ONLY`); no other code path can post
+   to them.
+6. Payouts execute as treasury payments with the G-30 shape, INV-019
+   consistency on the paying account, exact remainder tracking, and idempotency
+   per run.
+7. Loans enforce BR-054 (cap percent of net, default 25% PLACEHOLDER,
+   documented in the settings schema), recover through the tenant-mapped
+   control account (no new canonical purpose), and make every waive/write-off
+   an audited, reason-required action.
+8. EOS follows BR-055: accrual per tenant policy (disabled by default; no
+   shipped rates), G-31 settlement with the residual rule; the platform
+   contains no jurisdiction rate tables (grep-verifiable).
+9. The three reports are registered per REPORT_CONTRACT with provenance, GL
+   ledger-tie assertions, permission gating (employee detail requires
+   `payroll.employees.view`), and export-blocked-on-assertion-failure.
+10. All §3.14 permissions enforce on their routes (generated checklist green);
+    `payroll.runs.approve` is SoD-guarded and audited; role templates exclude
+    payroll reads from broad roles.
+11. Navigation group 10 الموظفون والرواتب / HR & Payroll renders with its four
+    items per the nav resolution rule; NAVIGATION_MODEL's group wording is 10
+    everywhere; every screen has AR+EN baselines with axe + keyboard journeys;
+    the payslip template prints RTL-correct in both locales.
+
 ### PHASE-030 — Wholesale & Electronics Templates
 
 - `manifest.wholesale.json` + `manifest.electronics.json` parse, schema-validate, and
@@ -182,6 +295,42 @@ verdict rows live in
   surface).
 - CAPABILITY_MATRIX gains WHL/ELC columns; every cell cites an existing feature or N/A.
 
+**Acceptance criteria (objective) — copied at completion, 2026-11-08 (verbatim from
+[../implementation/phases/PHASE-030.md](../implementation/phases/PHASE-030.md) §6; the
+verdict rows live in
+[PHASE-030-COMPLETION.md](../implementation/phases/reports/PHASE-030-COMPLETION.md)):**
+
+1. Both templates apply via the **unmodified PHASE-015 engine** — zero engine-code changes
+   in this phase's diff — and each passes all seven governance tests of
+   [../industries/README.md](../industries/README.md) §8, in AR and EN.
+2. Both manifests pass [../industries/README.md](../industries/README.md) §3 schema
+   validation in CI; ids are exactly `industry.wholesale` / `industry.electronics`,
+   version 1.0.0, registered in `industry_templates`.
+3. Feature-key resolution is fail-closed and proven by test: every required key resolves;
+   a missing OPTIONAL key hides cleanly; a missing REQUIRED key blocks onboarding with
+   actionable plan guidance; `notes.*` entries phase-gate per their
+   `available_from_phase` with the documented ordinary-receipts fallback pre-027.
+4. Switch safety is proven per BR-038 by test: apply a prior template → post documents →
+   switch/extend to each new template → zero data loss, explicit settings intact, series
+   append-only, archived capabilities read-only, audit diff recorded.
+5. The capability cross-check is green and CI-enforced: manifests ≡
+   [../industries/capabilities/CAPABILITY_MATRIX.md](../industries/capabilities/CAPABILITY_MATRIX.md)
+   §1 WHL/ELC columns, including the `pdc_notes`, `installment_terms`, `imei_tracking`,
+   and `job_cards` rows.
+6. Navigation patches obey [../ui/NAVIGATION_MODEL.md](../ui/NAVIGATION_MODEL.md): labels may
+   change, items may be added (bilingual, feature-key-gated, permission-resolving), core
+   items and group order never change — asserted across apply and switch.
+7. The negative ledger proof holds: zero journal rows and zero posting-rule changes from
+   any apply/switch/extend of either template (INV-022); all signature-workflow journals
+   match the existing goldens line-for-line.
+8. Report-pack wiring lands from existing keys only (no new report keys introduced by the
+   phase); every pinned report resolves in the registry and renders its GL tie-out where
+   monetary.
+9. All surfaced screens instantiate existing archetypes (zero new archetypes; zero new
+   API routes); the RTL visual set passes for both industry homes and signature screens.
+10. Docs validation is green, including the 34-phase document set and the 13-manifest
+    extraction (ED-17).
+
 ### PHASE-031 — Healthcare Commercial Shell
 
 - Manifest + template doc pass the **7 governance tests**; additive switching rules hold.
@@ -193,6 +342,45 @@ verdict rows live in
   remain out-of-scope, declared in the template doc (ED-11).
 - Visits via `crm.service_orders`; every flagship key resolves to an existing feature.
 - CAPABILITY_MATRIX gains the HLT column and `insurance_claim_billing` row with citations.
+
+**Acceptance criteria (objective) — copied at completion, 2026-11-08 (verbatim from
+[../implementation/phases/PHASE-031.md](../implementation/phases/PHASE-031.md) §6; the
+verdict rows live in
+[PHASE-031-COMPLETION.md](../implementation/phases/reports/PHASE-031-COMPLETION.md)):**
+
+1. The shell applies and switches via the **unmodified PHASE-015 engine** per BR-038
+   (additive-only, audited diff, zero data loss on switch-back) and passes all seven
+   governance tests of industries/README §8, in AR and EN.
+2. The claim billing workflow runs **end-to-end on a template tenant** — visit → invoice
+   (self-pay and insured) → claim open item → claim cheque/PDC note → collection (and
+   the dishonor path) — with every journal line-asserted to the existing goldens
+   (G-01/G-03/G-24/G-25/G-26) and zero residue on every failure path.
+3. The schema change is exactly one additive nullable column (`sales_invoices.claim_ref`)
+   with the catalog note per conventions; fresh + regression migrations green; existing
+   tenants' behavior unchanged with the template off.
+4. `claim_ref_required_for_insured_invoices` enforcement is policy-driven (L1 default,
+   L5 override): insured invoices cannot save without a claim ref (typed
+   `CLAIM_REF_REQUIRED`); self-pay invoices save with null; toggling the policy changes
+   only the capture behavior, never posting.
+5. Per-claim tracking reconciles: `Σ per-insurer claim open items = AR control`
+   (INV-009/012) at every step; claim allocations respect INV-016; claim cheques obey
+   INV-024 (dishonor restores the claim exactly).
+6. Dunning and report packs wire **existing** keys only — `notes.aging`,
+   `notes.maturity-calendar`, `partners.ar_aging`, `partners.statements`,
+   `inventory.expiry_list` — with the optional `group_by_claim` parameter inside the
+   existing report contracts; **no new report key is registered** (register §J).
+7. Pharmacy flows reuse `inventory.batch_tracking` unchanged: batch/expiry capture at
+   GRN, FEFO proposed/forced at dispensing (BR-017), dispensing never exceeds on-hand,
+   expiry write-off stays approval-gated with reason `EXPIRED`.
+8. **Zero clinical data surfaces** — machine-checked: no clinical field, terminology
+   key, or screen exists in the shell; the patient file is a partner financial file only
+   (ED-07/ED-11 bolded in the template doc and enforced by CI).
+9. Degraded entitlement is graceful: missing OPTIONAL keys (`pos.*`, price lists/tiers,
+   `installments.plans`) hide cleanly with the upgrade path; a missing REQUIRED key blocks
+   onboarding with actionable guidance; the capability cross-check (HLT column, including
+   `insurance_claim_billing` REQ) is green.
+10. Docs validation is green (34-phase set, 13 manifests, all links/headings per ED-17),
+    with the `sales_invoices` catalog note and CONFIGURATION_ENGINE §4 policy rows landed.
 
 ### PHASE-032 — Education Commercial Shell
 

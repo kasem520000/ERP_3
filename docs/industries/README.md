@@ -1,6 +1,6 @@
 # Industry Capability Framework
 
-> **Status:** STABLE · **Owner:** Industry Solutions Architecture · **Updated:** 2026-11-02
+> **Status:** STABLE · **Owner:** Industry Solutions Architecture · **Updated:** 2026-11-08
 
 How the platform turns **one shared business + accounting core** into industry-specific
 workspaces — restaurants, workshops, distributors, factories, law offices, rental fleets —
@@ -73,6 +73,9 @@ The five v2.0 templates (wholesale, electronics, healthcare, education, agricult
 PHASE-030…033) follow **the same manifest schema and the same seven governance tests**
 (§8) as the v1.1 set ([../EXPANSION_REGISTER.md](../EXPANSION_REGISTER.md) ED-06…ED-09);
 they may only compose cataloged feature keys and phase-gate anything not yet shipped.
+**Wholesale + electronics shipped 2026-11-08 (PHASE-030, data-only migration 0041)** —
+nine templates are live in the registry; healthcare/education/agriculture remain the
+pending v2.0 shells (PHASE-031…033).
 
 ```json
 {
@@ -435,7 +438,8 @@ real engine and database, and manifest schema validation (requirement 1) runs in
 | [templates/automotive-workshop.md](templates/automotive-workshop.md) · [templates/distribution-field-sales.md](templates/distribution-field-sales.md) | PHASE-017 templates (**delivered 2026-11-02** — seeded at v1.0.0, migration 0025) |
 | [templates/food-manufacturing.md](templates/food-manufacturing.md) | PHASE-018 template (**delivered 2026-11-03** — seeded at v1.0.0, migration 0026) |
 | [templates/professional-services.md](templates/professional-services.md) · [templates/rental-logistics.md](templates/rental-logistics.md) | PHASE-019 templates |
-| [templates/wholesale.md](templates/wholesale.md) · [templates/electronics.md](templates/electronics.md) | PHASE-030 templates (v2.0) |
-| [templates/healthcare.md](templates/healthcare.md) · [templates/education.md](templates/education.md) · [templates/agriculture.md](templates/agriculture.md) | PHASE-031…033 commercial shells (v2.0) |
+| [templates/wholesale.md](templates/wholesale.md) · [templates/electronics.md](templates/electronics.md) | PHASE-030 templates (v2.0) (**delivered 2026-11-08** — seeded at v1.0.0, data-only migration 0041) |
+| [templates/healthcare.md](templates/healthcare.md) | PHASE-031 commercial shell (v2.0) (**delivered 2026-11-08** — the claim_ref light extension, migration 0042 + the v1.0.0 seed, data-only migration 0043) |
+| [templates/education.md](templates/education.md) · [templates/agriculture.md](templates/agriculture.md) | PHASE-032…033 commercial shells (v2.0) (planned) |
 | [workflows/README.md](workflows/README.md) · [workflows/industry-workflows.md](workflows/industry-workflows.md) | Six signature industry workflows with per-step accounting effects + the compact v2.0 template signature flows |
 | [reports/README.md](reports/README.md) | Industry report catalog over the shared report contract |
